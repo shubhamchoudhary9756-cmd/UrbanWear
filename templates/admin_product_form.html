@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% if mode == 'edit' %}Edit Product{% else %}Add New Product{% endif %} | UrbanWear Admin
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ADMIN LAYOUT -->
+
+<div class="admin-layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-logo">
+            Urban<span>Wear</span>
+            <span class="admin-badge">Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('admin_panel') }}" class="sidebar-link">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('admin_orders_tab') }}" class="sidebar-link">
+                <i class="fa-solid fa-box"></i>
+                <span>Orders</span>
+            </a>
+
+            <a href="{{ url_for('admin_products_tab') }}" class="sidebar-link active">
+                <i class="fa-solid fa-tags"></i>
+                <span>Products</span>
+            </a>
+
+            <a href="{{ url_for('admin_users_tab') }}" class="sidebar-link">
+                <i class="fa-solid fa-users"></i>
+                <span>Users</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <a href="{{ url_for('home') }}" class="sidebar-link">
+                <i class="fa-solid fa-house"></i>
+                <span>View Store</span>
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="sidebar-link logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="admin-main">
+
+        <div class="admin-content">
+
+
+            <!-- HEADER -->
+
+            <div class="admin-content-header"
+                 style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+
+                <div>
+
+                    <h1>
+                        <i class="fa-solid {% if mode == 'edit' %}fa-pen{% else %}fa-plus{% endif %}"></i>
+                        {% if mode == 'edit' %}
+                            Edit Product
+                        {% else %}
+                            Add New Product
+                        {% endif %}
+                    </h1>
+
+                    <p>
+                        {% if mode == 'edit' %}
+                            Update product details
+                        {% else %}
+                            Add a new product to your store
+                        {% endif %}
+                    </p>
+
+                </div>
+
+                <a href="{{ url_for('admin_products_tab') }}" class="back-btn">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back to Products
+
+                </a>
+
+            </div>
+
+
+            {% with messages = get_flashed_messages() %}
+
+                {% if messages %}
+
+                    <div class="flash-messages">
+
+                        {% for message in messages %}
+
+                            <p>{{ message }}</p>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+
+            <!-- FORM -->
+
+            <form method="POST"
+                  action="{% if mode == 'edit' %}{{ url_for('admin_edit_product', product_id=product.id) }}{% else %}{{ url_for('admin_add_product') }}{% endif %}"
+                  class="product-form">
+
+                <!-- CSRF TOKEN -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+
+                <!-- BASIC INFO -->
+
+                <div class="form-section">
+
+                    <h2>
+                        <i class="fa-solid fa-info-circle"></i>
+                        Basic Information
+                    </h2>
+
+
+                    <div class="form-group">
+
+                        <label for="name">Product Name *</label>
+
+                        <input type="text"
+                               id="name"
+                               name="name"
+                               value="{{ product.name if product else '' }}"
+                               placeholder="e.g. Premium White T-Shirt"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group half">
+
+                            <label for="price">Price (₹) *</label>
+
+                            <input type="number"
+                                   id="price"
+                                   name="price"
+                                   step="0.01"
+                                   min="0"
+                                   value="{{ product.price if product else '' }}"
+                                   placeholder="799"
+                                   required>
+
+                        </div>
+
+                        <div class="form-group half">
+
+                            <label for="old_price">Old Price (₹)</label>
+
+                            <input type="number"
+                                   id="old_price"
+                                   name="old_price"
+                                   step="0.01"
+                                   min="0"
+                                   value="{{ product.old_price if product and product.old_price else '' }}"
+                                   placeholder="999">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group half">
+
+                            <label for="category">Category *</label>
+
+                            <select id="category"
+                                    name="category"
+                                    required>
+
+                                <option value="featured"
+                                    {% if product and product.category == 'featured' %}selected{% endif %}>
+                                    Featured
+                                </option>
+
+                                <option value="bestseller"
+                                    {% if product and product.category == 'bestseller' %}selected{% endif %}>
+                                    Best Seller
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group half">
+
+                            <label for="stock">Stock Quantity</label>
+
+                            <input type="number"
+                                   id="stock"
+                                   name="stock"
+                                   min="0"
+                                   value="{{ product.stock if product and product.stock else 10 }}"
+                                   placeholder="10">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="rating">Rating (0-5)</label>
+
+                        <input type="number"
+                               id="rating"
+                               name="rating"
+                               step="0.1"
+                               min="0"
+                               max="5"
+                               value="{{ product.rating if product and product.rating else 4.5 }}"
+                               placeholder="4.5">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="description">Description</label>
+
+                        <textarea id="description"
+                                  name="description"
+                                  rows="4"
+                                  placeholder="Premium cotton t-shirt made from soft breathable fabric...">{{ product.description if product else '' }}</textarea>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- IMAGES -->
+
+                <div class="form-section">
+
+                    <h2>
+                        <i class="fa-solid fa-image"></i>
+                        Product Images
+                    </h2>
+
+                    <p class="form-hint">
+                        Enter image paths relative to <code>static/</code> folder.
+                        Example: <code>images/products/tshirt.jpg</code>
+                    </p>
+
+
+                    <div class="form-group">
+
+                        <label for="image">Main Image * <span class="required-badge">Required</span></label>
+
+                        <input type="text"
+                               id="image"
+                               name="image"
+                               value="{{ product.image if product else '' }}"
+                               placeholder="images/products/tshirt.jpg"
+                               required>
+
+                        {% if product and product.image %}
+                            <div class="image-preview">
+                                <img src="{{ url_for('static', filename=product.image) }}"
+                                     alt="{{ product.name }}">
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group half">
+
+                            <label for="image2">Image 2</label>
+
+                            <input type="text"
+                                   id="image2"
+                                   name="image2"
+                                   value="{{ product.image2 if product and product.image2 else '' }}"
+                                   placeholder="images/products/tshirt-2.jpg">
+
+                        </div>
+
+                        <div class="form-group half">
+
+                            <label for="image3">Image 3</label>
+
+                            <input type="text"
+                                   id="image3"
+                                   name="image3"
+                                   value="{{ product.image3 if product and product.image3 else '' }}"
+                                   placeholder="images/products/tshirt-3.jpg">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="image4">Image 4</label>
+
+                        <input type="text"
+                               id="image4"
+                               name="image4"
+                               value="{{ product.image4 if product and product.image4 else '' }}"
+                               placeholder="images/products/tshirt-4.jpg">
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ACTIONS -->
+
+                <div class="form-actions">
+
+                    <a href="{{ url_for('admin_products_tab') }}" class="cancel-btn">
+
+                        <i class="fa-solid fa-times"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit" class="submit-btn">
+
+                        <i class="fa-solid {% if mode == 'edit' %}fa-save{% else %}fa-plus{% endif %}"></i>
+                        {% if mode == 'edit' %}
+                            Update Product
+                        {% else %}
+                            Add Product
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<!-- ==================================================
+   INLINE CSS FOR FORM
+================================================== -->
+
+<style>
+
+    /* Product Form */
+    .product-form {
+        background: #fff;
+        border: 1px solid #e8e2d9;
+        padding: 40px;
+        max-width: 900px;
+    }
+
+    .form-section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid #e8e2d9;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+        margin-bottom: 20px;
+        padding-bottom: 0;
+    }
+
+    .form-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        color: #1a1a1a;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+    }
+
+    .form-section h2 i {
+        color: #c9a961;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1.5px solid #e8e2d9;
+        background: #faf8f5;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        color: #1a1a1a;
+        transition: all .3s ease;
+        outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: #c9a961;
+        background: #fff;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.6;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .form-row .half {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .form-hint {
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 20px;
+        padding: 12px 15px;
+        background: #faf8f5;
+        border-left: 3px solid #c9a961;
+        line-height: 1.6;
+    }
+
+    .form-hint code {
+        background: #1a1a1a;
+        color: #c9a961;
+        padding: 2px 6px;
+        font-size: 12px;
+        border-radius: 3px;
+    }
+
+    .required-badge {
+        display: inline-block;
+        background: #dc3545;
+        color: #fff;
+        font-size: 9px;
+        padding: 2px 8px;
+        margin-left: 8px;
+        letter-spacing: 1px;
+        border-radius: 3px;
+        vertical-align: middle;
+    }
+
+    .image-preview {
+        margin-top: 12px;
+        padding: 12px;
+        background: #faf8f5;
+        border: 1px solid #e8e2d9;
+        display: inline-block;
+    }
+
+    .image-preview img {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: contain;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        padding-top: 20px;
+        border-top: 1px solid #e8e2d9;
+        flex-wrap: wrap;
+    }
+
+    .cancel-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 30px;
+        background: transparent;
+        color: #666;
+        border: 1.5px solid #e8e2d9;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all .3s ease;
+        cursor: pointer;
+    }
+
+    .cancel-btn:hover {
+        background: #1a1a1a;
+        color: #fff;
+        border-color: #1a1a1a;
+    }
+
+    .submit-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 35px;
+        background: #1a1a1a;
+        color: #fff;
+        border: 2px solid #1a1a1a;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all .3s ease;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .submit-btn:hover {
+        background: #c9a961;
+        border-color: #c9a961;
+        transform: translateY(-2px);
+    }
+
+    /* Back button */
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 22px;
+        background: transparent;
+        border: 1.5px solid #1a1a1a;
+        color: #1a1a1a;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all .3s ease;
+    }
+
+    .back-btn:hover {
+        background: #1a1a1a;
+        color: #fff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .product-form {
+            padding: 25px 20px;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .cancel-btn,
+        .submit-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+</style>
+
+</body>
+
+</html>

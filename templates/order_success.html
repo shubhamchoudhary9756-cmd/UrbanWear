@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Placed | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    <div class="top-bar-inner">
+        <span class="top-bar-left">
+            <i class="fa-solid fa-truck-fast"></i>
+            Complimentary shipping on all orders over ₹999
+        </span>
+        <span class="top-bar-right">
+            <i class="fa-solid fa-globe"></i>
+            Ship to: India
+        </span>
+    </div>
+</div>
+
+
+
+<!-- MAIN HEADER -->
+
+<header class="main-header">
+
+    <div class="logo">
+        Urban<span>Wear</span>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#products">Products</a></li>
+            <li><a href="/cart">Cart</a></li>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/orders">Orders</a></li>
+        </ul>
+    </nav>
+
+    <div class="header-icons">
+
+        <a href="#" class="icon-btn" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </a>
+
+        <a href="/profile" class="icon-btn" title="Profile">
+            <i class="fa-regular fa-user"></i>
+        </a>
+
+        <a href="/logout" class="icon-btn" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span id="wishlist-count">0</span>
+        </a>
+
+        <a href="/cart" class="icon-btn cart-icon" title="Cart">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- ORDER SUCCESS -->
+
+<section class="order-success-section">
+
+    <div class="order-success-box">
+
+        <div class="success-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+
+        <h1>Order Placed Successfully</h1>
+
+        <p class="success-message">
+            Thank you for shopping with UrbanWear!
+        </p>
+
+
+        <div class="order-details-card">
+
+            <div class="order-detail-row">
+                <span class="detail-label">Order Number</span>
+                <span class="detail-value">#{{ order.id }}</span>
+            </div>
+
+            <div class="order-detail-row">
+                <span class="detail-label">Order Date</span>
+                <span class="detail-value">
+                    {{ order.created_at.strftime('%d %b %Y') }}
+                </span>
+            </div>
+
+            <div class="order-detail-row">
+                <span class="detail-label">Total Amount</span>
+                <span class="detail-value">₹{{ order.total_amount }}</span>
+            </div>
+
+            <div class="order-detail-row">
+                <span class="detail-label">Payment Method</span>
+                <span class="detail-value">{{ order.payment_method|upper }}</span>
+            </div>
+
+            <div class="order-detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">{{ order.status|upper }}</span>
+            </div>
+
+        </div>
+
+
+        <div class="success-actions">
+
+            <a href="/orders" class="primary-btn">
+                <i class="fa-solid fa-box"></i>
+                View My Orders
+            </a>
+
+            <a href="/" class="secondary-btn">
+                <i class="fa-solid fa-house"></i>
+                Continue Shopping
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-box">
+            <h2>Urban<span>Wear</span></h2>
+            <p>Premium fashion brand delivering quality clothing, footwear and accessories across India.</p>
+        </div>
+
+        <div class="footer-box">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/#categories">Categories</a></li>
+                <li><a href="/#products">Products</a></li>
+                <li><a href="/orders">Orders</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Support</h3>
+            <ul>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Return Policy</a></li>
+                <li><a href="#">Shipping Info</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <p class="copyright">
+        © 2026 UrbanWear. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+
+<script>
+    localStorage.removeItem("cart");
+    const cartCountEl = document.getElementById("cart-count");
+    if (cartCountEl) cartCountEl.textContent = "0";
+</script>
+
+</body>
+
+</html>

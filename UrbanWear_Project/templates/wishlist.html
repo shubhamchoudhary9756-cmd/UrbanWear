@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>UrbanWear | Wishlist</title>
+
+
+    <!-- ================= CSS ================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <!-- ================= GOOGLE FONT ================= -->
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+
+    <!-- ================= FONT AWESOME ================= -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+                    HEADER
+================================================== -->
+
+<header>
+
+    <!-- LOGO -->
+
+    <div class="logo">
+
+        <a href="/" style="text-decoration: none; color: inherit;">
+            Urban<span>Wear</span>
+        </a>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/#categories">
+                    Categories
+                </a>
+            </li>
+
+            <li>
+                <a href="/#products">
+                    Products
+                </a>
+            </li>
+
+            <li>
+                <a href="/#bestsellers">
+                    Best Sellers
+                </a>
+            </li>
+
+            <li>
+                <a href="/#reviews">
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="/cart">
+                    Cart
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- HEADER ICONS -->
+
+    <div class="icons">
+
+        <!-- SEARCH -->
+
+        <i class="fa-solid fa-magnifying-glass"
+           title="Search">
+        </i>
+
+
+        <!-- WISHLIST -->
+
+        <a href="/wishlist"
+           class="wishlist-header-icon"
+           title="Wishlist"
+           aria-label="Wishlist">
+
+            <i class="fa-solid fa-heart"></i>
+
+            <span id="wishlist-count">
+                0
+            </span>
+
+        </a>
+
+
+        <!-- CART -->
+
+        <a href="/cart"
+           class="cart-icon"
+           title="Shopping Cart">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cart-count">
+                0
+            </span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==================================================
+                    WISHLIST PAGE
+================================================== -->
+
+<main class="wishlist-page">
+
+
+    <!-- PAGE HEADER -->
+
+    <section class="wishlist-header">
+
+        <h1>
+            My Wishlist ❤️
+        </h1>
+
+        <p>
+            Products you have saved for later
+        </p>
+
+    </section>
+
+
+
+    <!-- ==================================================
+                    WISHLIST CONTENT
+    ================================================== -->
+
+    <section class="wishlist-section">
+
+
+        <!-- CLEAR WISHLIST -->
+
+        <div class="wishlist-actions">
+
+            <button
+                type="button"
+                id="clear-wishlist"
+                class="clear-wishlist-btn">
+
+                <i class="fa-solid fa-trash"></i>
+
+                Clear Wishlist
+
+            </button>
+
+        </div>
+
+
+
+        <!-- WISHLIST PRODUCTS -->
+
+        <div id="wishlist-items"
+             class="wishlist-items">
+
+            <!-- Products will be loaded by script.js -->
+
+        </div>
+
+
+
+        <!-- EMPTY WISHLIST -->
+
+        <div id="wishlist-empty"
+             class="wishlist-empty"
+             style="display: none;">
+
+            <div class="wishlist-empty-icon">
+
+                <i class="fa-regular fa-heart"></i>
+
+            </div>
+
+
+            <h2>
+                Your Wishlist is Empty
+            </h2>
+
+
+            <p>
+                You haven't added any products to your wishlist yet.
+            </p>
+
+
+            <a href="/#products"
+               class="wishlist-shop-btn">
+
+                <i class="fa-solid fa-bag-shopping"></i>
+
+                Continue Shopping
+
+            </a>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+
+
+<!-- ==================================================
+                    FOOTER
+================================================== -->
+
+<footer class="footer">
+
+
+    <div class="footer-container">
+
+
+        <!-- ABOUT -->
+
+        <div class="footer-box">
+
+            <h2>
+                UrbanWear
+            </h2>
+
+            <p>
+                Premium fashion brand delivering quality clothing,
+                footwear and accessories across India.
+            </p>
+
+        </div>
+
+
+
+        <!-- QUICK LINKS -->
+
+        <div class="footer-box">
+
+            <h3>
+                Quick Links
+            </h3>
+
+            <ul>
+
+                <li>
+                    <a href="/">
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/#categories">
+                        Categories
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/#products">
+                        Products
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/cart">
+                        Cart
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+
+
+        <!-- CUSTOMER SUPPORT -->
+
+        <div class="footer-box">
+
+            <h3>
+                Customer Support
+            </h3>
+
+            <ul>
+
+                <li>
+                    <a href="#">
+                        Contact Us
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Return Policy
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Shipping Info
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Privacy Policy
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+
+
+        <!-- SOCIAL MEDIA -->
+
+        <div class="footer-box">
+
+            <h3>
+                Follow Us
+            </h3>
+
+            <div class="social-icons">
+
+                <a href="#"
+                   aria-label="Facebook">
+
+                    <i class="fab fa-facebook-f"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="Instagram">
+
+                    <i class="fab fa-instagram"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="X">
+
+                    <i class="fab fa-x-twitter"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="YouTube">
+
+                    <i class="fab fa-youtube"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <hr>
+
+
+    <p class="copyright">
+
+        © 2026 UrbanWear. All Rights Reserved.
+
+    </p>
+
+
+</footer>
+
+
+
+<!-- ==================================================
+                JAVASCRIPT
+================================================== -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Payment | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+</head>
+
+
+<body>
+
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    <div class="top-bar-inner">
+        <span class="top-bar-left">
+            <i class="fa-solid fa-truck-fast"></i>
+            Complimentary shipping on all orders over ₹999
+        </span>
+        <span class="top-bar-right">
+            <i class="fa-solid fa-globe"></i>
+            Ship to: India
+        </span>
+    </div>
+</div>
+
+
+
+<!-- MAIN HEADER -->
+
+<header class="main-header">
+
+    <div class="logo">
+        Urban<span>Wear</span>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#categories">Categories</a></li>
+            <li><a href="/#products">Products</a></li>
+            <li><a href="/#bestsellers">Best Sellers</a></li>
+            <li><a href="/orders">Orders</a></li>
+        </ul>
+    </nav>
+
+    <div class="header-icons">
+
+        <a href="#" class="icon-btn" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </a>
+
+        <a href="/profile" class="icon-btn" title="Profile">
+            <i class="fa-regular fa-user"></i>
+        </a>
+
+        <a href="/logout" class="icon-btn" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span id="wishlist-count">0</span>
+        </a>
+
+        <a href="/cart" class="icon-btn cart-icon" title="Cart">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- PAYMENT SECTION -->
+
+<section class="payment-section">
+
+    <div class="payment-container">
+
+        <div class="payment-header">
+
+            <h1>
+                <i class="fa-solid fa-lock"></i>
+                Secure Payment
+            </h1>
+
+            <p>Complete your payment to place the order</p>
+
+        </div>
+
+
+        {% with messages = get_flashed_messages() %}
+
+            {% if messages %}
+
+                <div class="flash-messages">
+
+                    {% for message in messages %}
+
+                        <p>{{ message }}</p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <div class="payment-card">
+
+            <div class="payment-order-info">
+
+                <div class="payment-row">
+                    <span class="payment-label">Order ID</span>
+                    <span class="payment-value">#{{ order.id }}</span>
+                </div>
+
+                <div class="payment-row">
+                    <span class="payment-label">Customer</span>
+                    <span class="payment-value">{{ current_user.full_name }}</span>
+                </div>
+
+                <div class="payment-row">
+                    <span class="payment-label">Email</span>
+                    <span class="payment-value">{{ current_user.email }}</span>
+                </div>
+
+                <div class="payment-row">
+                    <span class="payment-label">Phone</span>
+                    <span class="payment-value">{{ current_user.phone }}</span>
+                </div>
+
+                <div class="payment-row">
+                    <span class="payment-label">Shipping Address</span>
+                    <span class="payment-value">{{ order.shipping_address }}</span>
+                </div>
+
+            </div>
+
+
+            <div class="payment-amount-box">
+
+                <span class="payment-amount-label">Total Amount</span>
+
+                <span class="payment-amount-value">₹{{ order.total_amount }}</span>
+
+            </div>
+
+
+            <button type="button"
+                    class="pay-now-btn"
+                    id="pay-now-btn"
+                    data-order-id="{{ order.id }}"
+                    data-amount="{{ order.total_amount }}">
+
+                <i class="fa-solid fa-credit-card"></i>
+                Pay Now ₹{{ order.total_amount }}
+
+            </button>
+
+            <p class="payment-note">
+
+                <i class="fa-solid fa-shield-halved"></i>
+                Your payment is 100% secure and encrypted
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-box">
+            <h2>Urban<span>Wear</span></h2>
+            <p>Premium fashion brand delivering quality clothing, footwear and accessories across India.</p>
+        </div>
+
+        <div class="footer-box">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/#categories">Categories</a></li>
+                <li><a href="/#products">Products</a></li>
+                <li><a href="/#bestsellers">Best Sellers</a></li>
+                <li><a href="/orders">Orders</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Support</h3>
+            <ul>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Return Policy</a></li>
+                <li><a href="#">Shipping Info</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <p class="copyright">
+        © 2026 UrbanWear. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+
+<script>
+    const RAZORPAY_KEY_ID = "{{ razorpay_key_id }}";
+
+    document.getElementById("pay-now-btn").addEventListener("click", async function() {
+
+        const btn = this;
+        const orderId = btn.dataset.orderId;
+        const amount = btn.dataset.amount;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+        try {
+            const response = await fetch("/payment/create-order", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    order_id: orderId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                alert("Error: " + data.error);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pay Now ₹' + amount;
+                return;
+            }
+
+            const options = {
+                key: RAZORPAY_KEY_ID,
+                amount: data.amount,
+                currency: data.currency,
+                name: "UrbanWear",
+                description: "Order #" + orderId,
+                order_id: data.order_id,
+                handler: async function(response) {
+                    const verifyResponse = await fetch("/payment/verify", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            order_id: orderId
+                        })
+                    });
+
+                    const verifyData = await verifyResponse.json();
+
+                    if (verifyData.status === "success") {
+                        window.location.href = "/payment-success/" + orderId;
+                    } else {
+                        window.location.href = "/payment-failure/" + orderId;
+                    }
+                },
+                prefill: {
+                    name: "{{ current_user.full_name }}",
+                    email: "{{ current_user.email }}",
+                    contact: "{{ current_user.phone }}"
+                },
+                theme: {
+                    color: "#c9a961"
+                },
+                modal: {
+                    ondismiss: function() {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pay Now ₹' + amount;
+                    }
+                }
+            };
+
+            const rzp = new Razorpay(options);
+
+            rzp.on("payment.failed", function(response) {
+                window.location.href = "/payment-failure/" + orderId;
+            });
+
+            rzp.open();
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong. Please try again.");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pay Now ₹' + amount;
+        }
+    });
+</script>
+
+</body>
+
+</html>

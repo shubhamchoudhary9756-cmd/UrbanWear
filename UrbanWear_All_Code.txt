@@ -1,0 +1,7547 @@
+﻿
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\app.py
+============================================================
+
+from flask import Flask, render_template, abort, redirect, url_for, request, flash
+
+from config import Config
+from models import db, User
+
+from flask_login import (
+    LoginManager,
+    login_user,
+    logout_user,
+    login_required,
+    current_user
+)
+
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
+
+# ==================================================
+# FLASK APPLICATION
+# ==================================================
+
+app = Flask(__name__)
+
+app.config.from_object(Config)
+
+
+# ==================================================
+# DATABASE
+# ==================================================
+
+db.init_app(app)
+
+
+# ==================================================
+# FLASK LOGIN
+# ==================================================
+
+login_manager = LoginManager()
+
+login_manager.init_app(app)
+
+login_manager.login_view = "login"
+
+
+# ==================================================
+# USER LOADER
+# ==================================================
+
+@login_manager.user_loader
+def load_user(user_id):
+
+    return User.query.get(int(user_id))
+
+# ==================================================
+# PRODUCT DATABASE
+# ==================================================
+
+products = {
+
+    1: {
+        "id": 1,
+        "name": "Premium White T-Shirt",
+        "price": 799,
+        "old_price": 999,
+        "image": "images/products/tshirt.jpg",
+         "images": [
+        "images/products/tshirt.jpg",
+        "images/products/tshirt.jpg",
+        "images/products/tshirt.jpg",
+        "images/products/tshirt.jpg"
+    ],
+        "rating": 4.9,
+        "description": "Premium cotton t-shirt made from soft breathable fabric. Perfect for casual wear.",
+        "category": "featured"
+    },
+
+    2: {
+        "id": 2,
+        "name": "Premium Black Jeans",
+        "price": 1499,
+        "old_price": 1899,
+        "image": "images/products/jeans.jpg",
+        "images": [
+    "images/products/jeans.jpg",
+    "images/products/jeans.jpg",
+    "images/products/jeans.jpg",
+    "images/products/jeans.jpg"
+],
+        "rating": 4.8,
+        "description": "Comfort fit black jeans made from premium stretch denim.",
+        "category": "featured"
+    },
+
+    3: {
+        "id": 3,
+        "name": "Premium White Shoes",
+        "price": 2999,
+        "old_price": 3499,
+        "image": "images/products/shoes.jpg",
+        "images": [
+    "images/products/shoes.jpg",
+    "images/products/shoes.jpg",
+    "images/products/shoes.jpg",
+    "images/products/shoes.jpg"
+],
+        "rating": 5.0,
+        "description": "Premium lightweight sneakers with soft cushioning and modern design.",
+        "category": "featured"
+    },
+
+    4: {
+        "id": 4,
+        "name": "Black Bomber Jacket",
+        "price": 2499,
+        "old_price": 2999,
+        "image": "images/bestsellers/jacket.jpg",
+        "images": [
+    "images/bestsellers/jacket.jpg",
+    "images/bestsellers/jacket.jpg",
+    "images/bestsellers/jacket.jpg",
+    "images/bestsellers/jacket.jpg"
+],
+        "rating": 4.8,
+        "description": "Stylish bomber jacket perfect for winter fashion.",
+        "category": "bestseller"
+    },
+
+    5: {
+        "id": 5,
+        "name": "White Premium Sneakers",
+        "price": 3999,
+        "old_price": 4499,
+        "image": "images/bestsellers/sneakers.jpg",
+        "images": [
+    "images/bestsellers/sneakers.jpg",
+    "images/bestsellers/sneakers.jpg",
+    "images/bestsellers/sneakers.jpg",
+    "images/bestsellers/sneakers.jpg"
+],
+        "rating": 5.0,
+        "description": "Luxury sneakers built for comfort and everyday wear.",
+        "category": "bestseller"
+    },
+
+    6: {
+        "id": 6,
+        "name": "Black Urban Cap",
+        "price": 699,
+        "old_price": 899,
+        "image": "images/bestsellers/cap.jpg",
+        "images": [
+    "images/bestsellers/cap.jpg",
+    "images/bestsellers/cap.jpg",
+    "images/bestsellers/cap.jpg",
+    "images/bestsellers/cap.jpg"
+],
+        "rating": 4.7,
+        "description": "Premium cotton adjustable cap for daily style.",
+        "category": "bestseller"
+    },
+
+    7: {
+        "id": 7,
+        "name": "Premium Backpack",
+        "price": 1899,
+        "old_price": 2299,
+        "image": "images/bestsellers/backpack.jpg",
+        "images": [
+    "images/bestsellers/backpack.jpg",
+    "images/bestsellers/backpack.jpg",
+    "images/bestsellers/backpack.jpg",
+    "images/bestsellers/backpack.jpg"
+],
+        "rating": 4.9,
+        "description": "Large capacity premium backpack with laptop compartment.",
+        "category": "bestseller"
+    }
+
+}
+
+# ==================================================
+# HOME PAGE
+# ==================================================
+
+@app.route("/")
+def home():
+
+    featured_products = [
+        p for p in products.values()
+        if p["category"] == "featured"
+    ]
+
+    best_sellers = [
+        p for p in products.values()
+        if p["category"] == "bestseller"
+    ]
+
+    return render_template(
+        "index.html",
+        featured_products=featured_products,
+        best_sellers=best_sellers
+    )
+
+
+# ==================================================
+# PRODUCT DETAILS
+# ==================================================
+
+@app.route("/product/<int:product_id>")
+def product(product_id):
+
+    product = products.get(product_id)
+
+    if product is None:
+        abort(404)
+
+    return render_template(
+        "product.html",
+        product=product
+    )
+
+
+# ==================================================
+# CART PAGE
+# ==================================================
+
+@app.route("/cart")
+def cart():
+    return render_template("cart.html")
+
+# ==================================================
+# WISHLIST PAGE
+# ==================================================
+
+@app.route("/wishlist")
+def wishlist():
+    return render_template("wishlist.html")
+
+# ==================================================
+# SIGNUP PAGE
+# ==================================================
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+
+    if request.method == "POST":
+
+        # ==========================
+        # Get Form Data
+        # ==========================
+        full_name = request.form.get("full_name")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+
+        # ==========================
+        # Empty Field Validation
+        # ==========================
+        if not full_name or not email or not phone or not password or not confirm_password:
+            flash("All fields are required.")
+            return redirect(url_for("signup"))
+
+        # ==========================
+        # Confirm Password Validation
+        # ==========================
+        if password != confirm_password:
+            flash("Passwords do not match.")
+            return redirect(url_for("signup"))
+
+        # ==========================
+        # Duplicate Email Check
+        # ==========================
+        existing_user = User.query.filter_by(email=email).first()
+
+        if existing_user:
+            flash("Email already registered.")
+            return redirect(url_for("signup"))
+
+        # ==========================
+        # Password Hashing
+        # ==========================
+        hashed_password = generate_password_hash(password)
+
+        # ==========================
+        # Create User
+        # ==========================
+        new_user = User(
+            full_name=full_name,
+            email=email,
+            phone=phone,
+            password=hashed_password
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Account created successfully.")
+        return redirect(url_for("signup"))
+
+    return render_template("signup.html")
+
+
+# ==================================================
+# LOGIN PAGE
+# ==================================================
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    # ==========================
+    # ALREADY LOGGED IN
+    # ==========================
+
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+
+    # ==========================
+    # POST REQUEST
+    # ==========================
+
+    if request.method == "POST":
+
+        # ==========================
+        # GET FORM DATA
+        # ==========================
+
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        remember = request.form.get("remember") == "on"
+
+        # ==========================
+        # EMPTY FIELD VALIDATION
+        # ==========================
+
+        if not email or not password:
+
+            flash("Email and password are required.")
+
+            return redirect(url_for("login"))
+
+        # ==========================
+        # FIND USER
+        # ==========================
+
+        user = User.query.filter_by(email=email).first()
+
+        # ==========================
+        # VERIFY PASSWORD
+        # ==========================
+
+        if user and check_password_hash(user.password, password):
+
+            login_user(user, remember=remember)
+
+            flash("Login successful!")
+
+            return redirect(url_for("home"))
+
+        # ==========================
+        # INVALID LOGIN
+        # ==========================
+
+        flash("Invalid email or password.")
+
+        return redirect(url_for("login"))
+
+    # ==========================
+    # SHOW LOGIN PAGE
+    # ==========================
+
+    return render_template("login.html")
+
+
+# ==================================================
+# LOGOUT
+# ==================================================
+
+@app.route("/logout")
+@login_required
+def logout():
+
+    # ==========================
+    # LOGOUT USER
+    # ==========================
+
+    logout_user()
+
+    # ==========================
+    # SUCCESS MESSAGE
+    # ==========================
+
+    flash("You have been logged out successfully.")
+
+    # ==========================
+    # REDIRECT HOME
+    # ==========================
+
+    return redirect(url_for("home"))
+
+
+# ==================================================
+# CUSTOM 404 PAGE
+# ==================================================
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return "<h1>404 - Product Not Found</h1>", 404
+
+
+# ==================================================
+# RUN APPLICATION
+# ==================================================
+
+if __name__ == "__main__":
+
+    with app.app_context():
+        db.create_all()
+
+    app.run(debug=True)
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\config.py
+============================================================
+
+import os
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+class Config:
+    SECRET_KEY = "urbanwear_secret_key"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "instance", "database.db")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\models.py
+============================================================
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from datetime import datetime
+
+db = SQLAlchemy()
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    full_name = db.Column(db.String(100), nullable=False)
+
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    phone = db.Column(db.String(15), unique=True, nullable=False)
+
+    password = db.Column(db.String(255), nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<User {self.email}>"
+    
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\requirements.txt
+============================================================
+
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\static\css\style.css
+============================================================
+
+/* =====================================================
+   UrbanWear CSS v4.0
+   CLEAN + OPTIMIZED VERSION
+===================================================== */
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:#f5f5f5;
+    color:#333;
+    overflow-x:hidden;
+    line-height:1.6;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+button{
+    font-family:inherit;
+    cursor:pointer;
+    border:none;
+    transition:.3s;
+}
+
+
+/* =====================================================
+   COMMON SECTION
+===================================================== */
+
+section{
+    padding:80px 8%;
+}
+
+section h2{
+    text-align:center;
+    font-size:40px;
+    margin-bottom:50px;
+    font-weight:700;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header{
+    width:100%;
+    height:80px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 8%;
+
+    background:#111;
+
+    position:sticky;
+    top:0;
+    left:0;
+
+    z-index:1000;
+
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+
+/* Logo */
+
+.logo{
+    font-size:34px;
+    font-weight:700;
+    color:white;
+}
+
+.logo span{
+    color:#ff4d4d;
+}
+
+
+/* Navigation */
+
+nav ul{
+    display:flex;
+    list-style:none;
+    gap:30px;
+}
+
+nav ul li a{
+    color:white;
+    font-size:16px;
+    font-weight:500;
+    transition:.3s;
+}
+
+nav ul li a:hover{
+    color:#ff4d4d;
+}
+
+
+/* Header Icons */
+
+.icons{
+    display:flex;
+    align-items:center;
+    gap:22px;
+}
+
+.icons i{
+    color:white;
+    font-size:22px;
+    transition:.3s;
+}
+
+.icons i:hover{
+    color:#ff4d4d;
+}
+
+
+/* Cart */
+
+.cart-icon{
+    position:relative;
+    color:white;
+}
+
+#cart-count{
+    position:absolute;
+    top:-10px;
+    right:-12px;
+
+    width:22px;
+    height:22px;
+
+    border-radius:50%;
+
+    background:#ff4d4d;
+    color:white;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:12px;
+    font-weight:700;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+    height:90vh;
+
+    background:url("../images/Hero.jpg");
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+
+    position:relative;
+}
+
+.hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+
+    max-width:800px;
+
+    color:white;
+
+    padding:40px;
+}
+
+.hero-content h1{
+    font-size:62px;
+    margin-bottom:20px;
+}
+
+.hero-content p{
+    font-size:22px;
+    margin-bottom:35px;
+}
+
+
+/* =====================================================
+   COMMON BUTTON
+===================================================== */
+
+.primary-btn,
+.hero button{
+    background:#ff4d4d;
+    color:white;
+
+    padding:15px 40px;
+
+    border-radius:8px;
+
+    font-size:17px;
+    font-weight:600;
+}
+
+.primary-btn:hover,
+.hero button:hover{
+    background:#e53935;
+    transform:translateY(-3px);
+}
+
+
+/* =====================================================
+   PRODUCT CARD
+===================================================== */
+
+.card{
+    position:relative;
+
+    display:flex;
+    flex-direction:column;
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.35s;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 18px 35px rgba(0,0,0,.15);
+}
+
+
+/* Product Image */
+
+.card img{
+    width:100%;
+    height:350px;
+
+    object-fit:cover;
+    display:block;
+
+    transition:.4s;
+}
+
+.card:hover img{
+    transform:scale(1.05);
+}
+
+
+/* Card Content */
+
+.card-content{
+    display:flex;
+    flex-direction:column;
+    flex-grow:1;
+
+    padding:25px;
+}
+
+
+/* =====================================================
+   CATEGORIES
+===================================================== */
+
+.categories{
+    background:#fafafa;
+}
+
+.category-container{
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(250px,1fr));
+
+    gap:30px;
+}
+
+.category-card{
+    background:#fff;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.35s;
+}
+
+.category-card:hover{
+    transform:translateY(-8px);
+}
+
+.category-card img{
+    width:100%;
+    height:280px;
+
+    object-fit:cover;
+}
+
+.category-content{
+    padding:25px;
+    text-align:center;
+}
+
+.category-content h3{
+    font-size:26px;
+    margin-bottom:15px;
+}
+
+.category-content a{
+    display:inline-block;
+
+    padding:12px 28px;
+
+    background:#111;
+    color:#fff;
+
+    border-radius:8px;
+
+    transition:.3s;
+}
+
+.category-content a:hover{
+    background:#ff4d4d;
+}
+
+
+/* =====================================================
+   SALE BANNER
+===================================================== */
+
+.sale-banner{
+    width:90%;
+    height:420px;
+
+    margin:80px auto;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    background:
+        url("../images/banners/sale-banner.jpg")
+        center center;
+
+    background-size:cover;
+
+    position:relative;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.sale-banner::before{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:rgba(0,0,0,.55);
+}
+
+.sale-overlay{
+    position:relative;
+
+    z-index:2;
+
+    text-align:center;
+
+    color:#fff;
+}
+
+.sale-overlay h2{
+    font-size:55px;
+    margin-bottom:20px;
+}
+
+.sale-overlay p{
+    font-size:24px;
+    margin-bottom:30px;
+}
+
+.sale-btn{
+    display:inline-block;
+
+    padding:15px 40px;
+
+    background:#ff4d4d;
+    color:#fff;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+    transition:.3s;
+}
+
+.sale-btn:hover{
+    background:#d63031;
+}
+
+
+/* =====================================================
+   PRODUCTS
+===================================================== */
+
+.products,
+.best-sellers{
+    background:#fff;
+}
+
+.product-container{
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(280px,1fr));
+
+    gap:35px;
+}
+
+
+/* Sale Badge */
+
+.sale{
+    position:absolute;
+
+    top:15px;
+    left:15px;
+
+    background:#ff4d4d;
+    color:#fff;
+
+    padding:6px 14px;
+
+    border-radius:20px;
+
+    font-size:13px;
+    font-weight:600;
+
+    z-index:5;
+}
+
+
+/* Wishlist */
+
+.wishlist{
+    position:absolute;
+
+    top:15px;
+    right:15px;
+
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:18px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.wishlist:hover,
+.wishlist.active{
+    background:#ff4d4d;
+    color:#fff;
+}
+
+
+/* Rating */
+
+.rating{
+    color:#f5b301;
+
+    font-size:15px;
+
+    margin-bottom:10px;
+}
+
+
+/* Product Name */
+
+.product-link{
+    color:#222;
+
+    font-size:22px;
+    font-weight:600;
+
+    transition:.3s;
+}
+
+.product-link:hover{
+    color:#ff4d4d;
+}
+
+
+/* Price */
+
+.price{
+    margin:15px 0;
+
+    font-size:26px;
+    font-weight:700;
+
+    color:#ff4d4d;
+}
+
+.price span{
+    color:#999;
+
+    font-size:18px;
+
+    margin-left:10px;
+
+    text-decoration:line-through;
+}
+
+
+/* Add Cart */
+
+.add-cart{
+    width:100%;
+
+    margin-top:auto;
+
+    padding:14px;
+
+    background:#111;
+    color:#fff;
+
+    border-radius:8px;
+
+    font-size:16px;
+    font-weight:600;
+
+    transition:.3s;
+}
+
+.add-cart:hover{
+    background:#ff4d4d;
+}
+
+
+/* =====================================================
+   FEATURES
+===================================================== */
+
+.features{
+    background:#f8f8f8;
+}
+
+.feature-container{
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(240px,1fr));
+
+    gap:30px;
+}
+
+.feature-box{
+    background:#fff;
+
+    padding:35px 25px;
+
+    text-align:center;
+
+    border-radius:18px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.35s;
+}
+
+.feature-box:hover{
+    transform:translateY(-10px);
+}
+
+.feature-box i{
+    font-size:48px;
+
+    color:#ff4d4d;
+
+    margin-bottom:20px;
+}
+
+.feature-box h3{
+    margin-bottom:15px;
+
+    font-size:24px;
+}
+
+.feature-box p{
+    color:#666;
+
+    line-height:1.8;
+}
+
+
+/* =====================================================
+   REVIEWS
+===================================================== */
+
+.reviews{
+    background:#fff;
+}
+
+.review-container{
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(280px,1fr));
+
+    gap:30px;
+}
+
+.review-card{
+    background:#fafafa;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    text-align:center;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.35s;
+}
+
+.review-card:hover{
+    transform:translateY(-8px);
+}
+
+.review-card img{
+    width:100px;
+    height:100px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    margin:0 auto 20px;
+
+    border:4px solid #ff4d4d;
+}
+
+.review-card h3{
+    margin-bottom:10px;
+}
+
+.stars{
+    color:#FFD700;
+
+    margin-bottom:15px;
+
+    font-size:18px;
+}
+
+.review-card p{
+    color:#666;
+
+    line-height:1.8;
+}
+
+
+/* =====================================================
+   NEWSLETTER
+===================================================== */
+
+.newsletter{
+    padding:90px 10%;
+
+    background:#111;
+
+    color:#fff;
+
+    text-align:center;
+}
+
+.newsletter h2{
+    color:#fff;
+
+    font-size:38px;
+
+    margin-bottom:20px;
+}
+
+.newsletter p{
+    max-width:700px;
+
+    margin:0 auto 40px;
+
+    color:#ddd;
+
+    line-height:1.8;
+}
+
+
+/* Newsletter Form */
+
+.newsletter form,
+.newsletter-form{
+    max-width:650px;
+
+    margin:auto;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    gap:15px;
+}
+
+.newsletter input,
+.newsletter-form input{
+    flex:1;
+
+    width:420px;
+
+    max-width:100%;
+
+    min-width:280px;
+
+    padding:16px 20px;
+
+    border:none;
+
+    border-radius:50px;
+
+    outline:none;
+
+    font-size:16px;
+}
+
+.newsletter button,
+.newsletter-form button{
+    padding:16px 35px;
+
+    background:#ff4d4d;
+    color:#fff;
+
+    border:none;
+
+    border-radius:50px;
+
+    cursor:pointer;
+
+    font-size:16px;
+    font-weight:600;
+
+    transition:.3s;
+}
+
+.newsletter button:hover,
+.newsletter-form button:hover{
+    background:#e53935;
+
+    transform:translateY(-3px);
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer,
+.footer{
+    background:#0d0d0d;
+
+    color:#ddd;
+}
+
+.footer{
+    padding:70px 10% 30px;
+}
+
+.footer-container{
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(220px,1fr));
+
+    gap:40px;
+
+    padding:0;
+}
+
+footer .footer-container{
+    padding:0;
+}
+
+.footer-box h2{
+    font-size:32px;
+
+    color:#ff4d4d;
+
+    margin-bottom:20px;
+}
+
+.footer-box h3{
+    color:#fff;
+
+    margin-bottom:20px;
+}
+
+.footer-box h2 span{
+    color:#ff4d4d;
+}
+
+.footer-box p{
+    color:#bbb;
+
+    line-height:1.8;
+}
+
+.footer-box a{
+    display:block;
+
+    color:#bbb;
+
+    margin-bottom:12px;
+
+    transition:.3s;
+}
+
+.footer-box a:hover{
+    color:#ff4d4d;
+
+    padding-left:6px;
+}
+
+.footer-box ul{
+    list-style:none;
+
+    padding:0;
+}
+
+.footer-box ul li{
+    margin-bottom:12px;
+}
+
+.footer-box ul li a{
+    color:#bbb;
+
+    text-decoration:none;
+
+    transition:.3s;
+}
+
+.footer-box ul li a:hover{
+    color:#ff4d4d;
+
+    padding-left:6px;
+}
+
+
+/* Socials */
+
+.socials,
+.social-icons{
+    display:flex;
+
+    gap:15px;
+
+    margin-top:20px;
+}
+
+.socials a,
+.social-icons a{
+    width:45px;
+    height:45px;
+
+    border-radius:50%;
+
+    background:#222;
+
+    color:#fff;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:18px;
+
+    transition:.3s;
+}
+
+.socials a:hover,
+.social-icons a:hover{
+    background:#ff4d4d;
+
+    transform:translateY(-5px);
+}
+
+
+/* Footer Bottom */
+
+.footer-bottom{
+    border-top:1px solid #333;
+
+    text-align:center;
+
+    padding:20px;
+
+    color:#999;
+}
+
+.footer hr{
+    border:none;
+
+    border-top:1px solid #333;
+
+    margin:40px 0 20px;
+}
+
+.copyright{
+    text-align:center;
+
+    color:#888;
+
+    font-size:15px;
+}
+
+
+/* =====================================================
+   PRODUCT DETAILS
+===================================================== */
+
+.product-details{
+    width:90%;
+
+    max-width:1400px;
+
+    margin:70px auto;
+
+    display:grid;
+
+    grid-template-columns:
+        80px
+        minmax(400px,1fr)
+        minmax(400px,1fr);
+
+    gap:30px;
+
+    align-items:start;
+}
+
+
+/* Main Product Image */
+
+.product-image{
+    background:#fff;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+
+    overflow:hidden;
+
+    cursor:zoom-in;
+}
+
+.product-image img{
+    width:100%;
+
+    height:500px;
+
+    object-fit:cover;
+
+    display:block;
+
+    border-radius:15px;
+
+    transition:transform .5s ease;
+}
+
+.product-image:hover img{
+    transform:scale(1.15);
+}
+
+
+/* Product Info */
+
+.product-info{
+    display:flex;
+
+    flex-direction:column;
+}
+
+.product-category{
+    display:inline-block;
+
+    width:max-content;
+
+    background:#ff4d4d;
+    color:#fff;
+
+    padding:8px 18px;
+
+    border-radius:20px;
+
+    font-size:14px;
+
+    margin-bottom:20px;
+}
+
+.product-info h1{
+    font-size:42px;
+
+    margin-bottom:15px;
+}
+
+.product-rating{
+    color:#FFD700;
+
+    font-size:20px;
+
+    margin-bottom:20px;
+}
+
+.product-price{
+    font-size:38px;
+
+    font-weight:700;
+
+    color:#ff4d4d;
+
+    margin-bottom:25px;
+}
+
+.product-price del{
+    color:#999;
+
+    font-size:24px;
+
+    margin-left:15px;
+}
+
+.product-description{
+    color:#666;
+
+    line-height:1.9;
+
+    margin-bottom:35px;
+}
+
+
+/* =====================================================
+   PRODUCT OPTIONS
+===================================================== */
+
+.option-title{
+    font-size:22px;
+
+    margin:25px 0 15px;
+}
+
+
+/* Size */
+
+.size-options{
+    display:flex;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+}
+
+.size-options button{
+    width:60px;
+    height:60px;
+
+    border:2px solid #ddd;
+
+    background:#fff;
+
+    border-radius:10px;
+
+    font-size:17px;
+
+    font-weight:600;
+}
+
+.size-options button:hover,
+.size-options button.active{
+    background:#111;
+
+    color:#fff;
+
+    border-color:#111;
+}
+
+
+/* Colors */
+
+.color-options{
+    display:flex;
+
+    gap:15px;
+}
+
+.color{
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+
+    border:2px solid #ddd;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.color:hover,
+.color.active{
+    border-color:#ff4d4d;
+
+    box-shadow:0 0 0 3px rgba(255,77,77,.15);
+}
+
+.black{
+    background:#111;
+}
+
+.white{
+    background:#fff;
+}
+
+.blue{
+    background:#1e88e5;
+}
+
+
+/* Quantity */
+
+.quantity-box{
+    margin-top:10px;
+}
+
+.quantity-box input{
+    width:90px;
+    height:50px;
+
+    text-align:center;
+
+    font-size:18px;
+
+    border:1px solid #ddd;
+
+    border-radius:8px;
+}
+
+
+/* =====================================================
+   PRODUCT BUTTONS
+===================================================== */
+
+.product-buttons{
+    display:flex;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    margin-top:35px;
+}
+
+.buy-btn{
+    background:#ff4d4d;
+
+    color:#fff;
+
+    padding:15px 35px;
+
+    border-radius:8px;
+
+    font-size:17px;
+
+    font-weight:600;
+}
+
+.buy-btn:hover{
+    background:#e53935;
+}
+
+.cart-btn{
+    background:#111;
+
+    color:#fff;
+
+    padding:15px 35px;
+
+    border-radius:8px;
+
+    font-size:17px;
+
+    font-weight:600;
+}
+
+.cart-btn:hover{
+    background:#333;
+}
+
+.wishlist-btn{
+    width:58px;
+    height:58px;
+
+    border-radius:50%;
+
+    background:#f2f2f2;
+
+    font-size:20px;
+}
+
+.wishlist-btn:hover,
+.wishlist-btn.active{
+    background:#ff4d4d;
+
+    color:#fff;
+}
+
+
+/* =====================================================
+   PRODUCT GALLERY
+===================================================== */
+
+.product-gallery{
+    display:flex;
+
+    gap:20px;
+
+    align-items:flex-start;
+}
+
+.thumbnail-list{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+}
+
+.thumbnail{
+    width:80px;
+    height:80px;
+
+    object-fit:cover;
+
+    border:2px solid #ddd;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.thumbnail:hover,
+.thumbnail.active{
+    border-color:#ff4d4d;
+}
+
+/* =====================================================
+   CART PAGE
+===================================================== */
+
+.cart-page{
+    width:92%;
+    max-width:1250px;
+    margin:60px auto;
+    padding:20px 0 80px;
+}
+
+
+/* ================= CART HEADER ================= */
+
+.cart-header{
+    margin-bottom:35px;
+}
+
+.cart-page h1{
+    text-align:left;
+    font-size:38px;
+    color:#111;
+    margin:0;
+    font-weight:700;
+}
+
+.cart-subtitle{
+    margin-top:6px;
+    color:#777;
+    font-size:15px;
+}
+
+
+/* ================= CART ITEMS ================= */
+
+#cart-items{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+
+/* ================= SINGLE CART ITEM ================= */
+
+.cart-item{
+    width:100%;
+
+    display:flex;
+    align-items:center;
+
+    gap:25px;
+
+    padding:20px;
+
+    background:#fff;
+
+    border:1px solid #eee;
+
+    border-radius:16px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+
+    transition:.3s;
+}
+
+.cart-item:hover{
+    box-shadow:0 12px 30px rgba(0,0,0,.10);
+    transform:translateY(-2px);
+}
+
+
+/* ================= PRODUCT AREA ================= */
+
+.cart-product{
+    flex:1;
+
+    min-width:0;
+
+    display:flex;
+    align-items:center;
+
+    gap:20px;
+}
+
+
+/* Product Image */
+
+.cart-item img{
+    width:120px;
+    height:120px;
+
+    object-fit:cover;
+
+    border-radius:12px;
+
+    flex-shrink:0;
+
+    background:#f5f5f5;
+}
+
+
+/* Product Information */
+
+.cart-info{
+    min-width:0;
+}
+
+.cart-info h3{
+    margin:0 0 8px;
+
+    font-size:20px;
+
+    font-weight:600;
+
+    color:#111;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+.cart-price{
+    margin:0;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    color:#ff4d4d;
+}
+
+
+/* ================= SIZE / COLOR ================= */
+
+.cart-variants{
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:12px;
+
+    margin-top:10px;
+}
+
+.cart-variants span{
+    padding:5px 10px;
+
+    background:#f6f6f6;
+
+    border-radius:6px;
+
+    font-size:12px;
+
+    color:#666;
+}
+
+.cart-variants strong{
+    color:#111;
+}
+
+
+/* ================= QUANTITY ================= */
+
+.cart-quantity{
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    min-width:130px;
+}
+
+.cart-quantity button{
+    width:38px;
+    height:38px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #ddd;
+
+    background:#fff;
+
+    color:#111;
+
+    border-radius:8px;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.cart-quantity button:hover{
+    background:#111;
+
+    color:#fff;
+
+    border-color:#111;
+}
+
+.cart-quantity span{
+    min-width:30px;
+
+    text-align:center;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    color:#111;
+}
+
+
+/* ================= SUBTOTAL ================= */
+
+.cart-subtotal{
+    min-width:130px;
+
+    text-align:right;
+
+    font-size:19px;
+
+    font-weight:700;
+
+    color:#111;
+}
+
+
+/* ================= REMOVE ================= */
+
+.remove-btn{
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:7px;
+
+    background:#fff;
+
+    color:#e53935;
+
+    border:1px solid #ffd6d6;
+
+    border-radius:8px;
+
+    padding:9px 12px;
+
+    font-size:13px;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.remove-btn:hover{
+    background:#ff4d4d;
+
+    color:#fff;
+
+    border-color:#ff4d4d;
+}
+
+.remove-btn i{
+    font-size:13px;
+}
+
+
+/* =====================================================
+   EMPTY CART
+===================================================== */
+
+.empty-cart{
+    width:100%;
+
+    min-height:420px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+    padding:60px 25px;
+
+    background:#fff;
+
+    border:1px solid #eee;
+
+    border-radius:18px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+
+
+/* Empty Cart Icon */
+
+.empty-cart-icon{
+    width:90px;
+    height:90px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    margin-bottom:25px;
+
+    border-radius:50%;
+
+    background:#f7f7f7;
+
+    font-size:50px;
+}
+
+
+/* Empty Cart Heading */
+
+.empty-cart h2{
+    margin:0 0 10px;
+
+    color:#111;
+
+    font-size:32px;
+
+    font-weight:700;
+}
+
+
+/* Empty Cart Text */
+
+.empty-cart p{
+    margin:0 0 28px;
+
+    color:#777;
+
+    font-size:16px;
+}
+
+
+/* Continue Shopping */
+
+.continue-shopping{
+    display:inline-flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    padding:13px 25px;
+
+    background:#111;
+
+    color:#fff;
+
+    border-radius:8px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.25s;
+}
+
+.continue-shopping:hover{
+    background:#ff4d4d;
+
+    transform:translateY(-2px);
+}
+
+
+/* =====================================================
+   CART SUMMARY
+===================================================== */
+
+.cart-summary{
+    margin-top:30px;
+
+    margin-left:auto;
+
+    width:100%;
+
+    max-width:480px;
+
+    padding:28px;
+
+    background:#fff;
+
+    border:1px solid #eee;
+
+    border-radius:16px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.07);
+}
+
+
+/* Hide summary when cart is empty */
+
+.cart-page:has(#cart-items .empty-cart) .cart-summary{
+    display:none;
+}
+
+
+/* Summary Header */
+
+.cart-summary-header{
+    padding-bottom:18px;
+
+    margin-bottom:20px;
+
+    border-bottom:1px solid #eee;
+}
+
+.cart-summary-header h2{
+    margin:0;
+
+    text-align:left;
+
+    font-size:24px;
+
+    color:#111;
+}
+
+
+/* Total */
+
+.cart-summary-total{
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:22px;
+}
+
+.cart-summary-total span{
+    font-size:17px;
+
+    color:#555;
+
+    font-weight:500;
+}
+
+.cart-summary-total strong{
+    font-size:28px;
+
+    color:#ff4d4d;
+}
+
+#grand-total{
+    color:#ff4d4d;
+}
+
+
+/* Checkout Button */
+
+.checkout-btn{
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    padding:15px 20px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#111;
+
+    color:#fff;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    transition:.25s;
+}
+
+.checkout-btn:hover{
+    background:#ff4d4d;
+
+    transform:translateY(-2px);
+}
+
+.checkout-btn i{
+    font-size:14px;
+}
+
+
+/* Summary Continue Shopping */
+
+.summary-shopping{
+    width:100%;
+
+    margin-top:12px;
+
+    background:#f5f5f5;
+
+    color:#111;
+
+    border:1px solid #ddd;
+}
+
+.summary-shopping:hover{
+    background:#111;
+
+    color:#fff;
+
+    border-color:#111;
+}
+
+
+/* =====================================================
+   CART RESPONSIVE
+===================================================== */
+
+@media (max-width:1000px){
+
+    .cart-item{
+        flex-wrap:wrap;
+
+        gap:20px;
+    }
+
+    .cart-product{
+        width:100%;
+
+        flex:none;
+    }
+
+    .cart-quantity{
+        margin-left:auto;
+    }
+
+    .cart-subtotal{
+        margin-left:auto;
+    }
+
+}
+
+
+@media (max-width:768px){
+
+    .cart-page{
+        width:94%;
+
+        margin:40px auto;
+
+        padding-bottom:60px;
+    }
+
+    .cart-page h1{
+        text-align:center;
+
+        font-size:30px;
+    }
+
+    .cart-subtitle{
+        text-align:center;
+    }
+
+    .cart-item{
+        flex-direction:column;
+
+        align-items:stretch;
+
+        text-align:center;
+
+        padding:18px;
+    }
+
+    .cart-product{
+        width:100%;
+
+        justify-content:flex-start;
+
+        text-align:left;
+    }
+
+    .cart-item img{
+        width:100px;
+        height:100px;
+    }
+
+    .cart-info h3{
+        font-size:17px;
+    }
+
+    .cart-price{
+        font-size:15px;
+    }
+
+    .cart-quantity{
+        margin:0 auto;
+
+        width:max-content;
+    }
+
+    .cart-subtotal{
+        margin:0;
+
+        text-align:center;
+
+        font-size:18px;
+    }
+
+    .remove-btn{
+        width:100%;
+
+        margin-top:5px;
+    }
+
+    .cart-summary{
+        max-width:100%;
+    }
+
+    .empty-cart{
+        min-height:350px;
+
+        padding:45px 20px;
+    }
+
+    .empty-cart h2{
+        font-size:27px;
+    }
+
+}
+
+
+@media (max-width:480px){
+
+    .cart-page h1{
+        font-size:27px;
+    }
+
+    .cart-item{
+        padding:15px;
+    }
+
+    .cart-product{
+        gap:12px;
+    }
+
+    .cart-item img{
+        width:85px;
+        height:85px;
+    }
+
+    .cart-info h3{
+        font-size:15px;
+    }
+
+    .cart-variants{
+        gap:6px;
+    }
+
+    .cart-variants span{
+        font-size:11px;
+
+        padding:4px 7px;
+    }
+
+    .cart-summary{
+        padding:20px;
+    }
+
+    .cart-summary-header h2{
+        font-size:21px;
+    }
+
+    .cart-summary-total strong{
+        font-size:24px;
+    }
+
+    .empty-cart{
+        min-height:320px;
+    }
+
+    .empty-cart-icon{
+        width:75px;
+        height:75px;
+
+        font-size:40px;
+    }
+
+    .empty-cart h2{
+        font-size:24px;
+    }
+
+    .empty-cart p{
+        font-size:14px;
+    }
+
+}
+
+
+/* =====================================================
+   CART RESPONSIVE
+===================================================== */
+
+@media (max-width:900px){
+
+    .cart-item{
+        flex-wrap:wrap;
+    }
+
+    .cart-product{
+        width:100%;
+
+        flex:none;
+    }
+
+    .cart-quantity{
+        margin-left:140px;
+    }
+
+    .cart-subtotal{
+        margin-left:auto;
+    }
+}
+
+
+/* =====================================================
+   TABLET RESPONSIVE
+===================================================== */
+
+@media (max-width:992px){
+
+    header{
+        padding:0 30px;
+    }
+
+    nav ul{
+        gap:15px;
+    }
+
+    .hero h1{
+        font-size:48px;
+    }
+
+    .hero p{
+        font-size:18px;
+    }
+
+    .product-container,
+    .category-container,
+    .feature-container,
+    .review-container{
+        justify-content:center;
+    }
+
+    /* Product Details */
+
+    .product-details{
+        grid-template-columns:1fr;
+
+        gap:40px;
+    }
+
+    .product-image{
+        max-width:500px;
+
+        margin:auto;
+    }
+
+    .product-info{
+        text-align:center;
+    }
+
+    .product-category{
+        margin-left:auto;
+        margin-right:auto;
+    }
+
+    .size-options,
+    .color-options,
+    .quantity-box,
+    .product-buttons{
+        justify-content:center;
+    }
+
+    /* Cart */
+
+    .cart-item{
+        flex-direction:column;
+
+        text-align:center;
+    }
+}
+
+
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
+
+@media (max-width:768px){
+
+    header{
+        flex-direction:column;
+
+        height:auto;
+
+        padding:20px;
+
+        gap:15px;
+    }
+
+    nav ul{
+        flex-wrap:wrap;
+
+        justify-content:center;
+    }
+
+    .hero{
+        height:70vh;
+    }
+
+    .hero h1{
+        font-size:36px;
+    }
+
+    .hero p{
+        font-size:16px;
+    }
+
+    .hero-content{
+        padding:30px;
+    }
+
+    .categories h2,
+    .products h2,
+    .best-sellers h2,
+    .features h2,
+    .reviews h2{
+        font-size:32px;
+    }
+
+    .product-info h1{
+        font-size:32px;
+    }
+
+    .product-price{
+        font-size:28px;
+    }
+
+    .cart-page h1{
+        font-size:30px;
+    }
+
+    .newsletter{
+        padding:70px 6%;
+    }
+
+    .newsletter h2{
+        font-size:32px;
+    }
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width:600px){
+
+    .cart-page{
+        width:94%;
+
+        margin:35px auto;
+    }
+
+    .cart-page h1{
+        font-size:28px;
+
+        margin-bottom:25px;
+    }
+
+    .cart-item{
+        padding:15px;
+
+        gap:15px;
+    }
+
+    .cart-product{
+        align-items:flex-start;
+
+        gap:15px;
+
+        text-align:left;
+    }
+
+    .cart-item img{
+        width:90px;
+        height:90px;
+    }
+
+    .cart-info h3{
+        font-size:16px;
+    }
+
+    .cart-price{
+        font-size:14px;
+    }
+
+    .cart-variants{
+        gap:8px;
+    }
+
+    .cart-variants span{
+        font-size:12px;
+    }
+
+    .cart-quantity{
+        margin-left:0;
+    }
+
+    .cart-subtotal{
+        margin-left:auto;
+
+        min-width:auto;
+
+        font-size:16px;
+    }
+
+    .remove-btn{
+        width:100%;
+
+        justify-content:center;
+
+        border-top:1px solid #eee;
+
+        padding-top:15px;
+    }
+
+    .cart-summary-total h2{
+        font-size:19px;
+    }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width:480px){
+
+    .hero h1{
+        font-size:28px;
+    }
+
+    .hero p{
+        font-size:15px;
+    }
+
+    .hero button{
+        padding:12px 25px;
+    }
+
+    .category-card,
+    .card{
+        width:100%;
+    }
+
+    .product-image{
+        padding:15px;
+    }
+
+    .product-image img{
+        height:350px;
+    }
+
+    .product-buttons{
+        flex-direction:column;
+    }
+
+    .buy-btn,
+    .cart-btn,
+    .wishlist-btn{
+        width:100%;
+    }
+
+    .cart-item img{
+        width:100px;
+        height:100px;
+    }
+
+    .checkout-btn{
+        width:100%;
+    }
+
+    .newsletter{
+        padding:60px 5%;
+    }
+
+    .newsletter input,
+    .newsletter-form input{
+        min-width:100%;
+
+        width:100%;
+    }
+
+    .newsletter button,
+    .newsletter-form button{
+        width:100%;
+    }
+
+    .footer{
+        padding:50px 6% 25px;
+    }
+}
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\static\js\script.js
+============================================================
+
+// ==================================================
+// UrbanWear JavaScript v9.0
+// CART + PERSISTENT WISHLIST
+// ==================================================
+
+"use strict";
+
+
+// ==================================================
+// GLOBAL DATA
+// ==================================================
+
+let cart = [];
+let wishlist = [];
+
+const CART_STORAGE_KEY = "cart";
+const WISHLIST_STORAGE_KEY = "urbanwear_wishlist";
+
+
+// ==================================================
+// IMAGE URL HELPER
+// ==================================================
+
+function getImageUrl(image) {
+
+    if (!image) {
+        return "";
+    }
+
+    image = String(image);
+
+    if (
+        image.startsWith("http://") ||
+        image.startsWith("https://") ||
+        image.startsWith("/")
+    ) {
+        return image;
+    }
+
+    return `/static/${image}`;
+}
+
+
+// ==================================================
+// ESCAPE HTML
+// ==================================================
+
+function escapeHTML(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ==================================================
+// CART SYSTEM
+// ==================================================
+
+// --------------------------------------------------
+// LOAD CART
+// --------------------------------------------------
+
+function loadCart() {
+
+    try {
+
+        const savedCart =
+            localStorage.getItem(CART_STORAGE_KEY);
+
+        if (!savedCart) {
+            cart = [];
+            return;
+        }
+
+        const parsedCart =
+            JSON.parse(savedCart);
+
+        if (Array.isArray(parsedCart)) {
+            cart = parsedCart;
+        } else {
+            cart = [];
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Cart loading error:",
+            error
+        );
+
+        cart = [];
+
+        localStorage.removeItem(
+            CART_STORAGE_KEY
+        );
+    }
+
+    normalizeCart();
+}
+
+
+// --------------------------------------------------
+// NORMALIZE CART
+// --------------------------------------------------
+
+function normalizeCart() {
+
+    cart = cart
+
+        .filter(item => {
+            return (
+                item &&
+                item.id !== undefined &&
+                item.id !== null
+            );
+        })
+
+        .map(item => {
+
+            let quantity =
+                Number(item.quantity);
+
+            if (
+                !Number.isInteger(quantity) ||
+                quantity < 1
+            ) {
+                quantity = 1;
+            }
+
+            if (quantity > 10) {
+                quantity = 10;
+            }
+
+            return {
+
+                id: Number(item.id),
+
+                name:
+                    item.name ||
+                    "Product",
+
+                price:
+                    Number(item.price) || 0,
+
+                image:
+                    item.image ||
+                    "",
+
+                quantity:
+                    quantity,
+
+                size:
+                    item.size || null,
+
+                color:
+                    item.color || null
+            };
+        });
+
+    saveCart();
+}
+
+
+// --------------------------------------------------
+// SAVE CART
+// --------------------------------------------------
+
+function saveCart() {
+
+    try {
+
+        localStorage.setItem(
+            CART_STORAGE_KEY,
+            JSON.stringify(cart)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Cart save error:",
+            error
+        );
+    }
+}
+
+
+// --------------------------------------------------
+// FIND PRODUCT IN CART
+// --------------------------------------------------
+
+function findProduct(
+    id,
+    size = null,
+    color = null
+) {
+
+    return cart.find(item => {
+
+        return (
+
+            Number(item.id) === Number(id) &&
+
+            (item.size || null) ===
+            (size || null) &&
+
+            (item.color || null) ===
+            (color || null)
+        );
+    });
+}
+
+
+// --------------------------------------------------
+// CART COUNT
+// --------------------------------------------------
+
+function updateCartCount() {
+
+    const counter =
+        document.getElementById("cart-count");
+
+    if (!counter) {
+        return;
+    }
+
+    let total = 0;
+
+    cart.forEach(item => {
+
+        total +=
+            Number(item.quantity) || 0;
+    });
+
+    counter.textContent = total;
+}
+
+
+// --------------------------------------------------
+// SELECTED SIZE
+// --------------------------------------------------
+
+function getSelectedSize() {
+
+    const activeSize =
+        document.querySelector(
+            ".size-options button.active"
+        );
+
+    if (!activeSize) {
+        return null;
+    }
+
+    return activeSize.textContent.trim();
+}
+
+
+// --------------------------------------------------
+// SELECTED COLOR
+// --------------------------------------------------
+
+function getSelectedColor() {
+
+    const activeColor =
+        document.querySelector(
+            ".color-options .color.active"
+        );
+
+    if (!activeColor) {
+        return null;
+    }
+
+    if (activeColor.dataset.color) {
+
+        return activeColor.dataset.color;
+    }
+
+    if (
+        activeColor.classList.contains("black")
+    ) {
+        return "Black";
+    }
+
+    if (
+        activeColor.classList.contains("white")
+    ) {
+        return "White";
+    }
+
+    if (
+        activeColor.classList.contains("blue")
+    ) {
+        return "Blue";
+    }
+
+    if (
+        activeColor.classList.contains("red")
+    ) {
+        return "Red";
+    }
+
+    return null;
+}
+
+
+// --------------------------------------------------
+// ADD TO CART
+// --------------------------------------------------
+
+function addToCart(button) {
+
+    if (!button) {
+        return;
+    }
+
+    const id =
+        Number(button.dataset.id);
+
+    const name =
+        button.dataset.name ||
+        "Product";
+
+    const price =
+        Number(button.dataset.price) || 0;
+
+    const image =
+        button.dataset.image || "";
+
+    if (!id) {
+
+        alert(
+            "Unable to add this product to cart."
+        );
+
+        return;
+    }
+
+
+    // Quantity
+
+    const quantityInput =
+        document.getElementById("quantity");
+
+    let quantity =
+        quantityInput
+            ? Number(quantityInput.value)
+            : 1;
+
+    if (
+        !Number.isInteger(quantity) ||
+        quantity < 1
+    ) {
+        quantity = 1;
+    }
+
+    if (quantity > 10) {
+        quantity = 10;
+    }
+
+
+    // Size
+
+    const size =
+        getSelectedSize();
+
+
+    // Color
+
+    const color =
+        getSelectedColor();
+
+
+    // Existing product
+
+    const existing =
+        findProduct(
+            id,
+            size,
+            color
+        );
+
+
+    if (existing) {
+
+        existing.quantity =
+            Number(existing.quantity) +
+            quantity;
+
+        if (existing.quantity > 10) {
+            existing.quantity = 10;
+        }
+
+    } else {
+
+        cart.push({
+
+            id: id,
+
+            name: name,
+
+            price: price,
+
+            image: image,
+
+            quantity: quantity,
+
+            size: size,
+
+            color: color
+        });
+    }
+
+
+    saveCart();
+
+    updateCartCount();
+
+
+    let message =
+        `${name} added to cart!`;
+
+    if (size) {
+        message += `\nSize: ${size}`;
+    }
+
+    if (color) {
+        message += `\nColor: ${color}`;
+    }
+
+    alert(message);
+}
+
+
+// --------------------------------------------------
+// REGISTER CART BUTTONS
+// --------------------------------------------------
+
+function registerCartButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".add-cart"
+        );
+
+    buttons.forEach(button => {
+
+        if (
+            button.dataset.cartRegistered ===
+            "true"
+        ) {
+            return;
+        }
+
+        button.dataset.cartRegistered =
+            "true";
+
+        button.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                addToCart(this);
+            }
+        );
+    });
+}
+
+
+// --------------------------------------------------
+// DISPLAY CART
+// --------------------------------------------------
+
+function displayCart() {
+
+    const cartContainer =
+        document.getElementById(
+            "cart-items"
+        );
+
+    const totalElement =
+        document.getElementById(
+            "grand-total"
+        );
+
+    if (
+        !cartContainer ||
+        !totalElement
+    ) {
+        return;
+    }
+
+
+    cartContainer.innerHTML = "";
+
+
+    // Empty cart
+
+    if (cart.length === 0) {
+
+        cartContainer.innerHTML = `
+
+            <div class="empty-cart">
+
+                <div class="empty-cart-icon">
+                    ðŸ›’
+                </div>
+
+                <h2>
+                    Your Cart is Empty
+                </h2>
+
+                <p>
+                    Add some products to continue shopping.
+                </p>
+
+                <a
+                    href="/#products"
+                    class="continue-shopping"
+                >
+                    Continue Shopping
+                </a>
+
+            </div>
+        `;
+
+        totalElement.textContent = "0";
+
+        updateCartCount();
+
+        return;
+    }
+
+
+    let grandTotal = 0;
+
+
+    cart.forEach((item, index) => {
+
+        const price =
+            Number(item.price) || 0;
+
+        const quantity =
+            Number(item.quantity) || 1;
+
+        const subtotal =
+            price * quantity;
+
+        grandTotal += subtotal;
+
+
+        const imageUrl =
+            getImageUrl(item.image);
+
+
+        let variantHTML = "";
+
+
+        if (item.size) {
+
+            variantHTML += `
+
+                <span>
+                    Size:
+                    <strong>
+                        ${escapeHTML(item.size)}
+                    </strong>
+                </span>
+            `;
+        }
+
+
+        if (item.color) {
+
+            variantHTML += `
+
+                <span>
+                    Color:
+                    <strong>
+                        ${escapeHTML(item.color)}
+                    </strong>
+                </span>
+            `;
+        }
+
+
+        const cartItem =
+            document.createElement("div");
+
+        cartItem.className =
+            "cart-item";
+
+        cartItem.dataset.index =
+            index;
+
+
+        cartItem.innerHTML = `
+
+            <div class="cart-product">
+
+                <img
+                    src="${escapeHTML(imageUrl)}"
+                    alt="${escapeHTML(item.name)}"
+                >
+
+                <div class="cart-info">
+
+                    <h3>
+                        ${escapeHTML(item.name)}
+                    </h3>
+
+                    <p class="cart-price">
+                        â‚¹${price.toLocaleString("en-IN")}
+                    </p>
+
+                    ${
+                        variantHTML
+                            ? `
+                                <div class="cart-variants">
+                                    ${variantHTML}
+                                </div>
+                              `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="cart-quantity">
+
+                <button
+                    type="button"
+                    class="quantity-decrease"
+                    data-index="${index}"
+                >
+                    âˆ’
+                </button>
+
+                <span>
+                    ${quantity}
+                </span>
+
+                <button
+                    type="button"
+                    class="quantity-increase"
+                    data-index="${index}"
+                >
+                    +
+                </button>
+
+            </div>
+
+
+            <div class="cart-subtotal">
+
+                â‚¹${subtotal.toLocaleString("en-IN")}
+
+            </div>
+
+
+            <button
+                type="button"
+                class="remove-btn"
+                data-index="${index}"
+            >
+
+                <i class="fa-solid fa-trash"></i>
+
+                Remove
+
+            </button>
+        `;
+
+
+        cartContainer.appendChild(cartItem);
+    });
+
+
+    totalElement.textContent =
+        grandTotal.toLocaleString("en-IN");
+
+
+    registerCartActions();
+}
+
+
+// --------------------------------------------------
+// CART ACTIONS
+// --------------------------------------------------
+
+function registerCartActions() {
+
+    const cartContainer =
+        document.getElementById(
+            "cart-items"
+        );
+
+    if (!cartContainer) {
+        return;
+    }
+
+
+    // Remove
+
+    cartContainer
+        .querySelectorAll(".remove-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    const index =
+                        Number(
+                            this.dataset.index
+                        );
+
+                    removeItemByIndex(index);
+                }
+            );
+        });
+
+
+    // Decrease
+
+    cartContainer
+        .querySelectorAll(
+            ".quantity-decrease"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    const index =
+                        Number(
+                            this.dataset.index
+                        );
+
+                    changeQuantityByIndex(
+                        index,
+                        -1
+                    );
+                }
+            );
+        });
+
+
+    // Increase
+
+    cartContainer
+        .querySelectorAll(
+            ".quantity-increase"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    const index =
+                        Number(
+                            this.dataset.index
+                        );
+
+                    changeQuantityByIndex(
+                        index,
+                        1
+                    );
+                }
+            );
+        });
+}
+
+
+// --------------------------------------------------
+// CHANGE QUANTITY
+// --------------------------------------------------
+
+function changeQuantityByIndex(
+    index,
+    change
+) {
+
+    if (
+        index < 0 ||
+        index >= cart.length
+    ) {
+        return;
+    }
+
+    const product =
+        cart[index];
+
+    let newQuantity =
+        Number(product.quantity) +
+        Number(change);
+
+
+    if (newQuantity <= 0) {
+
+        removeItemByIndex(index);
+
+        return;
+    }
+
+
+    if (newQuantity > 10) {
+        newQuantity = 10;
+    }
+
+
+    product.quantity =
+        newQuantity;
+
+
+    saveCart();
+
+    updateCartCount();
+
+    displayCart();
+}
+
+
+// --------------------------------------------------
+// CHANGE QUANTITY BY PRODUCT
+// --------------------------------------------------
+
+function changeQuantity(
+    id,
+    change,
+    size = null,
+    color = null
+) {
+
+    const index =
+        cart.findIndex(item => {
+
+            return (
+
+                Number(item.id) ===
+                Number(id) &&
+
+                (item.size || null) ===
+                (size || null) &&
+
+                (item.color || null) ===
+                (color || null)
+            );
+        });
+
+
+    if (index === -1) {
+        return;
+    }
+
+
+    changeQuantityByIndex(
+        index,
+        change
+    );
+}
+
+
+// --------------------------------------------------
+// REMOVE CART ITEM
+// --------------------------------------------------
+
+function removeItemByIndex(index) {
+
+    if (
+        index < 0 ||
+        index >= cart.length
+    ) {
+        return;
+    }
+
+
+    cart.splice(index, 1);
+
+
+    saveCart();
+
+    updateCartCount();
+
+    displayCart();
+}
+
+
+// --------------------------------------------------
+// REMOVE CART ITEM BY ID
+// --------------------------------------------------
+
+function removeItem(
+    id,
+    size = null,
+    color = null
+) {
+
+    const index =
+        cart.findIndex(item => {
+
+            return (
+
+                Number(item.id) ===
+                Number(id) &&
+
+                (item.size || null) ===
+                (size || null) &&
+
+                (item.color || null) ===
+                (color || null)
+            );
+        });
+
+
+    if (index === -1) {
+        return;
+    }
+
+
+    removeItemByIndex(index);
+}
+
+
+// ==================================================
+// PRODUCT PAGE
+// ==================================================
+
+// --------------------------------------------------
+// IMAGE GALLERY
+// --------------------------------------------------
+
+function changeImage(element) {
+
+    const mainImage =
+        document.getElementById(
+            "main-image"
+        );
+
+    if (
+        !mainImage ||
+        !element
+    ) {
+        return;
+    }
+
+
+    mainImage.src =
+        element.src;
+
+
+    document
+        .querySelectorAll(".thumbnail")
+        .forEach(img => {
+
+            img.classList.remove(
+                "active"
+            );
+        });
+
+
+    element.classList.add(
+        "active"
+    );
+}
+
+
+// --------------------------------------------------
+// SIZE BUTTONS
+// --------------------------------------------------
+
+function registerSizeButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".size-options button"
+        );
+
+
+    buttons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                buttons.forEach(btn => {
+
+                    btn.classList.remove(
+                        "active"
+                    );
+                });
+
+                this.classList.add(
+                    "active"
+                );
+            }
+        );
+    });
+}
+
+
+// --------------------------------------------------
+// COLOR BUTTONS
+// --------------------------------------------------
+
+function registerColorButtons() {
+
+    const colors =
+        document.querySelectorAll(
+            ".color-options .color"
+        );
+
+
+    colors.forEach(color => {
+
+        color.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                colors.forEach(c => {
+
+                    c.classList.remove(
+                        "active"
+                    );
+                });
+
+                this.classList.add(
+                    "active"
+                );
+            }
+        );
+    });
+}
+
+
+// ==================================================
+// WISHLIST SYSTEM
+// ==================================================
+
+// --------------------------------------------------
+// LOAD WISHLIST
+// --------------------------------------------------
+
+function loadWishlist() {
+
+    try {
+
+        const savedWishlist =
+            localStorage.getItem(
+                WISHLIST_STORAGE_KEY
+            );
+
+
+        if (!savedWishlist) {
+
+            wishlist = [];
+
+            return;
+        }
+
+
+        const parsedWishlist =
+            JSON.parse(savedWishlist);
+
+
+        if (Array.isArray(parsedWishlist)) {
+
+            wishlist =
+                parsedWishlist;
+
+        } else {
+
+            wishlist = [];
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Wishlist loading error:",
+            error
+        );
+
+        wishlist = [];
+
+        localStorage.removeItem(
+            WISHLIST_STORAGE_KEY
+        );
+    }
+
+
+    normalizeWishlist();
+}
+
+
+// --------------------------------------------------
+// NORMALIZE WISHLIST
+// --------------------------------------------------
+
+function normalizeWishlist() {
+
+    const uniqueProducts =
+        new Map();
+
+
+    wishlist.forEach(item => {
+
+        if (
+            !item ||
+            item.id === undefined ||
+            item.id === null
+        ) {
+            return;
+        }
+
+
+        const id =
+            Number(item.id);
+
+
+        if (!id) {
+            return;
+        }
+
+
+        if (
+            !uniqueProducts.has(id)
+        ) {
+
+            uniqueProducts.set(
+                id,
+                {
+
+                    id: id,
+
+                    name:
+                        item.name ||
+                        "Product",
+
+                    price:
+                        Number(item.price) ||
+                        0,
+
+                    old_price:
+                        Number(item.old_price) ||
+                        0,
+
+                    image:
+                        item.image ||
+                        "",
+
+                    rating:
+                        item.rating ||
+                        "",
+
+                    description:
+                        item.description ||
+                        ""
+                }
+            );
+        }
+    });
+
+
+    wishlist =
+        Array.from(
+            uniqueProducts.values()
+        );
+}
+
+
+// --------------------------------------------------
+// SAVE WISHLIST
+// --------------------------------------------------
+
+function saveWishlist() {
+
+    try {
+
+        localStorage.setItem(
+            WISHLIST_STORAGE_KEY,
+            JSON.stringify(wishlist)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Wishlist save error:",
+            error
+        );
+    }
+}
+
+
+// --------------------------------------------------
+// CHECK WISHLIST
+// --------------------------------------------------
+
+function isInWishlist(id) {
+
+    return wishlist.some(item => {
+
+        return Number(item.id) ===
+            Number(id);
+    });
+}
+
+
+// --------------------------------------------------
+// WISHLIST COUNT
+// --------------------------------------------------
+
+function updateWishlistCount() {
+
+    const counters =
+        document.querySelectorAll(
+            "#wishlist-count"
+        );
+
+
+    counters.forEach(counter => {
+
+        counter.textContent =
+            wishlist.length;
+    });
+}
+
+
+// --------------------------------------------------
+// GET WISHLIST PRODUCT DATA
+// --------------------------------------------------
+
+function getWishlistProductData(button) {
+
+    if (!button) {
+        return null;
+    }
+
+
+    const card =
+        button.closest(".card");
+
+
+    let id =
+        Number(button.dataset.id);
+
+
+    let name =
+        button.dataset.name || "";
+
+
+    let price =
+        Number(button.dataset.price) || 0;
+
+
+    let oldPrice =
+        Number(button.dataset.oldPrice) || 0;
+
+
+    let image =
+        button.dataset.image || "";
+
+
+    let rating =
+        button.dataset.rating || "";
+
+
+    let description =
+        button.dataset.description || "";
+
+
+    // ------------------------------------------------
+    // GET DATA FROM CARD
+    // ------------------------------------------------
+
+    if (card) {
+
+        const cartButton =
+            card.querySelector(".add-cart");
+
+
+        if (cartButton) {
+
+            if (!id) {
+
+                id =
+                    Number(
+                        cartButton.dataset.id
+                    );
+            }
+
+
+            if (!name) {
+
+                name =
+                    cartButton.dataset.name ||
+                    "";
+            }
+
+
+            if (!price) {
+
+                price =
+                    Number(
+                        cartButton.dataset.price
+                    ) || 0;
+            }
+
+
+            if (!image) {
+
+                image =
+                    cartButton.dataset.image ||
+                    "";
+            }
+        }
+
+
+        const oldPriceElement =
+            card.querySelector(
+                ".price span"
+            );
+
+
+        if (
+            oldPriceElement &&
+            !oldPrice
+        ) {
+
+            oldPrice =
+                Number(
+                    oldPriceElement.textContent
+                        .replace(/[^\d]/g, "")
+                ) || 0;
+        }
+
+
+        const ratingElement =
+            card.querySelector(".rating");
+
+
+        if (
+            ratingElement &&
+            !rating
+        ) {
+
+            rating =
+                ratingElement.textContent.trim();
+        }
+    }
+
+
+    if (!id) {
+        return null;
+    }
+
+
+    return {
+
+        id: id,
+
+        name:
+            name ||
+            "Product",
+
+        price:
+            price,
+
+        old_price:
+            oldPrice,
+
+        image:
+            image,
+
+        rating:
+            rating,
+
+        description:
+            description
+    };
+}
+
+
+// --------------------------------------------------
+// TOGGLE WISHLIST
+// --------------------------------------------------
+
+function toggleWishlist(button) {
+
+    if (!button) {
+        return;
+    }
+
+
+    const product =
+        getWishlistProductData(button);
+
+
+    if (!product) {
+
+        alert(
+            "Unable to add this product to wishlist."
+        );
+
+        return;
+    }
+
+
+    const existingIndex =
+        wishlist.findIndex(item => {
+
+            return Number(item.id) ===
+                Number(product.id);
+        });
+
+
+    // ------------------------------------------------
+    // REMOVE
+    // ------------------------------------------------
+
+    if (existingIndex !== -1) {
+
+        wishlist.splice(
+            existingIndex,
+            1
+        );
+
+        saveWishlist();
+
+        updateWishlistCount();
+
+        updateWishlistButtons();
+
+        return;
+    }
+
+
+    // ------------------------------------------------
+    // ADD
+    // ------------------------------------------------
+
+    wishlist.push(product);
+
+
+    saveWishlist();
+
+    updateWishlistCount();
+
+    updateWishlistButtons();
+}
+
+
+// --------------------------------------------------
+// UPDATE WISHLIST BUTTONS
+// --------------------------------------------------
+
+function updateWishlistButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".wishlist-btn"
+        );
+
+
+    buttons.forEach(button => {
+
+        const product =
+            getWishlistProductData(button);
+
+
+        if (!product) {
+            return;
+        }
+
+
+        const active =
+            isInWishlist(product.id);
+
+
+        const icon =
+            button.querySelector("i");
+
+
+        if (active) {
+
+            button.classList.add(
+                "active"
+            );
+
+
+            button.setAttribute(
+                "aria-label",
+                "Remove from wishlist"
+            );
+
+
+            button.setAttribute(
+                "title",
+                "Remove from wishlist"
+            );
+
+
+            if (icon) {
+
+                icon.classList.remove(
+                    "fa-regular"
+                );
+
+                icon.classList.add(
+                    "fa-solid"
+                );
+            }
+
+        } else {
+
+            button.classList.remove(
+                "active"
+            );
+
+
+            button.setAttribute(
+                "aria-label",
+                "Add to wishlist"
+            );
+
+
+            button.setAttribute(
+                "title",
+                "Add to wishlist"
+            );
+
+
+            if (icon) {
+
+                icon.classList.remove(
+                    "fa-solid"
+                );
+
+                icon.classList.add(
+                    "fa-regular"
+                );
+            }
+        }
+    });
+}
+
+
+// --------------------------------------------------
+// REGISTER WISHLIST BUTTONS
+// --------------------------------------------------
+
+function registerWishlistButtons() {
+
+    document.addEventListener("click", function(event) {
+
+        const button = event.target.closest(".wishlist-btn");
+
+        if (!button) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        toggleWishlist(button);
+
+    });
+
+    updateWishlistButtons();
+}
+
+
+// --------------------------------------------------
+// REMOVE FROM WISHLIST
+// --------------------------------------------------
+
+function removeFromWishlist(id) {
+
+    const numericId =
+        Number(id);
+
+
+    wishlist =
+        wishlist.filter(item => {
+
+            return Number(item.id) !==
+                numericId;
+        });
+
+
+    saveWishlist();
+
+    updateWishlistCount();
+
+    updateWishlistButtons();
+
+
+    if (
+        document.getElementById(
+            "wishlist-items"
+        )
+    ) {
+
+        displayWishlist();
+    }
+}
+
+
+// --------------------------------------------------
+// CLEAR WISHLIST
+// --------------------------------------------------
+
+function clearWishlist() {
+
+    if (wishlist.length === 0) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to remove all wishlist items?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    wishlist = [];
+
+
+    saveWishlist();
+
+    updateWishlistCount();
+
+    updateWishlistButtons();
+
+    displayWishlist();
+}
+
+
+// --------------------------------------------------
+// ADD WISHLIST ITEM TO CART
+// --------------------------------------------------
+
+function addWishlistItemToCart(id) {
+
+    const product =
+        wishlist.find(item => {
+
+            return Number(item.id) ===
+                Number(id);
+        });
+
+
+    if (!product) {
+        return;
+    }
+
+
+    const existing =
+        findProduct(
+            product.id,
+            null,
+            null
+        );
+
+
+    if (existing) {
+
+        existing.quantity =
+            Number(existing.quantity) + 1;
+
+
+        if (existing.quantity > 10) {
+
+            existing.quantity = 10;
+        }
+
+    } else {
+
+        cart.push({
+
+            id:
+                product.id,
+
+            name:
+                product.name,
+
+            price:
+                product.price,
+
+            image:
+                product.image,
+
+            quantity:
+                1,
+
+            size:
+                null,
+
+            color:
+                null
+        });
+    }
+
+
+    saveCart();
+
+    updateCartCount();
+
+
+    alert(
+        `${product.name} added to cart!`
+    );
+}
+
+
+// ==================================================
+// WISHLIST PAGE
+// ==================================================
+
+// --------------------------------------------------
+// DISPLAY WISHLIST
+// --------------------------------------------------
+
+function displayWishlist() {
+
+    const container =
+        document.getElementById(
+            "wishlist-items"
+        );
+
+
+    const emptyState =
+        document.getElementById(
+            "wishlist-empty"
+        );
+
+
+    const clearButton =
+        document.getElementById(
+            "clear-wishlist"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    // ------------------------------------------------
+    // EMPTY
+    // ------------------------------------------------
+
+    if (wishlist.length === 0) {
+
+        if (emptyState) {
+
+            emptyState.style.display =
+                "block";
+
+        } else {
+
+            container.innerHTML = `
+
+                <div class="empty-wishlist">
+
+                    <div class="empty-wishlist-icon">
+                        â¤ï¸
+                    </div>
+
+                    <h2>
+                        Your Wishlist is Empty
+                    </h2>
+
+                    <p>
+                        Save your favorite products here
+                        and come back later.
+                    </p>
+
+                    <a
+                        href="/#products"
+                        class="continue-shopping"
+                    >
+                        Continue Shopping
+                    </a>
+
+                </div>
+            `;
+        }
+
+
+        if (clearButton) {
+
+            clearButton.style.display =
+                "none";
+        }
+
+
+        updateWishlistCount();
+
+        return;
+    }
+
+
+    // ------------------------------------------------
+    // SHOW WISHLIST
+    // ------------------------------------------------
+
+    if (emptyState) {
+
+        emptyState.style.display =
+            "none";
+    }
+
+
+    if (clearButton) {
+
+        clearButton.style.display =
+            "inline-flex";
+    }
+
+
+    // ------------------------------------------------
+    // CREATE PRODUCTS
+    // ------------------------------------------------
+
+    wishlist.forEach(product => {
+
+        const item =
+            document.createElement("div");
+
+
+        item.className =
+            "wishlist-item";
+
+
+        item.dataset.id =
+            product.id;
+
+
+        const imageUrl =
+            getImageUrl(
+                product.image
+            );
+
+
+        item.innerHTML = `
+
+            <div class="wishlist-product">
+
+                <a
+                    href="/product/${Number(product.id)}"
+                    class="wishlist-image-link"
+                >
+
+                    <img
+                        src="${escapeHTML(imageUrl)}"
+                        alt="${escapeHTML(product.name)}"
+                    >
+
+                </a>
+
+
+                <div class="wishlist-info">
+
+                    <h3>
+
+                        <a
+                            href="/product/${Number(product.id)}"
+                        >
+                            ${escapeHTML(product.name)}
+                        </a>
+
+                    </h3>
+
+
+                    ${
+                        product.rating
+                            ? `
+                                <div class="wishlist-rating">
+                                    â­â­â­â­â­
+                                    (${escapeHTML(product.rating)})
+                                </div>
+                              `
+                            : ""
+                    }
+
+
+                    <p class="wishlist-price">
+
+                        â‚¹${Number(product.price)
+                            .toLocaleString("en-IN")}
+
+                        ${
+                            product.old_price
+                                ? `
+                                    <span>
+                                        â‚¹${Number(product.old_price)
+                                            .toLocaleString("en-IN")}
+                                    </span>
+                                  `
+                                : ""
+                        }
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="wishlist-actions">
+
+                <button
+                    type="button"
+                    class="wishlist-cart-btn"
+                    data-id="${Number(product.id)}"
+                >
+
+                    <i class="fa-solid fa-cart-plus"></i>
+
+                    Add To Cart
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="wishlist-remove-btn"
+                    data-id="${Number(product.id)}"
+                >
+
+                    <i class="fa-solid fa-trash"></i>
+
+                    Remove
+
+                </button>
+
+            </div>
+        `;
+
+
+        container.appendChild(item);
+    });
+
+
+    registerWishlistPageActions();
+}
+
+
+// --------------------------------------------------
+// WISHLIST PAGE ACTIONS
+// --------------------------------------------------
+
+function registerWishlistPageActions() {
+
+    const container =
+        document.getElementById(
+            "wishlist-items"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    // Add to cart
+
+    container
+        .querySelectorAll(
+            ".wishlist-cart-btn"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+
+                    const id =
+                        Number(
+                            this.dataset.id
+                        );
+
+
+                    addWishlistItemToCart(id);
+                }
+            );
+        });
+
+
+    // Remove
+
+    container
+        .querySelectorAll(
+            ".wishlist-remove-btn"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+
+                    const id =
+                        Number(
+                            this.dataset.id
+                        );
+
+
+                    removeFromWishlist(id);
+                }
+            );
+        });
+}
+
+
+// ==================================================
+// BUY NOW
+// ==================================================
+
+function registerBuyButton() {
+
+    const button =
+        document.querySelector(
+            ".buy-btn"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            alert(
+                "Checkout feature coming soon!"
+            );
+        }
+    );
+}
+
+
+// ==================================================
+// CHECKOUT
+// ==================================================
+
+function registerCheckoutButton() {
+
+    const button =
+        document.querySelector(
+            ".checkout-btn"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+
+            if (cart.length === 0) {
+
+                alert(
+                    "Your cart is empty."
+                );
+
+                return;
+            }
+
+
+            alert(
+                "Checkout feature coming soon!"
+            );
+        }
+    );
+}
+
+
+// ==================================================
+// INITIALIZE
+// ==================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+
+        // Load storage
+
+        loadCart();
+
+        loadWishlist();
+
+
+        // Register buttons
+
+        registerCartButtons();
+
+        registerWishlistButtons();
+
+        registerSizeButtons();
+
+        registerColorButtons();
+
+        registerBuyButton();
+
+        registerCheckoutButton();
+
+
+        // Update counters
+
+        updateCartCount();
+
+        updateWishlistCount();
+
+
+        // Update wishlist hearts
+
+        updateWishlistButtons();
+
+
+        // Display cart if cart page
+
+        displayCart();
+
+
+        // Display wishlist if wishlist page
+
+        displayWishlist();
+
+
+        // Clear wishlist
+
+        const clearButton =
+            document.getElementById(
+                "clear-wishlist"
+            );
+
+
+        if (clearButton) {
+
+            clearButton.addEventListener(
+                "click",
+                clearWishlist
+            );
+        }
+    }
+);
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\templates\cart.html
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shopping Cart | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+    <div class="logo">
+        Urban<span>Wear</span>
+    </div>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="/">Home</a>
+            </li>
+
+            <li>
+                <a href="/#products">Products</a>
+            </li>
+
+            <li>
+                <a href="/cart">Cart</a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+    <div class="icons">
+
+        <a href="/cart" class="cart-icon">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cart-count">0</span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- ================= CART PAGE ================= -->
+
+<section class="cart-page">
+
+    <div class="cart-header">
+
+        <div>
+
+            <h1>Your Shopping Cart</h1>
+
+            <p class="cart-subtitle">
+                Review your items before checkout
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- CART ITEMS -->
+
+    <div id="cart-items">
+
+        <!-- JavaScript will load cart items here -->
+
+    </div>
+
+
+    <!-- CART SUMMARY -->
+
+    <div class="cart-summary">
+
+        <div class="cart-summary-header">
+
+            <h2>Order Summary</h2>
+
+        </div>
+
+        <div class="cart-summary-total">
+
+            <span>Grand Total</span>
+
+            <strong>
+                â‚¹<span id="grand-total">0</span>
+            </strong>
+
+        </div>
+
+        <button type="button"
+                class="checkout-btn">
+
+            <i class="fa-solid fa-lock"></i>
+
+            Proceed To Checkout
+
+        </button>
+
+        <a href="/"
+           class="continue-shopping summary-shopping">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Continue Shopping
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="footer-bottom">
+
+        <p>
+            Â© 2026 UrbanWear. All Rights Reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\templates\index.html
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>UrbanWear | Premium Fashion Store</title>
+
+
+    <!-- ================= CSS ================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <!-- ================= GOOGLE FONT ================= -->
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+
+    <!-- ================= FONT AWESOME ================= -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+                    HEADER
+================================================== -->
+
+<header>
+
+    <!-- LOGO -->
+
+    <div class="logo">
+
+        Urban<span>Wear</span>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="#categories">
+                    Categories
+                </a>
+            </li>
+
+            <li>
+                <a href="#products">
+                    Products
+                </a>
+            </li>
+
+            <li>
+                <a href="#bestsellers">
+                    Best Sellers
+                </a>
+            </li>
+
+            <li>
+                <a href="#reviews">
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="/cart">
+                    Cart
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- HEADER ICONS -->
+
+    <div class="icons">
+
+        <!-- SEARCH -->
+
+        <i class="fa-solid fa-magnifying-glass"
+           title="Search">
+        </i>
+
+
+        <!-- ==================================================
+                        WISHLIST
+        ================================================== -->
+
+        <a href="/wishlist"
+           class="wishlist-header-icon"
+           title="Wishlist"
+           aria-label="Wishlist">
+
+            <i class="fa-regular fa-heart"></i>
+
+            <span id="wishlist-count">
+                0
+            </span>
+
+        </a>
+
+
+        <!-- CART -->
+
+        <a href="/cart"
+           class="cart-icon"
+           title="Shopping Cart">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cart-count">
+                0
+            </span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==================================================
+                    HERO SECTION
+================================================== -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <h1>
+            UrbanWear 2026 Collection
+        </h1>
+
+
+        <p>
+
+            Premium Fashion for Men & Women
+
+            <br>
+
+            Discover the latest trends with unmatched quality.
+
+        </p>
+
+
+        <!-- SHOP NOW -->
+
+        <a href="#products"
+           class="hero-btn">
+
+            Shop Now
+
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    CATEGORIES
+================================================== -->
+
+<section class="categories"
+         id="categories">
+
+
+    <h2>
+        Shop By Category
+    </h2>
+
+
+    <div class="category-container">
+
+
+        <!-- MEN -->
+
+        <div class="category-card">
+
+            <img
+                src="{{ url_for('static', filename='images/categories/men.jpg') }}"
+                alt="Men Fashion">
+
+
+            <div class="category-content">
+
+                <h3>
+                    Men
+                </h3>
+
+
+                <a href="#products">
+
+                    Shop Now
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- WOMEN -->
+
+        <div class="category-card">
+
+            <img
+                src="{{ url_for('static', filename='images/categories/women.jpg') }}"
+                alt="Women Fashion">
+
+
+            <div class="category-content">
+
+                <h3>
+                    Women
+                </h3>
+
+
+                <a href="#products">
+
+                    Shop Now
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SHOES -->
+
+        <div class="category-card">
+
+            <img
+                src="{{ url_for('static', filename='images/categories/shoes.jpg') }}"
+                alt="Shoes">
+
+
+            <div class="category-content">
+
+                <h3>
+                    Shoes
+                </h3>
+
+
+                <a href="#products">
+
+                    Shop Now
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ACCESSORIES -->
+
+        <div class="category-card">
+
+            <img
+                src="{{ url_for('static', filename='images/categories/accessories.jpg') }}"
+                alt="Accessories">
+
+
+            <div class="category-content">
+
+                <h3>
+                    Accessories
+                </h3>
+
+
+                <a href="#products">
+
+                    Shop Now
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    SUMMER SALE
+================================================== -->
+
+<section class="sale-banner">
+
+
+    <div class="sale-overlay">
+
+
+        <h2>
+            ðŸ”¥ Summer Sale 2026
+        </h2>
+
+
+        <p>
+
+            Flat <strong>50% OFF</strong>
+            on selected products.
+
+            Limited Time Offer!
+
+        </p>
+
+
+        <a href="#products"
+           class="sale-btn">
+
+            Shop Now
+
+        </a>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                FEATURED PRODUCTS
+================================================== -->
+
+<section class="products"
+         id="products">
+
+
+    <h2>
+        Featured Products
+    </h2>
+
+
+    <div class="product-container">
+
+
+        {% for product in featured_products %}
+
+
+        <!-- ================= PRODUCT CARD ================= -->
+
+        <div class="card">
+
+
+            <!-- SALE LABEL -->
+
+            <span class="sale">
+
+                SALE
+
+            </span>
+
+
+
+            <!-- WISHLIST BUTTON -->
+
+            <button
+               type="button"
+               class="wishlist wishlist-btn"
+               data-id="{{ product.id }}"
+               data-name="{{ product.name }}"
+               data-price="{{ product.price }}"
+               data-old-price="{{ product.old_price }}"
+               data-image="{{ product.image }}"
+               data-rating="{{ product.rating }}"
+               data-description="{{ product.description|e }}"
+               aria-label="Add to wishlist"
+               title="Add to wishlist">
+
+                <i class="fa-regular fa-heart"></i>
+
+            </button>
+
+
+
+            <!-- PRODUCT IMAGE -->
+
+            <a href="/product/{{ product.id }}"
+               class="product-image-link">
+
+                <img
+                    src="{{ url_for('static', filename=product.image) }}"
+                    alt="{{ product.name }}">
+
+            </a>
+
+
+
+            <!-- PRODUCT INFORMATION -->
+
+            <div class="card-content">
+
+
+                <!-- RATING -->
+
+                <div class="rating">
+
+                    â­â­â­â­â­
+                    ({{ product.rating }})
+
+                </div>
+
+
+
+                <!-- PRODUCT NAME -->
+
+                <h3>
+
+                    <a href="/product/{{ product.id }}"
+                       class="product-link">
+
+                        {{ product.name }}
+
+                    </a>
+
+                </h3>
+
+
+
+                <!-- PRICE -->
+
+                <p class="price">
+
+                    â‚¹{{ product.price }}
+
+                    <span>
+
+                        â‚¹{{ product.old_price }}
+
+                    </span>
+
+                </p>
+
+
+
+                <!-- DIRECT ADD TO CART -->
+
+                <button
+                    type="button"
+                    class="add-cart"
+                    data-id="{{ product.id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-image="{{ product.image }}"
+                    aria-label="Add {{ product.name }} to cart">
+
+                    <i class="fa-solid fa-cart-plus"></i>
+
+                    Add To Cart
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+        {% endfor %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    BEST SELLERS
+================================================== -->
+
+<section class="best-sellers"
+         id="bestsellers">
+
+
+    <h2>
+        ðŸ”¥ Best Sellers
+    </h2>
+
+
+    <div class="product-container">
+
+
+        {% for product in best_sellers %}
+
+
+        <!-- ================= PRODUCT CARD ================= -->
+
+        <div class="card">
+
+
+            <!-- HOT LABEL -->
+
+            <span class="sale">
+
+                HOT
+
+            </span>
+
+
+
+            <!-- ================= WISHLIST BUTTON ================= -->
+<button
+    type="button"
+    class="wishlist wishlist-btn"
+    data-id="{{ product.id }}"
+    data-name="{{ product.name }}"
+    data-price="{{ product.price }}"
+    data-old-price="{{ product.old_price }}"
+    data-image="{{ product.image }}"
+    data-rating="{{ product.rating }}"
+    data-description="{{ product.description|e }}"
+    aria-label="Add to wishlist"
+    title="Add to wishlist">
+
+    <i class="fa-regular fa-heart"></i>
+
+</button>
+               
+
+
+
+            <!-- PRODUCT IMAGE -->
+
+            <a href="/product/{{ product.id }}"
+               class="product-image-link">
+
+                <img
+                    src="{{ url_for('static', filename=product.image) }}"
+                    alt="{{ product.name }}">
+
+            </a>
+
+
+
+            <!-- PRODUCT INFORMATION -->
+
+            <div class="card-content">
+
+
+                <!-- RATING -->
+
+                <div class="rating">
+
+                    â­â­â­â­â­
+                    ({{ product.rating }})
+
+                </div>
+
+
+
+                <!-- PRODUCT NAME -->
+
+                <h3>
+
+                    <a href="/product/{{ product.id }}"
+                       class="product-link">
+
+                        {{ product.name }}
+
+                    </a>
+
+                </h3>
+
+
+
+                <!-- PRICE -->
+
+                <p class="price">
+
+                    â‚¹{{ product.price }}
+
+                    <span>
+
+                        â‚¹{{ product.old_price }}
+
+                    </span>
+
+                </p>
+
+
+
+                <!-- DIRECT ADD TO CART -->
+
+                <button
+                    type="button"
+                    class="add-cart"
+                    data-id="{{ product.id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-image="{{ product.image }}"
+                    aria-label="Add {{ product.name }} to cart">
+
+                    <i class="fa-solid fa-cart-plus"></i>
+
+                    Add To Cart
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+        {% endfor %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    FEATURES
+================================================== -->
+
+<section class="features">
+
+
+    <h2>
+        Why Choose UrbanWear?
+    </h2>
+
+
+    <div class="feature-container">
+
+
+        <!-- FREE SHIPPING -->
+
+        <div class="feature-box">
+
+            <i class="fa-solid fa-truck-fast"></i>
+
+            <h3>
+                Free Shipping
+            </h3>
+
+            <p>
+                Free delivery on all orders above â‚¹999 across India.
+            </p>
+
+        </div>
+
+
+
+        <!-- SECURE PAYMENT -->
+
+        <div class="feature-box">
+
+            <i class="fa-solid fa-shield-halved"></i>
+
+            <h3>
+                Secure Payment
+            </h3>
+
+            <p>
+                100% secure payment with trusted payment gateways.
+            </p>
+
+        </div>
+
+
+
+        <!-- EASY RETURNS -->
+
+        <div class="feature-box">
+
+            <i class="fa-solid fa-rotate-left"></i>
+
+            <h3>
+                Easy Returns
+            </h3>
+
+            <p>
+                Hassle-free 7 day return and replacement policy.
+            </p>
+
+        </div>
+
+
+
+        <!-- SUPPORT -->
+
+        <div class="feature-box">
+
+            <i class="fa-solid fa-headset"></i>
+
+            <h3>
+                24/7 Support
+            </h3>
+
+            <p>
+                Our support team is always ready to help you.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    CUSTOMER REVIEWS
+================================================== -->
+
+<section class="reviews"
+         id="reviews">
+
+
+    <h2>
+        What Our Customers Say
+    </h2>
+
+
+    <div class="review-container">
+
+
+        <!-- REVIEW 1 -->
+
+        <div class="review-card">
+
+
+            <img
+                src="{{ url_for('static', filename='images/reviews/customer1.jpg') }}"
+                alt="Rahul Sharma">
+
+
+            <h3>
+                Rahul Sharma
+            </h3>
+
+
+            <div class="stars">
+
+                â­â­â­â­â­
+
+            </div>
+
+
+            <p>
+
+                Amazing quality! The t-shirt fabric is premium and very comfortable.
+                Delivery was also super fast.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- REVIEW 2 -->
+
+        <div class="review-card">
+
+
+            <img
+                src="{{ url_for('static', filename='images/reviews/customer2.jpg') }}"
+                alt="Priya Verma">
+
+
+            <h3>
+                Priya Verma
+            </h3>
+
+
+            <div class="stars">
+
+                â­â­â­â­â­
+
+            </div>
+
+
+            <p>
+
+                Loved the sneakers. Perfect fitting and stylish look.
+                Definitely ordering again.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- REVIEW 3 -->
+
+        <div class="review-card">
+
+
+            <img
+                src="{{ url_for('static', filename='images/reviews/customer3.jpg') }}"
+                alt="Aman Singh">
+
+
+            <h3>
+                Aman Singh
+            </h3>
+
+
+            <div class="stars">
+
+                â­â­â­â­â­
+
+            </div>
+
+
+            <p>
+
+                Excellent customer support and premium packaging.
+                UrbanWear exceeded my expectations.
+
+            </p>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    NEWSLETTER
+================================================== -->
+
+<section class="newsletter">
+
+
+    <div class="newsletter-content">
+
+
+        <h2>
+            Join Our Newsletter
+        </h2>
+
+
+        <p>
+
+            Subscribe to receive exclusive offers, latest fashion updates,
+            and special discounts directly in your inbox.
+
+        </p>
+
+
+        <form
+            class="newsletter-form"
+            onsubmit="return false;">
+
+
+            <input
+                type="email"
+                placeholder="Enter your email address"
+                required>
+
+
+            <button
+                type="submit">
+
+                Subscribe
+
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    FOOTER
+================================================== -->
+
+<footer class="footer">
+
+
+    <div class="footer-container">
+
+
+        <!-- ABOUT -->
+
+        <div class="footer-box">
+
+
+            <h2>
+                UrbanWear
+            </h2>
+
+
+            <p>
+
+                Premium fashion brand delivering quality clothing,
+                footwear and accessories across India.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- QUICK LINKS -->
+
+        <div class="footer-box">
+
+
+            <h3>
+                Quick Links
+            </h3>
+
+
+            <ul>
+
+
+                <li>
+
+                    <a href="/">
+                        Home
+                    </a>
+
+                </li>
+
+
+                <li>
+
+                    <a href="#categories">
+                        Categories
+                    </a>
+
+                </li>
+
+
+                <li>
+
+                    <a href="#products">
+                        Products
+                    </a>
+
+                </li>
+
+
+                <li>
+
+                    <a href="#bestsellers">
+                        Best Sellers
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+
+        </div>
+
+
+
+        <!-- CUSTOMER SUPPORT -->
+
+        <div class="footer-box">
+
+
+            <h3>
+                Customer Support
+            </h3>
+
+
+            <ul>
+
+
+                <li>
+
+                    <a href="#">
+                        Contact Us
+                    </a>
+
+                </li>
+
+
+                <li>
+
+                    <a href="#">
+                        Return Policy
+                    </a>
+
+                </li>
+
+
+                <li>
+
+                    <a href="#">
+                        Shipping Info
+                    </a>
+
+                </li>
+
+
+                <li>
+
+                    <a href="#">
+                        Privacy Policy
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+
+        </div>
+
+
+
+        <!-- SOCIAL MEDIA -->
+
+        <div class="footer-box">
+
+
+            <h3>
+                Follow Us
+            </h3>
+
+
+            <div class="social-icons">
+
+
+                <a href="#"
+                   aria-label="Facebook">
+
+                    <i class="fab fa-facebook-f"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="Instagram">
+
+                    <i class="fab fa-instagram"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="X">
+
+                    <i class="fab fa-x-twitter"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="YouTube">
+
+                    <i class="fab fa-youtube"></i>
+
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <hr>
+
+
+
+    <p class="copyright">
+
+        Â© 2026 UrbanWear. All Rights Reserved.
+
+    </p>
+
+
+</footer>
+
+
+
+<!-- ==================================================
+                JAVASCRIPT
+================================================== -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+
+</body>
+
+</html>
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\templates\login.html
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+    <div class="logo">
+        Urban<span>Wear</span>
+    </div>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="/">Home</a>
+            </li>
+
+            <li>
+                <a href="/#products">Products</a>
+            </li>
+
+            <li>
+                <a href="/cart">Cart</a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<!-- ================= LOGIN ================= -->
+
+<section class="signup-section">
+
+    <div class="signup-box">
+
+        <h1>Login</h1>
+
+        <p>Welcome back to UrbanWear</p>
+
+
+        <!-- ================= FLASH MESSAGES ================= -->
+
+        {% with messages = get_flashed_messages() %}
+
+            {% if messages %}
+
+                <div class="flash-messages">
+
+                    {% for message in messages %}
+
+                        <p>{{ message }}</p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- ================= LOGIN FORM ================= -->
+
+        <form method="POST"
+              action="{{ url_for('login') }}">
+
+
+            <!-- Email -->
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required>
+
+            </div>
+
+
+            <!-- Password -->
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required>
+
+            </div>
+
+
+            <!-- Remember Me -->
+
+            <div class="remember-row">
+
+                <label>
+
+                    <input
+                        type="checkbox"
+                        name="remember">
+
+                    Remember Me
+
+                </label>
+
+            </div>
+
+
+            <!-- Login Button -->
+
+            <button
+                type="submit"
+                class="signup-btn">
+
+                Login
+
+            </button>
+
+
+        </form>
+
+
+        <!-- ================= FORGOT PASSWORD ================= -->
+
+        <p class="forgot-password">
+
+            <a href="#">
+                Forgot Password?
+            </a>
+
+        </p>
+
+
+        <!-- ================= SIGNUP LINK ================= -->
+
+        <p class="login-link">
+
+            Don't have an account?
+
+            <a href="{{ url_for('signup') }}">
+                Create Account
+            </a>
+
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+    <div class="footer-bottom">
+
+        <p>
+            Â© 2026 UrbanWear. All Rights Reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+</body>
+
+</html>
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\templates\product.html
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ product.name }} | UrbanWear
+    </title>
+
+
+    <!-- Main CSS -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+
+    <!-- Google Font -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+    <div class="logo">
+
+        Urban<span>Wear</span>
+
+    </div>
+
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/#products">
+                    Products
+                </a>
+            </li>
+
+            <li>
+                <a href="/cart">
+                    Cart
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="icons">
+
+        <a
+            href="/cart"
+            class="cart-icon"
+            aria-label="Shopping Cart"
+        >
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cart-count">
+                0
+            </span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- ================= PRODUCT DETAILS ================= -->
+
+<section class="product-details">
+
+
+    <!-- ================= THUMBNAILS ================= -->
+
+    <div class="thumbnail-list">
+
+        {% for img in product.images %}
+
+        <img
+            src="{{ url_for('static', filename=img) }}"
+            class="thumbnail {% if loop.first %}active{% endif %}"
+            onclick="changeImage(this)"
+            alt="{{ product.name }} thumbnail"
+        >
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- ================= MAIN PRODUCT IMAGE ================= -->
+
+    <div class="product-image">
+
+        <img
+            id="main-image"
+            src="{{ url_for('static', filename=product.image) }}"
+            alt="{{ product.name }}"
+        >
+
+    </div>
+
+
+    <!-- ================= PRODUCT INFORMATION ================= -->
+
+    <div class="product-info">
+
+
+        <span class="product-category">
+
+            {{ product.category }}
+
+        </span>
+
+
+        <h1>
+
+            {{ product.name }}
+
+        </h1>
+
+
+        <div class="product-rating">
+
+            â­â­â­â­â­
+
+            ({{ product.rating }})
+
+        </div>
+
+
+        <div class="product-price">
+
+            â‚¹{{ product.price }}
+
+            <del>
+                â‚¹{{ product.old_price }}
+            </del>
+
+        </div>
+
+
+        <p class="product-description">
+
+            {{ product.description }}
+
+        </p>
+
+
+        <!-- ================= SIZE ================= -->
+
+        <h3 class="option-title">
+
+            Select Size
+
+        </h3>
+
+
+        <div class="size-options">
+
+            <button type="button">
+                S
+            </button>
+
+            <button
+                type="button"
+                class="active"
+            >
+                M
+            </button>
+
+            <button type="button">
+                L
+            </button>
+
+            <button type="button">
+                XL
+            </button>
+
+        </div>
+
+
+        <!-- ================= COLOR ================= -->
+
+        <h3 class="option-title">
+
+            Select Color
+
+        </h3>
+
+
+        <div class="color-options">
+
+            <span
+                class="color black"
+                data-color="Black"
+                title="Black"
+            ></span>
+
+            <span
+                class="color white"
+                data-color="White"
+                title="White"
+            ></span>
+
+            <span
+                class="color blue"
+                data-color="Blue"
+                title="Blue"
+            ></span>
+
+        </div>
+
+
+        <!-- ================= QUANTITY ================= -->
+
+        <h3 class="option-title">
+
+            Quantity
+
+        </h3>
+
+
+        <div class="quantity-box">
+
+            <input
+                id="quantity"
+                type="number"
+                min="1"
+                max="10"
+                value="1"
+            >
+
+        </div>
+
+
+        <!-- ================= PRODUCT BUTTONS ================= -->
+
+        <div class="product-buttons">
+
+
+            <!-- BUY NOW -->
+
+            <button
+                type="button"
+                class="buy-btn"
+            >
+
+                Buy Now
+
+            </button>
+
+
+            <!-- ADD TO CART -->
+
+            <button
+                type="button"
+                class="cart-btn add-cart"
+                data-id="{{ product.id }}"
+                data-name="{{ product.name }}"
+                data-price="{{ product.price }}"
+                data-image="{{ product.image }}"
+            >
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                Add To Cart
+
+            </button>
+
+
+            <!-- WISHLIST -->
+
+            <button
+                type="button"
+                class="wishlist-btn"
+                aria-label="Add to Wishlist"
+            >
+
+                <i class="fa-regular fa-heart"></i>
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="footer-bottom">
+
+        <p>
+
+            Â© 2026 UrbanWear. All Rights Reserved.
+
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script
+    src="{{ url_for('static', filename='js/script.js') }}"
+></script>
+
+
+</body>
+
+</html>
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\templates\signup.html
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Signup | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+</body>
+
+<header>
+
+    <div class="logo">
+
+        Urban<span>Wear</span>
+
+    </div>
+
+
+    <nav>
+
+        <ul>
+
+            <li><a href="/">Home</a></li>
+
+            <li><a href="/#products">Products</a></li>
+
+            <li><a href="/cart">Cart</a></li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="icons">
+
+        <a href="/cart" class="cart-icon">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cart-count">0</span>
+
+        </a>
+
+    </div>
+
+
+</header>
+
+
+    <div class="signup-container">
+
+    <h2>Create Account</h2>
+
+    <p>Join UrbanWear and start shopping today</p>
+
+
+    {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="flash-message">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+    <form method="POST" action="/signup">
+
+    <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" name="full_name" placeholder="Enter your full name">
+    </div>
+
+    <div class="input-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Enter your email">
+    </div>
+
+    <div class="input-group">
+        <label>Phone Number</label>
+        <input type="text" name="phone" placeholder="Enter your phone number">
+    </div>
+
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Create password">
+    </div>
+
+    <div class="input-group">
+        <label>Confirm Password</label>
+        <input type="password" name="confirm_password" placeholder="Confirm password">
+    </div>
+
+    <button type="submit">
+        Create Account
+    </button>
+
+</form>
+
+
+        <p class="login-link">
+
+            Already have an account?
+
+            <a href="/login">Login</a>
+
+        </p>
+
+
+    </div>
+
+
+</section>
+<form method="POST" action="/signup">
+
+
+============================================================
+FILE: C:\Users\Shubham Choudhary\OneDrive - LNVS FINTECH PRIVATE LIMITED\Documents\UrbanWear\templates\wishlist.html
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>UrbanWear | Wishlist</title>
+
+
+    <!-- ================= CSS ================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <!-- ================= GOOGLE FONT ================= -->
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+
+    <!-- ================= FONT AWESOME ================= -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+                    HEADER
+================================================== -->
+
+<header>
+
+    <!-- LOGO -->
+
+    <div class="logo">
+
+        <a href="/" style="text-decoration: none; color: inherit;">
+            Urban<span>Wear</span>
+        </a>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/#categories">
+                    Categories
+                </a>
+            </li>
+
+            <li>
+                <a href="/#products">
+                    Products
+                </a>
+            </li>
+
+            <li>
+                <a href="/#bestsellers">
+                    Best Sellers
+                </a>
+            </li>
+
+            <li>
+                <a href="/#reviews">
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="/cart">
+                    Cart
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- HEADER ICONS -->
+
+    <div class="icons">
+
+        <!-- SEARCH -->
+
+        <i class="fa-solid fa-magnifying-glass"
+           title="Search">
+        </i>
+
+
+        <!-- WISHLIST -->
+
+        <a href="/wishlist"
+           class="wishlist-header-icon"
+           title="Wishlist"
+           aria-label="Wishlist">
+
+            <i class="fa-solid fa-heart"></i>
+
+            <span id="wishlist-count">
+                0
+            </span>
+
+        </a>
+
+
+        <!-- CART -->
+
+        <a href="/cart"
+           class="cart-icon"
+           title="Shopping Cart">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cart-count">
+                0
+            </span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==================================================
+                    WISHLIST PAGE
+================================================== -->
+
+<main class="wishlist-page">
+
+
+    <!-- PAGE HEADER -->
+
+    <section class="wishlist-header">
+
+        <h1>
+            My Wishlist â¤ï¸
+        </h1>
+
+        <p>
+            Products you have saved for later
+        </p>
+
+    </section>
+
+
+
+    <!-- ==================================================
+                    WISHLIST CONTENT
+    ================================================== -->
+
+    <section class="wishlist-section">
+
+
+        <!-- CLEAR WISHLIST -->
+
+        <div class="wishlist-actions">
+
+            <button
+                type="button"
+                id="clear-wishlist"
+                class="clear-wishlist-btn">
+
+                <i class="fa-solid fa-trash"></i>
+
+                Clear Wishlist
+
+            </button>
+
+        </div>
+
+
+
+        <!-- WISHLIST PRODUCTS -->
+
+        <div id="wishlist-items"
+             class="wishlist-items">
+
+            <!-- Products will be loaded by script.js -->
+
+        </div>
+
+
+
+        <!-- EMPTY WISHLIST -->
+
+        <div id="wishlist-empty"
+             class="wishlist-empty"
+             style="display: none;">
+
+            <div class="wishlist-empty-icon">
+
+                <i class="fa-regular fa-heart"></i>
+
+            </div>
+
+
+            <h2>
+                Your Wishlist is Empty
+            </h2>
+
+
+            <p>
+                You haven't added any products to your wishlist yet.
+            </p>
+
+
+            <a href="/#products"
+               class="wishlist-shop-btn">
+
+                <i class="fa-solid fa-bag-shopping"></i>
+
+                Continue Shopping
+
+            </a>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+
+
+<!-- ==================================================
+                    FOOTER
+================================================== -->
+
+<footer class="footer">
+
+
+    <div class="footer-container">
+
+
+        <!-- ABOUT -->
+
+        <div class="footer-box">
+
+            <h2>
+                UrbanWear
+            </h2>
+
+            <p>
+                Premium fashion brand delivering quality clothing,
+                footwear and accessories across India.
+            </p>
+
+        </div>
+
+
+
+        <!-- QUICK LINKS -->
+
+        <div class="footer-box">
+
+            <h3>
+                Quick Links
+            </h3>
+
+            <ul>
+
+                <li>
+                    <a href="/">
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/#categories">
+                        Categories
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/#products">
+                        Products
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/cart">
+                        Cart
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+
+
+        <!-- CUSTOMER SUPPORT -->
+
+        <div class="footer-box">
+
+            <h3>
+                Customer Support
+            </h3>
+
+            <ul>
+
+                <li>
+                    <a href="#">
+                        Contact Us
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Return Policy
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Shipping Info
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Privacy Policy
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+
+
+        <!-- SOCIAL MEDIA -->
+
+        <div class="footer-box">
+
+            <h3>
+                Follow Us
+            </h3>
+
+            <div class="social-icons">
+
+                <a href="#"
+                   aria-label="Facebook">
+
+                    <i class="fab fa-facebook-f"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="Instagram">
+
+                    <i class="fab fa-instagram"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="X">
+
+                    <i class="fab fa-x-twitter"></i>
+
+                </a>
+
+
+                <a href="#"
+                   aria-label="YouTube">
+
+                    <i class="fab fa-youtube"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <hr>
+
+
+    <p class="copyright">
+
+        Â© 2026 UrbanWear. All Rights Reserved.
+
+    </p>
+
+
+</footer>
+
+
+
+<!-- ==================================================
+                JAVASCRIPT
+================================================== -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+
+</body>
+
+</html>

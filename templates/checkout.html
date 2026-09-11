@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    <div class="top-bar-inner">
+        <span class="top-bar-left">
+            <i class="fa-solid fa-truck-fast"></i>
+            Complimentary shipping on all orders over ₹999
+        </span>
+        <span class="top-bar-right">
+            <i class="fa-solid fa-globe"></i>
+            Ship to: India
+        </span>
+    </div>
+</div>
+
+
+
+<!-- MAIN HEADER -->
+
+<header class="main-header">
+
+    <div class="logo">
+        Urban<span>Wear</span>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#categories">Categories</a></li>
+            <li><a href="/#products">Products</a></li>
+            <li><a href="/#bestsellers">Best Sellers</a></li>
+
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                    <li><a href="/admin">Admin</a></li>
+                {% endif %}
+                <li><a href="/orders">Orders</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="header-icons">
+
+        <a href="#" class="icon-btn" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </a>
+
+        {% if current_user.is_authenticated %}
+            <a href="/profile" class="icon-btn" title="Profile">
+                <i class="fa-regular fa-user"></i>
+            </a>
+            <a href="/logout" class="icon-btn" title="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        {% endif %}
+
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span id="wishlist-count">0</span>
+        </a>
+
+        <a href="/cart" class="icon-btn cart-icon" title="Cart">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- CHECKOUT -->
+
+<section class="checkout-section">
+
+    <div class="checkout-container">
+
+        <div class="checkout-header">
+
+            <h1>Checkout</h1>
+
+            <p>Complete your order</p>
+
+        </div>
+
+
+        {% with messages = get_flashed_messages() %}
+
+            {% if messages %}
+
+                <div class="flash-messages">
+
+                    {% for message in messages %}
+
+                        <p>{{ message }}</p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST"
+              action="{{ url_for('checkout') }}"
+              id="checkout-form">
+
+            <!-- CSRF TOKEN -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="checkout-grid">
+
+                <!-- LEFT COLUMN -->
+
+                <div class="checkout-left">
+
+                    <div class="checkout-box">
+
+                        <h2>
+                            <i class="fa-solid fa-truck"></i>
+                            Shipping Details
+                        </h2>
+
+                        <div class="form-group">
+                            <label for="full_name">Full Name</label>
+                            <input type="text"
+                                   id="full_name"
+                                   name="full_name"
+                                   value="{{ current_user.full_name }}"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea id="address"
+                                      name="address"
+                                      rows="3"
+                                      placeholder="Enter your complete address"
+                                      required></textarea>
+                        </div>
+
+                        <div class="form-row">
+
+                            <div class="form-group half">
+                                <label for="city">City</label>
+                                <input type="text"
+                                       id="city"
+                                       name="city"
+                                       placeholder="City"
+                                       required>
+                            </div>
+
+                            <div class="form-group half">
+                                <label for="state">State</label>
+                                <input type="text"
+                                       id="state"
+                                       name="state"
+                                       placeholder="State"
+                                       required>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text"
+                                   id="pincode"
+                                   name="pincode"
+                                   placeholder="Pincode"
+                                   required>
+                        </div>
+
+                    </div>
+
+
+                    <div class="checkout-box">
+
+                        <h2>
+                            <i class="fa-solid fa-credit-card"></i>
+                            Payment Method
+                        </h2>
+
+                        <div class="payment-options">
+
+                            <label class="payment-option">
+
+                                <input type="radio"
+                                       name="payment_method"
+                                       value="cod"
+                                       checked>
+
+                                <div class="payment-icon">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                </div>
+
+                                <div class="payment-info">
+                                    <span class="payment-title">Cash on Delivery</span>
+                                    <span class="payment-desc">Pay when you receive</span>
+                                </div>
+
+                            </label>
+
+
+                            <label class="payment-option">
+
+                                <input type="radio"
+                                       name="payment_method"
+                                       value="card">
+
+                                <div class="payment-icon">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                </div>
+
+                                <div class="payment-info">
+                                    <span class="payment-title">Credit / Debit Card</span>
+                                    <span class="payment-desc">Pay securely with card</span>
+                                </div>
+
+                            </label>
+
+
+                            <label class="payment-option">
+
+                                <input type="radio"
+                                       name="payment_method"
+                                       value="upi">
+
+                                <div class="payment-icon">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                </div>
+
+                                <div class="payment-info">
+                                    <span class="payment-title">UPI</span>
+                                    <span class="payment-desc">Pay using UPI apps</span>
+                                </div>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT COLUMN -->
+
+                <div class="checkout-right">
+
+                    <div class="checkout-summary">
+
+                        <h2>
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            Order Summary
+                        </h2>
+
+                        <div id="checkout-items">
+                            <!-- JavaScript will load cart items here -->
+                        </div>
+
+                        <div class="checkout-total-row">
+                            <span>Subtotal</span>
+                            <span id="checkout-subtotal">₹0</span>
+                        </div>
+
+                        <div class="checkout-total-row">
+                            <span>Shipping</span>
+                            <span>FREE</span>
+                        </div>
+
+                        <div class="checkout-grand-total">
+
+                            <span>Total</span>
+
+                            <strong>₹<span id="checkout-total">0</span></strong>
+
+                        </div>
+
+                        <input type="hidden"
+                               name="cart_data"
+                               id="cart-data"
+                               value="">
+
+                        <button type="submit" class="place-order-btn">
+
+                            <i class="fa-solid fa-lock"></i>
+                            Place Order
+
+                        </button>
+
+                        <p class="secure-note">
+
+                            <i class="fa-solid fa-shield-halved"></i>
+                            Your payment information is secure
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-box">
+            <h2>Urban<span>Wear</span></h2>
+            <p>Premium fashion brand delivering quality clothing, footwear and accessories across India.</p>
+        </div>
+
+        <div class="footer-box">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/#categories">Categories</a></li>
+                <li><a href="/#products">Products</a></li>
+                <li><a href="/#bestsellers">Best Sellers</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/orders">Orders</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Support</h3>
+            <ul>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Return Policy</a></li>
+                <li><a href="#">Shipping Info</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <p class="copyright">
+        © 2026 UrbanWear. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+        const checkoutItems = document.getElementById("checkout-items");
+        const checkoutSubtotal = document.getElementById("checkout-subtotal");
+        const checkoutTotal = document.getElementById("checkout-total");
+        const cartDataInput = document.getElementById("cart-data");
+
+        if (cart.length === 0) {
+            checkoutItems.innerHTML = '<div class="empty-checkout"><i class="fa-solid fa-cart-arrow-down"></i><p>Your cart is empty.</p></div>';
+            return;
+        }
+
+        let total = 0;
+        let html = "";
+
+        cart.forEach(item => {
+            const subtotal = item.price * item.quantity;
+            total += subtotal;
+
+            html += `
+                <div class="checkout-item">
+                    <div class="checkout-item-info">
+                        <span class="checkout-item-name">${item.name}</span>
+                        <span class="checkout-item-meta">
+                            Qty: ${item.quantity}
+                            ${item.size ? ` | Size: ${item.size}` : ''}
+                            ${item.color ? ` | Color: ${item.color}` : ''}
+                        </span>
+                    </div>
+                    <div class="checkout-item-price">
+                        <span>₹${item.price}</span>
+                        <strong>₹${subtotal.toLocaleString("en-IN")}</strong>
+                    </div>
+                </div>
+            `;
+        });
+
+        checkoutItems.innerHTML = html;
+        checkoutSubtotal.textContent = "₹" + total.toLocaleString("en-IN");
+        checkoutTotal.textContent = total.toLocaleString("en-IN");
+
+        cartDataInput.value = JSON.stringify(cart);
+    });
+</script>
+
+</body>
+
+</html>

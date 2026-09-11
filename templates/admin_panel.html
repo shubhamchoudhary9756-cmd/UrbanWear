@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Panel | UrbanWear</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ADMIN LAYOUT -->
+
+<div class="admin-layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-logo">
+            Urban<span>Wear</span>
+            <span class="admin-badge">Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('admin_panel') }}"
+               class="sidebar-link {% if active_tab is not defined or active_tab == 'dashboard' %}active{% endif %}">
+
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Dashboard</span>
+
+            </a>
+
+            <a href="{{ url_for('admin_orders_tab') }}"
+               class="sidebar-link {% if active_tab == 'orders' %}active{% endif %}">
+
+                <i class="fa-solid fa-box"></i>
+                <span>Orders</span>
+
+            </a>
+
+            <a href="{{ url_for('admin_products_tab') }}"
+               class="sidebar-link {% if active_tab == 'products' %}active{% endif %}">
+
+                <i class="fa-solid fa-tags"></i>
+                <span>Products</span>
+
+            </a>
+
+            <a href="{{ url_for('admin_users_tab') }}"
+               class="sidebar-link {% if active_tab == 'users' %}active{% endif %}">
+
+                <i class="fa-solid fa-users"></i>
+                <span>Users</span>
+
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <a href="{{ url_for('home') }}" class="sidebar-link">
+                <i class="fa-solid fa-house"></i>
+                <span>View Store</span>
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="sidebar-link logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="admin-main">
+
+
+        <!-- ============================================ -->
+        <!-- DASHBOARD TAB -->
+        <!-- ============================================ -->
+
+        {% if active_tab is not defined or active_tab == 'dashboard' %}
+
+            <div class="admin-content">
+
+                <div class="admin-content-header">
+
+                    <h1>
+                        <i class="fa-solid fa-gauge-high"></i>
+                        Dashboard
+                    </h1>
+
+                    <p>Welcome back, {{ current_user.full_name }}!</p>
+
+                </div>
+
+                {% with messages = get_flashed_messages() %}
+
+                    {% if messages %}
+
+                        <div class="flash-messages">
+
+                            {% for message in messages %}
+
+                                <p>{{ message }}</p>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                <div class="stats-grid">
+
+                    <div class="stat-card red">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">₹{{ total_revenue }}</span>
+                            <span class="stat-label">Total Revenue</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ total_orders }}</span>
+                            <span class="stat-label">Total Orders</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ total_users }}</span>
+                            <span class="stat-label">Total Users</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card yellow">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-tags"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ total_products if total_products else 0 }}</span>
+                            <span class="stat-label">Products</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-grid">
+
+                    <div class="recent-orders-card">
+
+                        <div class="card-header">
+
+                            <h3>
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                Recent Orders
+                            </h3>
+
+                            <a href="{{ url_for('admin_orders_tab') }}" class="view-all-btn">
+                                View All
+                            </a>
+
+                        </div>
+
+                        {% if recent_orders %}
+
+                            <div class="recent-orders-list">
+
+                                {% for order in recent_orders %}
+
+                                    <div class="recent-order-item">
+
+                                        <div class="order-info">
+                                            <span class="order-id">#{{ order.id }}</span>
+                                            <span class="order-customer">{{ order.user.full_name }}</span>
+                                        </div>
+
+                                        <div class="order-meta">
+                                            <span class="order-total">₹{{ order.total_amount }}</span>
+                                            <span class="order-status {{ order.status }}">{{ order.status }}</span>
+                                        </div>
+
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <p class="no-data">No recent orders.</p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="quick-actions-card">
+
+                        <div class="card-header">
+
+                            <h3>
+                                <i class="fa-solid fa-bolt"></i>
+                                Quick Actions
+                            </h3>
+
+                        </div>
+
+                        <div class="quick-actions-list">
+
+                            <a href="{{ url_for('admin_orders_tab') }}" class="quick-action-btn">
+                                <i class="fa-solid fa-box"></i>
+                                Manage Orders
+                            </a>
+
+                            <a href="{{ url_for('admin_products_tab') }}" class="quick-action-btn">
+                                <i class="fa-solid fa-tags"></i>
+                                Manage Products
+                            </a>
+
+                            <a href="{{ url_for('admin_users_tab') }}" class="quick-action-btn">
+                                <i class="fa-solid fa-users"></i>
+                                Manage Users
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ============================================ -->
+        <!-- ORDERS TAB -->
+        <!-- ============================================ -->
+
+        {% if active_tab == 'orders' %}
+
+            <div class="admin-content">
+
+                <div class="admin-content-header">
+
+                    <h1>
+                        <i class="fa-solid fa-box"></i>
+                        Orders
+                    </h1>
+
+                    <p>Manage all orders</p>
+
+                </div>
+
+                {% with messages = get_flashed_messages() %}
+
+                    {% if messages %}
+
+                        <div class="flash-messages">
+
+                            {% for message in messages %}
+
+                                <p>{{ message }}</p>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                {% if orders %}
+
+                    <div class="admin-orders-table">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for order in orders %}
+
+                                    <tr>
+
+                                        <td>
+                                            <span class="order-id-badge">#{{ order.id }}</span>
+                                        </td>
+
+                                        <td>
+                                            <div class="customer-info">
+                                                <div class="customer-avatar">
+                                                    {{ order.user.full_name[0]|upper }}
+                                                </div>
+                                                <span>{{ order.user.full_name }}</span>
+                                            </div>
+                                        </td>
+
+                                        <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+
+                                        <td>
+                                            <span class="order-total-badge">₹{{ order.total_amount }}</span>
+                                        </td>
+
+                                        <td>
+                                            <span class="order-status {{ order.status }}">
+                                                {{ order.status }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <a href="{{ url_for('admin_order_details', order_id=order.id) }}"
+                                               class="admin-view-btn">
+                                                <i class="fa-solid fa-eye"></i>
+                                                View
+                                            </a>
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-orders">
+
+                        <div class="empty-orders-icon">
+                            <i class="fa-solid fa-inbox"></i>
+                        </div>
+
+                        <h2>No Orders Yet</h2>
+
+                        <p>No orders have been placed yet.</p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ============================================ -->
+        <!-- PRODUCTS TAB -->
+        <!-- ============================================ -->
+
+        {% if active_tab == 'products' %}
+
+            <div class="admin-content">
+
+                <div class="admin-content-header"
+                     style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+
+                    <div>
+                        <h1>
+                            <i class="fa-solid fa-tags"></i>
+                            Products
+                        </h1>
+                        <p>Manage all products</p>
+                    </div>
+
+                    <a href="{{ url_for('admin_add_product') }}"
+                       class="admin-view-btn"
+                       style="padding: 12px 24px; font-size: 12px;">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Add New Product
+
+                    </a>
+
+                </div>
+
+                {% with messages = get_flashed_messages() %}
+
+                    {% if messages %}
+
+                        <div class="flash-messages">
+
+                            {% for message in messages %}
+
+                                <p>{{ message }}</p>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                {% if products %}
+
+                    <div class="admin-products-grid">
+
+                        {% for product in products %}
+
+                            <div class="admin-product-card">
+
+                                <div class="product-image">
+                                    <img src="{{ url_for('static', filename=product.image) }}"
+                                         alt="{{ product.name }}">
+                                </div>
+
+                                <div class="product-info">
+
+                                    <h3>{{ product.name }}</h3>
+
+                                    <p class="product-price">₹{{ product.price }}</p>
+
+                                    {% if product.old_price %}
+                                        <p class="product-old-price">₹{{ product.old_price }}</p>
+                                    {% endif %}
+
+                                    <span class="product-category">{{ product.category }}</span>
+
+                                    {% if product.stock %}
+                                        <span class="product-category" style="margin-left: 8px;">
+                                            Stock: {{ product.stock }}
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="product-actions"
+                                     style="display: flex; gap: 8px; flex-wrap: wrap;">
+
+                                    <a href="{{ url_for('product', product_id=product.id) }}"
+                                       class="admin-view-btn"
+                                       style="flex: 1; justify-content: center;">
+
+                                        <i class="fa-solid fa-eye"></i>
+                                        View
+
+                                    </a>
+
+                                    <a href="{{ url_for('admin_edit_product', product_id=product.id) }}"
+                                       class="admin-view-btn"
+                                       style="flex: 1; justify-content: center; background: #c9a961;">
+
+                                        <i class="fa-solid fa-pen"></i>
+                                        Edit
+
+                                    </a>
+
+                                    <form method="POST"
+                                          action="{{ url_for('admin_delete_product', product_id=product.id) }}"
+                                          onsubmit="return confirm('Are you sure you want to delete this product?')"
+                                          style="flex: 1;">
+
+                                        <!-- CSRF TOKEN -->
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                        <button type="submit"
+                                                class="admin-view-btn"
+                                                style="width: 100%; justify-content: center; background: #dc3545; border: none; cursor: pointer;">
+
+                                            <i class="fa-solid fa-trash"></i>
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-orders">
+
+                        <div class="empty-orders-icon">
+                            <i class="fa-solid fa-tags"></i>
+                        </div>
+
+                        <h2>No Products Yet</h2>
+
+                        <p>Click "Add New Product" to get started.</p>
+
+                        <a href="{{ url_for('admin_add_product') }}"
+                           class="admin-view-btn"
+                           style="margin-top: 20px; padding: 14px 30px;">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add First Product
+
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ============================================ -->
+        <!-- USERS TAB -->
+        <!-- ============================================ -->
+
+        {% if active_tab == 'users' %}
+
+            <div class="admin-content">
+
+                <div class="admin-content-header">
+
+                    <h1>
+                        <i class="fa-solid fa-users"></i>
+                        Users
+                    </h1>
+
+                    <p>Manage all registered users</p>
+
+                </div>
+
+
+                {% if users %}
+
+                    <div class="admin-orders-table">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Joined</th>
+                                    <th>Admin</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for user in users %}
+
+                                    <tr>
+
+                                        <td>#{{ user.id }}</td>
+
+                                        <td>
+                                            <div class="customer-info">
+                                                <div class="customer-avatar">
+                                                    {{ user.full_name[0]|upper }}
+                                                </div>
+                                                <span>{{ user.full_name }}</span>
+                                            </div>
+                                        </td>
+
+                                        <td>{{ user.email }}</td>
+
+                                        <td>{{ user.phone }}</td>
+
+                                        <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
+
+                                        <td>
+                                            {% if user.is_admin %}
+                                                <span class="admin-badge-small">Yes</span>
+                                            {% else %}
+                                                <span class="user-badge-small">No</span>
+                                            {% endif %}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-orders">
+
+                        <i class="fa-solid fa-users-slash"></i>
+
+                        <h2>No Users Found</h2>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+    </main>
+
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>

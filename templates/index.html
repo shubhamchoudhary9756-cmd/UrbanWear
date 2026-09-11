@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>UrbanWear | Premium Fashion Store</title>
+
+    <!-- ================= CSS ================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- ================= GOOGLE FONTS ================= -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- ================= FONT AWESOME ================= -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+                    TOP BAR
+================================================== -->
+
+<div class="top-bar">
+
+    <div class="top-bar-inner">
+
+        <span class="top-bar-left">
+            <i class="fa-solid fa-truck-fast"></i>
+            Complimentary shipping on all orders over ₹999
+        </span>
+
+        <span class="top-bar-right">
+            <i class="fa-solid fa-globe"></i>
+            Ship to: India
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==================================================
+                    MAIN HEADER
+================================================== -->
+
+<header class="main-header">
+
+    <div class="logo">
+        Urban<span>Wear</span>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="#categories">New In</a></li>
+            <li><a href="#products">Women</a></li>
+            <li><a href="#products">Men</a></li>
+            <li><a href="#categories">Accessories</a></li>
+            <li><a href="#bestsellers">Collections</a></li>
+
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                    <li><a href="/admin">Admin</a></li>
+                {% endif %}
+                <li><a href="/orders">Orders</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="header-icons">
+
+        <a href="#" class="icon-btn" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </a>
+
+        {% if current_user.is_authenticated %}
+            <a href="/profile" class="icon-btn" title="Profile">
+                <i class="fa-regular fa-user"></i>
+            </a>
+            <a href="/logout" class="icon-btn" title="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        {% else %}
+            <a href="/login" class="icon-btn" title="Login">
+                <i class="fa-regular fa-user"></i>
+            </a>
+        {% endif %}
+
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span id="wishlist-count">0</span>
+        </a>
+
+        <a href="/cart" class="icon-btn cart-icon" title="Cart">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==================================================
+                    SPLIT HERO
+================================================== -->
+
+<section class="hero-split">
+
+    <div class="hero-split-text">
+
+        <span class="hero-tag">
+            Spring / Summer 2026
+        </span>
+
+        <h1>
+            Timeless Design.<br>
+            Modern Essence.
+        </h1>
+
+        <p>
+            Discover effortless pieces crafted for a life well-lived.
+            Premium quality, sustainable fabrics, timeless style.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="#products" class="btn-primary">
+                Shop Women
+            </a>
+
+            <a href="#products" class="btn-secondary">
+                Shop Men
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="hero-split-image">
+
+        <img src="{{ url_for('static', filename='images/Hero.jpg') }}"
+             alt="UrbanWear Collection">
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    CATEGORIES
+================================================== -->
+
+<section class="categories" id="categories">
+
+    <div class="section-header">
+
+        <span class="section-tag">Explore</span>
+
+        <h2>Shop by Category</h2>
+
+        <p>Find your perfect style</p>
+
+    </div>
+
+    <div class="category-container">
+
+        <div class="category-card">
+            <img src="{{ url_for('static', filename='images/categories/men.jpg') }}" alt="Men">
+            <div class="category-content">
+                <h3>Men</h3>
+                <a href="#products">Shop Now</a>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <img src="{{ url_for('static', filename='images/categories/women.jpg') }}" alt="Women">
+            <div class="category-content">
+                <h3>Women</h3>
+                <a href="#products">Shop Now</a>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <img src="{{ url_for('static', filename='images/categories/shoes.jpg') }}" alt="Shoes">
+            <div class="category-content">
+                <h3>Shoes</h3>
+                <a href="#products">Shop Now</a>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="Accessories">
+            <div class="category-content">
+                <h3>Accessories</h3>
+                <a href="#products">Shop Now</a>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    SALE BANNER
+================================================== -->
+
+<section class="sale-banner">
+
+    <div class="sale-overlay">
+
+        <h2>Summer Sale 2026</h2>
+
+        <p>
+            Flat <strong>50% OFF</strong> on selected products.
+            Limited Time Offer!
+        </p>
+
+        <a href="#products" class="sale-btn">
+            Shop Now
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    FEATURED PRODUCTS
+================================================== -->
+
+<section class="products" id="products">
+
+    <div class="section-header">
+
+        <span class="section-tag">Featured</span>
+
+        <h2>Featured Products</h2>
+
+        <p>Handpicked premium products just for you</p>
+
+    </div>
+
+    <div class="product-container">
+
+        {% for product in featured_products %}
+
+        <div class="card">
+
+            <span class="sale">SALE</span>
+
+            <button type="button"
+                    class="wishlist wishlist-btn"
+                    data-id="{{ product.id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-old-price="{{ product.old_price }}"
+                    data-image="{{ product.image }}"
+                    data-rating="{{ product.rating }}"
+                    data-description="{{ product.description|e }}"
+                    aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+
+            <a href="/product/{{ product.id }}" class="product-image-link">
+                <img src="{{ url_for('static', filename=product.image) }}"
+                     alt="{{ product.name }}">
+            </a>
+
+            <div class="card-content">
+
+                <div class="rating">
+                    ⭐⭐⭐⭐⭐ ({{ product.rating }})
+                </div>
+
+                <h3>
+                    <a href="/product/{{ product.id }}" class="product-link">
+                        {{ product.name }}
+                    </a>
+                </h3>
+
+                <p class="price">
+                    ₹{{ product.price }}
+                    <span>₹{{ product.old_price }}</span>
+                </p>
+
+                <button type="button"
+                        class="add-cart"
+                        data-id="{{ product.id }}"
+                        data-name="{{ product.name }}"
+                        data-price="{{ product.price }}"
+                        data-image="{{ product.image }}"
+                        aria-label="Add {{ product.name }} to cart">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    Add To Cart
+                </button>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    BEST SELLERS
+================================================== -->
+
+<section class="best-sellers" id="bestsellers">
+
+    <div class="section-header">
+
+        <span class="section-tag">Trending</span>
+
+        <h2>Best Sellers</h2>
+
+        <p>Most loved products by our customers</p>
+
+    </div>
+
+    <div class="product-container">
+
+        {% for product in best_sellers %}
+
+        <div class="card">
+
+            <span class="sale">HOT</span>
+
+            <button type="button"
+                    class="wishlist wishlist-btn"
+                    data-id="{{ product.id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-old-price="{{ product.old_price }}"
+                    data-image="{{ product.image }}"
+                    data-rating="{{ product.rating }}"
+                    data-description="{{ product.description|e }}"
+                    aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+
+            <a href="/product/{{ product.id }}" class="product-image-link">
+                <img src="{{ url_for('static', filename=product.image) }}"
+                     alt="{{ product.name }}">
+            </a>
+
+            <div class="card-content">
+
+                <div class="rating">
+                    ⭐⭐⭐⭐⭐ ({{ product.rating }})
+                </div>
+
+                <h3>
+                    <a href="/product/{{ product.id }}" class="product-link">
+                        {{ product.name }}
+                    </a>
+                </h3>
+
+                <p class="price">
+                    ₹{{ product.price }}
+                    <span>₹{{ product.old_price }}</span>
+                </p>
+
+                <button type="button"
+                        class="add-cart"
+                        data-id="{{ product.id }}"
+                        data-name="{{ product.name }}"
+                        data-price="{{ product.price }}"
+                        data-image="{{ product.image }}"
+                        aria-label="Add {{ product.name }} to cart">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    Add To Cart
+                </button>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    FEATURES
+================================================== -->
+
+<section class="features">
+
+    <div class="section-header">
+
+        <span class="section-tag">Why Us</span>
+
+        <h2>Why Choose UrbanWear</h2>
+
+    </div>
+
+    <div class="feature-container">
+
+        <div class="feature-box">
+            <i class="fa-solid fa-truck-fast"></i>
+            <h3>Free Shipping</h3>
+            <p>Free delivery on all orders above ₹999 across India.</p>
+        </div>
+
+        <div class="feature-box">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h3>Secure Payment</h3>
+            <p>100% secure payment with trusted payment gateways.</p>
+        </div>
+
+        <div class="feature-box">
+            <i class="fa-solid fa-rotate-left"></i>
+            <h3>Easy Returns</h3>
+            <p>Hassle-free 7 day return and replacement policy.</p>
+        </div>
+
+        <div class="feature-box">
+            <i class="fa-solid fa-headset"></i>
+            <h3>24/7 Support</h3>
+            <p>Our support team is always ready to help you.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    REVIEWS
+================================================== -->
+
+<section class="reviews" id="reviews">
+
+    <div class="section-header">
+
+        <span class="section-tag">Testimonials</span>
+
+        <h2>What Our Customers Say</h2>
+
+    </div>
+
+    <div class="review-container">
+
+        <div class="review-card">
+            <img src="{{ url_for('static', filename='images/reviews/customer1.jpg') }}" alt="Rahul Sharma">
+            <h3>Rahul Sharma</h3>
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p>Amazing quality! The t-shirt fabric is premium and very comfortable. Delivery was also super fast.</p>
+        </div>
+
+        <div class="review-card">
+            <img src="{{ url_for('static', filename='images/reviews/customer2.jpg') }}" alt="Priya Verma">
+            <h3>Priya Verma</h3>
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p>Loved the sneakers. Perfect fitting and stylish look. Definitely ordering again.</p>
+        </div>
+
+        <div class="review-card">
+            <img src="{{ url_for('static', filename='images/reviews/customer3.jpg') }}" alt="Aman Singh">
+            <h3>Aman Singh</h3>
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p>Excellent customer support and premium packaging. UrbanWear exceeded my expectations.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                    NEWSLETTER
+================================================== -->
+
+<section class="newsletter">
+
+    <h2>Join Our Newsletter</h2>
+
+    <p>
+        Subscribe to receive exclusive offers, latest fashion updates,
+        and special discounts directly in your inbox.
+    </p>
+
+    <form class="newsletter-form" onsubmit="return false;">
+
+        <input type="email"
+               placeholder="Enter your email address"
+               required>
+
+        <button type="submit">
+            Subscribe
+        </button>
+
+    </form>
+
+</section>
+
+
+
+<!-- ==================================================
+                    FOOTER
+================================================== -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-box">
+            <h2>Urban<span>Wear</span></h2>
+            <p>Premium fashion brand delivering quality clothing, footwear and accessories across India.</p>
+        </div>
+
+        <div class="footer-box">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#bestsellers">Best Sellers</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/orders">Orders</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Support</h3>
+            <ul>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Return Policy</a></li>
+                <li><a href="#">Shipping Info</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <p class="copyright">
+        © 2026 UrbanWear. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+
+<!-- ==================================================
+                    JAVASCRIPT
+================================================== -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>
