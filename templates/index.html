@@ -64,6 +64,11 @@
 
 <header class="main-header">
 
+    <!-- Hamburger (Mobile only) -->
+    <button class="hamburger-menu" id="hamburger-btn" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
     <div class="logo">
         Urban<span>Wear</span>
     </div>
@@ -117,6 +122,93 @@
     </div>
 
 </header>
+
+
+
+<!-- ==================================================
+                    MOBILE DRAWER
+================================================== -->
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<aside class="mobile-drawer" id="mobile-drawer">
+
+    <div class="drawer-header">
+        <div class="logo">Urban<span>Wear</span></div>
+        <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <nav class="drawer-nav">
+
+        <a href="/">
+            Home
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="#categories">
+            Categories
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="#products">
+            Products
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="#bestsellers">
+            Best Sellers
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/wishlist">
+            Wishlist
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/cart">
+            Cart
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            <a href="/profile">
+                My Profile
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+            <a href="/orders">
+                My Orders
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+            {% if current_user.is_admin %}
+                <a href="/admin">
+                    Admin Panel
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            {% endif %}
+
+            <a href="/logout">
+                Logout
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+        {% endif %}
+
+    </nav>
+
+    <div class="drawer-footer">
+        {% if current_user.is_authenticated %}
+            <a href="/logout" class="drawer-login-btn">Logout</a>
+        {% else %}
+            <a href="/login" class="drawer-login-btn">Log In or Sign Up</a>
+        {% endif %}
+    </div>
+
+</aside>
 
 
 
@@ -584,6 +676,48 @@
     </p>
 
 </footer>
+
+
+
+<!-- ==================================================
+                    MOBILE BOTTOM NAV
+================================================== -->
+
+<nav class="mobile-bottom-nav">
+
+    <a href="/" class="bottom-nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="#categories" class="bottom-nav-item">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Category</span>
+    </a>
+
+    <a href="/wishlist" class="bottom-nav-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+
+    <a href="/cart" class="bottom-nav-item">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Cart</span>
+    </a>
+
+    {% if current_user.is_authenticated %}
+        <a href="/profile" class="bottom-nav-item">
+            <i class="fa-regular fa-user"></i>
+            <span>Account</span>
+        </a>
+    {% else %}
+        <a href="/login" class="bottom-nav-item">
+            <i class="fa-regular fa-user"></i>
+            <span>Login</span>
+        </a>
+    {% endif %}
+
+</nav>
 
 
 

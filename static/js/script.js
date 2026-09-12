@@ -1,6 +1,6 @@
 // ==================================================
 // UrbanWear JavaScript v10.0
-// CART + PERSISTENT WISHLIST (FIXED)
+// CART + PERSISTENT WISHLIST (FIXED) + MOBILE DRAWER
 // ==================================================
 
 "use strict";
@@ -1408,6 +1408,131 @@ function registerWishlistPageActions() {
 
 
 // ==================================================
+// MOBILE DRAWER + BOTTOM NAV (v10.0)
+// ==================================================
+
+// --------------------------------------------------
+// DRAWER TOGGLE
+// --------------------------------------------------
+
+function openDrawer() {
+
+    const drawer = document.getElementById("mobile-drawer");
+    const overlay = document.getElementById("drawer-overlay");
+
+    if (drawer) {
+        drawer.classList.add("open");
+    }
+
+    if (overlay) {
+        overlay.classList.add("show");
+    }
+
+    document.body.style.overflow = "hidden";
+}
+
+
+function closeDrawer() {
+
+    const drawer = document.getElementById("mobile-drawer");
+    const overlay = document.getElementById("drawer-overlay");
+
+    if (drawer) {
+        drawer.classList.remove("open");
+    }
+
+    if (overlay) {
+        overlay.classList.remove("show");
+    }
+
+    document.body.style.overflow = "";
+}
+
+
+function registerDrawer() {
+
+    const hamburgerBtn = document.getElementById("hamburger-btn");
+    const drawerClose = document.getElementById("drawer-close");
+    const drawerOverlay = document.getElementById("drawer-overlay");
+
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            openDrawer();
+        });
+    }
+
+    if (drawerClose) {
+        drawerClose.addEventListener("click", closeDrawer);
+    }
+
+    if (drawerOverlay) {
+        drawerOverlay.addEventListener("click", closeDrawer);
+    }
+
+    // Drawer links par click hone par drawer band karein
+    const drawerLinks = document.querySelectorAll(".drawer-nav a");
+    drawerLinks.forEach(link => {
+        link.addEventListener("click", closeDrawer);
+    });
+
+    // Escape key se drawer band karein
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeDrawer();
+        }
+    });
+}
+
+
+// --------------------------------------------------
+// BOTTOM NAV — ACTIVE STATE
+// --------------------------------------------------
+
+function registerBottomNav() {
+
+    const currentPath = window.location.pathname;
+    const currentHash = window.location.hash;
+
+    const bottomNavItems = document.querySelectorAll(".bottom-nav-item");
+
+    bottomNavItems.forEach(item => {
+        item.classList.remove("active");
+    });
+
+    // Home
+    if (currentPath === "/" && !currentHash) {
+        const homeItem = document.querySelector('.bottom-nav-item[href="/"]');
+        if (homeItem) homeItem.classList.add("active");
+    }
+
+    // Cart
+    if (currentPath === "/cart") {
+        const cartItem = document.querySelector('.bottom-nav-item[href="/cart"]');
+        if (cartItem) cartItem.classList.add("active");
+    }
+
+    // Wishlist
+    if (currentPath === "/wishlist") {
+        const wishlistItem = document.querySelector('.bottom-nav-item[href="/wishlist"]');
+        if (wishlistItem) wishlistItem.classList.add("active");
+    }
+
+    // Profile / Account
+    if (currentPath === "/profile" || currentPath === "/orders") {
+        const profileItem = document.querySelector('.bottom-nav-item[href="/profile"]');
+        if (profileItem) profileItem.classList.add("active");
+    }
+
+    // Login
+    if (currentPath === "/login" || currentPath === "/signup") {
+        const loginItem = document.querySelector('.bottom-nav-item[href="/login"]');
+        if (loginItem) loginItem.classList.add("active");
+    }
+}
+
+
+// ==================================================
 // INITIALIZE
 // ==================================================
 
@@ -1422,6 +1547,10 @@ document.addEventListener("DOMContentLoaded", function() {
     registerWishlistButtons();
     registerSizeButtons();
     registerColorButtons();
+
+    // Mobile drawer + bottom nav
+    registerDrawer();
+    registerBottomNav();
 
     // Update counters
     updateCartCount();
