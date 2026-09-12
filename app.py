@@ -1299,6 +1299,8 @@ if __name__ == "__main__":
             db.session.commit()
             print(f"✅ Seeded {len(seed_products)} products!")
         else:
-            print(f"✅ Products already exist: {Product.query.count()}")
+            print(f"✅ Products already exists: {Product.query.count()}")
 
-    app.run(debug=app.config.get("FLASK_ENV") != "production")
+    # ✅ Production me host 0.0.0.0 aur PORT env variable use karein
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=app.config.get("FLASK_ENV") != "production")

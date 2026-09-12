@@ -1,15 +1,11 @@
 import os
 from datetime import timedelta
 
-# ==================================================
-# LOAD ENVIRONMENT VARIABLES FROM .env
-# ==================================================
-
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
-    print("⚠️  python-dotenv not installed. Run: pip install python-dotenv")
+    print("⚠️  python-dotenv not installed")
 
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -20,7 +16,6 @@ IS_PRODUCTION = FLASK_ENV == "production"
 
 
 def _get_required_env(key, default=None):
-    """Get environment variable. Raise error if critical key missing."""
     value = os.environ.get(key, default)
     if value is None or str(value).strip() == "":
         raise ValueError(
@@ -31,51 +26,60 @@ def _get_required_env(key, default=None):
 
 
 class Config:
-    # ==================================================
-    # FLASK ENVIRONMENT
-    # ==================================================
     FLASK_ENV = FLASK_ENV
     DEBUG = not IS_PRODUCTION
 
     # ==================================================
-    # SECURITY - SECRET KEY
+    # SECURITY
     # ==================================================
     SECRET_KEY = _get_required_env("SECRET_KEY")
 
     # ==================================================
-    # DATABASE
+    # DATABASE — PostgreSQL in Production, SQLite in Dev
     # ==================================================
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
-        BASE_DIR, "instance", "database.db"
-    )
+    _db_url = os.environ.get("DATABASE_URL", "")
+
+    if _db_url:
+        # Render provides postgres:// but SQLAlchemy needs postgresql://
+        if _db_url.startswith("postgres://"):
+            _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_DATABASE_URI = _db_url
+    else:
+        SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
+            BASE_DIR, "instance", "database.db"
+        )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
 
     # ==================================================
-    # RAZORPAY CONFIGURATION
+    # RAZORPAY
     # ==================================================
     RAZORPAY_KEY_ID = _get_required_env("RAZORPAY_KEY_ID")
     RAZORPAY_KEY_SECRET = _get_required_env("RAZORPAY_KEY_SECRET")
 
     # ==================================================
-    # EMAIL CONFIGURATION (GMAIL SMTP)
+    # EMAIL
     # ==================================================
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
-
     MAIL_USERNAME = _get_required_env("MAIL_USERNAME")
     MAIL_PASSWORD = _get_required_env("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
 
     # ==================================================
-    # ADMIN CREDENTIALS
+    # ADMIN
     # ==================================================
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@urbanwear.com")
     ADMIN_PASSWORD = _get_required_env("ADMIN_PASSWORD")
 
     # ==================================================
-    # SESSION SECURITY
+    # SESSION
     # ==================================================
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
@@ -83,7 +87,7 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
     # ==================================================
-    # CSRF PROTECTION
+    # CSRF
     # ==================================================
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = 3600
@@ -98,6 +102,6 @@ class Config:
     RATELIMIT_HEADERS_ENABLED = True
 
     # ==================================================
-    # FILE UPLOAD SECURITY
+    # FILE UPLOAD
     # ==================================================
-    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB max upload
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
