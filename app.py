@@ -1,3 +1,14 @@
+"""
+UrbanWear - Flask E-Commerce Application
+"""
+import warnings
+
+# Suppress harmless requests dependency warning
+warnings.filterwarnings(
+    "ignore",
+    message=".*Unable to find acceptable character detection.*"
+)
+
 from flask import (
     Flask, render_template, abort, redirect, url_for,
     request, flash, jsonify
