@@ -1250,7 +1250,63 @@ def internal_error(error):
 
 
 # ==================================================
-# RUN APPLICATION
+# DATABASE INITIALIZATION
+# (runs on both local + gunicorn/Render)
+# ==================================================
+
+def initialize_database():
+    """Create tables, admin, and seed products. Idempotent."""
+    with app.app_context():
+        try:
+            db.create_all()
+            print("✅ Database tables ready!")
+
+            admin_email = app.config["ADMIN_EMAIL"]
+            admin_password = app.config["ADMIN_PASSWORD"]
+            admin_user = User.query.filter_by(email=admin_email).first()
+
+            if not admin_user:
+                admin_user = User(
+                    full_name="Admin",
+                    email=admin_email,
+                    phone="+919999999999",
+                    password=generate_password_hash(admin_password),
+                    is_admin=True
+                )
+                db.session.add(admin_user)
+                db.session.commit()
+                print(f"✅ Admin created: {admin_email}")
+            else:
+                print(f"✅ Admin exists: {admin_email}")
+
+            if Product.query.count() == 0:
+                seed_products = [
+                    {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured"},
+                    {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured"},
+                    {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured"},
+                    {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller"},
+                    {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller"},
+                    {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller"},
+                    {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller"},
+                ]
+                for p in seed_products:
+                    db.session.add(Product(**p))
+                db.session.commit()
+                print(f"✅ Seeded {len(seed_products)} products!")
+            else:
+                print(f"✅ Products already exist: {Product.query.count()}")
+
+        except Exception as e:
+            print(f"⚠️  Database init error: {e}")
+            db.session.rollback()
+
+
+# ✅ Run on startup (works with gunicorn + local)
+initialize_database()
+
+
+# ==================================================
+# RUN APPLICATION (local development only)
 # ==================================================
 
 if __name__ == "__main__":
@@ -1260,47 +1316,5 @@ if __name__ == "__main__":
     )
     os.makedirs(instance_path, exist_ok=True)
 
-    with app.app_context():
-        db.create_all()
-        print("✅ Database tables ready!")
-
-        # ✅ Create admin from ENV (not hardcoded)
-        admin_email = app.config["ADMIN_EMAIL"]
-        admin_password = app.config["ADMIN_PASSWORD"]
-        admin_user = User.query.filter_by(email=admin_email).first()
-
-        if not admin_user:
-            admin_user = User(
-                full_name="Admin",
-                email=admin_email,
-                phone="+919999999999",
-                password=generate_password_hash(admin_password),
-                is_admin=True
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print(f"✅ Admin created: {admin_email}")
-        else:
-            print(f"✅ Admin exists: {admin_email}")
-
-        # Seed products
-        if Product.query.count() == 0:
-            seed_products = [
-                {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured"},
-                {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured"},
-                {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured"},
-                {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller"},
-                {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller"},
-                {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller"},
-                {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller"},
-            ]
-            for p in seed_products:
-                db.session.add(Product(**p))
-            db.session.commit()
-            print(f"✅ Seeded {len(seed_products)} products!")
-        else:
-            print(f"✅ Products already exists: {Product.query.count()}")
-
-    # ✅ Production me host 0.0.0.0 aur PORT env variable use karein
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=app.config.get("FLASK_ENV") != "production")
