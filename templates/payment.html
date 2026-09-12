@@ -257,6 +257,27 @@
 <script>
     const RAZORPAY_KEY_ID = "{{ razorpay_key_id }}";
 
+    // ==================================================
+    // PAYMENT FAILED HANDLER — Backend ko notify karta hai
+    // ==================================================
+    async function notifyPaymentFailed(orderId) {
+        try {
+            const res = await fetch("/payment/failed/" + orderId, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            const data = await res.json();
+            console.log("Payment failed handler:", data);
+            return data;
+        } catch (err) {
+            console.error("Failed to notify backend:", err);
+            return null;
+        }
+    }
+
+
     document.getElementById("pay-now-btn").addEventListener("click", async function() {
 
         const btn = this;
@@ -294,6 +315,7 @@
                 name: "UrbanWear",
                 description: "Order #" + orderId,
                 order_id: data.order_id,
+
                 handler: async function(response) {
                     const verifyResponse = await fetch("/payment/verify", {
                         method: "POST",
@@ -313,28 +335,50 @@
                     if (verifyData.status === "success") {
                         window.location.href = "/payment-success/" + orderId;
                     } else {
+                        // ✅ Signature verify fail — order cancel karo
+                        await notifyPaymentFailed(orderId);
                         window.location.href = "/payment-failure/" + orderId;
                     }
                 },
+
                 prefill: {
                     name: "{{ current_user.full_name }}",
                     email: "{{ current_user.email }}",
                     contact: "{{ current_user.phone }}"
                 },
+
                 theme: {
                     color: "#c9a961"
                 },
+
                 modal: {
-                    ondismiss: function() {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pay Now ₹' + amount;
+                    // ✅ Agar user popup band kare bina payment (X button / outside click)
+                    ondismiss: async function() {
+                        // Order cancel + stock restore
+                        const result = await notifyPaymentFailed(orderId);
+
+                        // Agar order cancel hua (payment nahi hua tha) → failure page
+                        if (result && result.status === "cancelled") {
+                            window.location.href = "/payment-failure/" + orderId;
+                        } else {
+                            // Already paid tha ya kuch aur — bas button reset
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pay Now ₹' + amount;
+                        }
                     }
                 }
             };
 
             const rzp = new Razorpay(options);
 
-            rzp.on("payment.failed", function(response) {
+            // ✅ Payment fail hua (card decline, timeout, etc.)
+            rzp.on("payment.failed", async function(response) {
+                console.error("Payment failed:", response.error);
+
+                // Order cancel + stock restore
+                await notifyPaymentFailed(orderId);
+
+                // Failure page par redirect
                 window.location.href = "/payment-failure/" + orderId;
             });
 

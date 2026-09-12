@@ -115,7 +115,7 @@ login_manager.login_message_category = "info"
 @login_manager.user_loader
 def load_user(user_id):
     try:
-        return User.query.get(int(user_id))
+        return db.session.get(User, int(user_id))
     except (ValueError, TypeError):
         return None
 
@@ -218,7 +218,7 @@ def home():
 
 @app.route("/product/<int:product_id>")
 def product(product_id):
-    product_db = Product.query.get(product_id)
+    product_db = db.session.get(Product, product_id)
 
     if product_db is None or not product_db.is_active:
         abort(404)
@@ -603,7 +603,7 @@ def checkout():
                 flash("Invalid quantity.")
                 return redirect(url_for("cart"))
 
-            product = Product.query.get(product_id)
+            product = db.session.get(Product, product_id)
 
             if not product or not product.is_active:
                 flash(f"Product not available.")
@@ -709,7 +709,7 @@ def create_payment_order():
         if order_id <= 0:
             return jsonify({"error": "Invalid order"}), 400
 
-        order = Order.query.get(order_id)
+        order = db.session.get(Order, order_id)
 
         if not order:
             return jsonify({"error": "Order not found"}), 404
@@ -779,7 +779,7 @@ def verify_payment():
         razorpay_client.utility.verify_payment_signature(params_dict)
 
         # ✅ Fetch order and validate ownership
-        order = Order.query.get(order_id)
+        order = db.session.get(Order, order_id)
 
         if not order:
             return jsonify({"error": "Order not found"}), 404
@@ -810,6 +810,55 @@ def verify_payment():
         db.session.rollback()
         print(f"Payment Verify Error: {e}")
         return jsonify({"status": "failed", "error": "Verification failed"}), 500
+
+
+# ==================================================
+# PAYMENT FAILED — AUTO CANCEL + STOCK RESTORE
+# ==================================================
+
+@app.route("/payment/failed/<int:order_id>", methods=["POST"])
+@login_required
+@csrf.exempt
+@limiter.limit("20 per minute")
+def payment_failed(order_id):
+    """
+    Called from frontend when Razorpay payment fails or popup is dismissed.
+    Auto-cancels the order and restores stock.
+    """
+    try:
+        order = db.session.get(Order, order_id)
+
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+
+        if order.user_id != current_user.id:
+            return jsonify({"error": "Unauthorized"}), 403
+
+        # ✅ Already paid — nothing to do
+        if order.payment_status == "paid":
+            return jsonify({"status": "already_paid"}), 200
+
+        # ✅ Already cancelled — idempotent
+        if order.status == "cancelled":
+            return jsonify({"status": "already_cancelled"}), 200
+
+        # ✅ Restore stock
+        for item in order.items:
+            product = db.session.get(Product, item.product_id)
+            if product:
+                product.stock += item.quantity
+
+        # ✅ Mark order cancelled
+        order.status = "cancelled"
+        order.payment_status = "failed"
+        db.session.commit()
+
+        return jsonify({"status": "cancelled"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Payment Failed Handler Error: {e}")
+        return jsonify({"error": "Failed to process"}), 500
 
 
 # ==================================================
@@ -876,7 +925,7 @@ def cancel_order(order_id):
     try:
         # ✅ Restore stock
         for item in order.items:
-            product = Product.query.get(item.product_id)
+            product = db.session.get(Product, item.product_id)
             if product:
                 product.stock += item.quantity
 
@@ -1134,7 +1183,7 @@ def admin_update_order_status(order_id):
         # ✅ If cancelling, restore stock (once)
         if new_status == "cancelled" and order.status != "cancelled":
             for item in order.items:
-                product = Product.query.get(item.product_id)
+                product = db.session.get(Product, item.product_id)
                 if product:
                     product.stock += item.quantity
 
