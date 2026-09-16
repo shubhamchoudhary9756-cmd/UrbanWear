@@ -1,6 +1,6 @@
 // ==================================================
-// UrbanWear JavaScript v10.0
-// CART + PERSISTENT WISHLIST (FIXED) + MOBILE DRAWER
+// Zenith JavaScript v11.0
+// CART + PERSISTENT WISHLIST + MOBILE DRAWER
 // ==================================================
 
 "use strict";
@@ -14,7 +14,7 @@ let cart = [];
 let wishlist = [];
 
 const CART_STORAGE_KEY = "cart";
-const WISHLIST_STORAGE_KEY = "urbanwear_wishlist";
+const WISHLIST_STORAGE_KEY = "zenith_wishlist";
 
 
 // ==================================================
@@ -66,14 +66,14 @@ function escapeHTML(value) {
 
 function showToast(message, type = "success") {
 
-    const existingToast = document.getElementById("urbanwear-toast");
+    const existingToast = document.getElementById("zenith-toast");
     if (existingToast) {
         existingToast.remove();
     }
 
     const toast = document.createElement("div");
-    toast.id = "urbanwear-toast";
-    toast.className = `urbanwear-toast ${type}`;
+    toast.id = "zenith-toast";
+    toast.className = `zenith-toast ${type}`;
     toast.innerHTML = `
         <i class="fa-solid ${type === "success" ? "fa-check-circle" : "fa-info-circle"}"></i>
         <span>${escapeHTML(message)}</span>
@@ -761,7 +761,7 @@ function registerColorButtons() {
 
 
 // ==================================================
-// WISHLIST SYSTEM (FULLY FIXED)
+// WISHLIST SYSTEM
 // ==================================================
 
 // --------------------------------------------------
@@ -892,7 +892,7 @@ function updateWishlistCount() {
 
 
 // --------------------------------------------------
-// GET WISHLIST PRODUCT DATA (IMPROVED)
+// GET WISHLIST PRODUCT DATA
 // --------------------------------------------------
 
 function getWishlistProductData(button) {
@@ -901,7 +901,6 @@ function getWishlistProductData(button) {
         return null;
     }
 
-    // Get ID from button or from card's add-cart button
     let id = Number(button.dataset.id);
 
     let name = button.dataset.name || "";
@@ -969,7 +968,7 @@ function getWishlistProductData(button) {
 
 
 // --------------------------------------------------
-// TOGGLE WISHLIST (FIXED)
+// TOGGLE WISHLIST
 // --------------------------------------------------
 
 function toggleWishlist(button) {
@@ -1063,7 +1062,7 @@ function updateWishlistButtons() {
 
 
 // --------------------------------------------------
-// REGISTER WISHLIST BUTTONS (EVENT DELEGATION)
+// REGISTER WISHLIST BUTTONS
 // --------------------------------------------------
 
 function registerWishlistButtons() {
@@ -1408,7 +1407,7 @@ function registerWishlistPageActions() {
 
 
 // ==================================================
-// MOBILE DRAWER + BOTTOM NAV (v10.0)
+// MOBILE DRAWER + BOTTOM NAV
 // ==================================================
 
 // --------------------------------------------------
