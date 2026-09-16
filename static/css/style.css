@@ -6729,3 +6729,24 @@ section {
 .razorpay-container {
     z-index: 99999 !important;
 }
+/* =====================================================
+   HEADER LOGO — LATEST UPDATE (Mountain bada + Gap kam)
+   Ye section purane sizes ko override karega
+===================================================== */
+
+/* Mountain — Bada + gap kam */
+.main-header .zenith-header-mountain {
+    width: 85px !important;
+    height: 43px !important;
+    margin: 0 auto 0px auto !important;
+}
+
+/* ZENITH — Gap kam (tight look) */
+.main-header .zenith-header-text {
+    line-height: 0.85 !important;
+    margin: -4px 0 0 0 !important;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 8px;
+    padding-left: 8px;
+}
