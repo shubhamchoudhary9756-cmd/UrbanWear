@@ -6427,8 +6427,8 @@ section {
 
 /* Mountain — Top */
 .zenith-header-mountain {
-    width: 65px;
-    height: 33px;
+    width: 75px;
+    height: 38px;
     display: block;
     margin: 0 auto 2px auto;
 }
@@ -6437,14 +6437,14 @@ section {
 .zenith-header-text {
     display: block;
     font-family: var(--font-brand);
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 4px;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 8px;
     color: var(--text-primary);
     text-transform: uppercase;
     line-height: 1;
     text-align: center;
-    padding-left: 4px;
+    padding-left: 8px;
     margin: 0;
 }
 
