@@ -1,372 +1,259 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "admin_base.html" %}
 
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Order #{{ order.id }} | Admin Panel</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-</head>
+{% block title %}Order #{{ order.id }} | Zenith Admin{% endblock %}
 
 
-<body>
+{% block content %}
+
+<div class="admin-content">
 
 
-<!-- ==================================================
-                    ADMIN LAYOUT
-================================================== -->
+    <!-- HEADER -->
 
-<div class="admin-layout">
+    <div class="admin-details-header">
 
+        <div class="admin-header-left">
 
-    <!-- SIDEBAR -->
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-logo">
-            Urban<span>Wear</span>
-            <span class="admin-badge">Admin</span>
-        </div>
-
-        <nav class="sidebar-nav">
-
-            <a href="{{ url_for('admin_panel') }}" class="sidebar-link">
-                <i class="fa-solid fa-gauge-high"></i>
-                <span>Dashboard</span>
-            </a>
-
-            <a href="{{ url_for('admin_orders_tab') }}" class="sidebar-link active">
+            <h1>
                 <i class="fa-solid fa-box"></i>
-                <span>Orders</span>
-            </a>
+                Order #{{ order.id }}
+            </h1>
 
-            <a href="{{ url_for('admin_products_tab') }}" class="sidebar-link">
-                <i class="fa-solid fa-tags"></i>
-                <span>Products</span>
-            </a>
-
-            <a href="{{ url_for('admin_users_tab') }}" class="sidebar-link">
-                <i class="fa-solid fa-users"></i>
-                <span>Users</span>
-            </a>
-
-        </nav>
-
-        <div class="sidebar-footer">
-
-            <a href="{{ url_for('home') }}" class="sidebar-link">
-                <i class="fa-solid fa-house"></i>
-                <span>View Store</span>
-            </a>
-
-            <a href="{{ url_for('logout') }}" class="sidebar-link logout">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
+            <span class="order-status-badge {{ order.status }}">
+                {{ order.status|upper }}
+            </span>
 
         </div>
 
-    </aside>
+        <a href="{{ url_for('admin_orders_tab') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Orders
+        </a>
+
+    </div>
 
 
 
-    <!-- MAIN CONTENT -->
+    <!-- STATUS UPDATE BANNER -->
 
-    <main class="admin-main">
+    <div class="status-update-banner">
 
-        <div class="admin-content">
+        <form method="POST"
+              action="{{ url_for('admin_update_order_status', order_id=order.id) }}">
 
-            <!-- HEADER -->
+            <!-- CSRF TOKEN -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <div class="admin-details-header">
+            <div class="status-update-left">
 
-                <div class="admin-header-left">
+                <i class="fa-solid fa-truck-fast"></i>
 
-                    <h1>
-                        <i class="fa-solid fa-box"></i>
-                        Order #{{ order.id }}
-                    </h1>
-
-                    <span class="order-status-badge {{ order.status }}">
-                        {{ order.status|upper }}
-                    </span>
-
-                </div>
-
-                <a href="{{ url_for('admin_orders_tab') }}" class="back-btn">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Back to Orders
-                </a>
+                <span>Update Order Status</span>
 
             </div>
 
+            <div class="status-update-right">
 
-            {% with messages = get_flashed_messages() %}
+                <select name="status" class="status-select">
 
-                {% if messages %}
+                    <option value="pending"
+                        {% if order.status == 'pending' %}selected{% endif %}>
+                        Pending
+                    </option>
 
-                    <div class="flash-messages">
+                    <option value="processing"
+                        {% if order.status == 'processing' %}selected{% endif %}>
+                        Processing
+                    </option>
 
-                        {% for message in messages %}
+                    <option value="shipped"
+                        {% if order.status == 'shipped' %}selected{% endif %}>
+                        Shipped
+                    </option>
 
-                            <p>{{ message }}</p>
+                    <option value="delivered"
+                        {% if order.status == 'delivered' %}selected{% endif %}>
+                        Delivered
+                    </option>
 
-                        {% endfor %}
+                    <option value="cancelled"
+                        {% if order.status == 'cancelled' %}selected{% endif %}>
+                        Cancelled
+                    </option>
 
-                    </div>
+                </select>
 
+                <button type="submit" class="update-status-btn">
+
+                    <i class="fa-solid fa-check"></i>
+                    Update
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- DETAILS GRID -->
+
+    <div class="admin-details-grid">
+
+        <!-- CUSTOMER -->
+
+        <div class="admin-detail-card customer-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div class="card-content">
+
+                <h3>Customer Details</h3>
+
+                <div class="detail-row">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">{{ order.user.full_name }}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">{{ order.user.email }}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value">{{ order.user.phone }}</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SHIPPING -->
+
+        <div class="admin-detail-card shipping-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-truck"></i>
+            </div>
+
+            <div class="card-content">
+
+                <h3>Shipping Address</h3>
+
+                <p class="shipping-address">{{ order.shipping_address }}</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYMENT -->
+
+        <div class="admin-detail-card payment-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+
+            <div class="card-content">
+
+                <h3>Payment Details</h3>
+
+                <div class="detail-row">
+                    <span class="detail-label">Method</span>
+                    <span class="detail-value">{{ order.payment_method|upper }}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value">
+                        {{ order.payment_status|upper if order.payment_status else 'PENDING' }}
+                    </span>
+                </div>
+
+                {% if order.payment_id %}
+                <div class="detail-row">
+                    <span class="detail-label">Payment ID</span>
+                    <span class="detail-value">{{ order.payment_id }}</span>
+                </div>
                 {% endif %}
 
-            {% endwith %}
-
-
-
-            <!-- STATUS UPDATE BANNER -->
-
-            <div class="status-update-banner">
-
-                <form method="POST"
-                      action="{{ url_for('admin_update_order_status', order_id=order.id) }}">
-
-                    <!-- CSRF TOKEN -->
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                    <div class="status-update-left">
-
-                        <i class="fa-solid fa-truck-fast"></i>
-
-                        <span>Update Order Status</span>
-
-                    </div>
-
-                    <div class="status-update-right">
-
-                        <select name="status" class="status-select">
-
-                            <option value="pending"
-                                {% if order.status == 'pending' %}selected{% endif %}>
-                                Pending
-                            </option>
-
-                            <option value="processing"
-                                {% if order.status == 'processing' %}selected{% endif %}>
-                                Processing
-                            </option>
-
-                            <option value="shipped"
-                                {% if order.status == 'shipped' %}selected{% endif %}>
-                                Shipped
-                            </option>
-
-                            <option value="delivered"
-                                {% if order.status == 'delivered' %}selected{% endif %}>
-                                Delivered
-                            </option>
-
-                            <option value="cancelled"
-                                {% if order.status == 'cancelled' %}selected{% endif %}>
-                                Cancelled
-                            </option>
-
-                        </select>
-
-                        <button type="submit" class="update-status-btn">
-
-                            <i class="fa-solid fa-check"></i>
-                            Update
-
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-
-
-            <!-- DETAILS GRID -->
-
-            <div class="admin-details-grid">
-
-                <!-- CUSTOMER -->
-
-                <div class="admin-detail-card customer-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-
-                    <div class="card-content">
-
-                        <h3>Customer Details</h3>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Name</span>
-                            <span class="detail-value">{{ order.user.full_name }}</span>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Email</span>
-                            <span class="detail-value">{{ order.user.email }}</span>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Phone</span>
-                            <span class="detail-value">{{ order.user.phone }}</span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- SHIPPING -->
-
-                <div class="admin-detail-card shipping-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-truck"></i>
-                    </div>
-
-                    <div class="card-content">
-
-                        <h3>Shipping Address</h3>
-
-                        <p class="shipping-address">{{ order.shipping_address }}</p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PAYMENT -->
-
-                <div class="admin-detail-card payment-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-credit-card"></i>
-                    </div>
-
-                    <div class="card-content">
-
-                        <h3>Payment Details</h3>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Method</span>
-                            <span class="detail-value">{{ order.payment_method|upper }}</span>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Status</span>
-                            <span class="detail-value">
-                                {{ order.payment_status|upper if order.payment_status else 'PENDING' }}
-                            </span>
-                        </div>
-
-                        {% if order.payment_id %}
-                        <div class="detail-row">
-                            <span class="detail-label">Payment ID</span>
-                            <span class="detail-value">{{ order.payment_id }}</span>
-                        </div>
-                        {% endif %}
-
-                        <div class="detail-row">
-                            <span class="detail-label">Date</span>
-                            <span class="detail-value">
-                                {{ order.created_at.strftime('%d %b %Y %H:%M') }}
-                            </span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ORDER ITEMS -->
-
-                <div class="admin-detail-card items-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-
-                    <div class="card-content">
-
-                        <h3>Order Items</h3>
-
-                        {% for item in order.items %}
-
-                            <div class="order-item-row">
-
-                                <span class="item-name">{{ item.product_name }}</span>
-
-                                <span class="item-qty">Qty: {{ item.quantity }}</span>
-
-                                <span class="item-price">
-                                    ₹{{ item.price * item.quantity }}
-                                </span>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- SUMMARY FOOTER -->
-
-            <div class="order-summary-footer">
-
-                <div class="summary-left">
-
-                    <span>Total Items</span>
-
-                    <strong>{{ order.items|length }}</strong>
-
-                </div>
-
-                <div class="summary-right">
-
-                    <span>Order Total</span>
-
-                    <strong>₹{{ order.total_amount }}</strong>
-
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">
+                        {{ order.created_at.strftime('%d %b %Y %H:%M') }}
+                    </span>
                 </div>
 
             </div>
 
         </div>
 
-    </main>
+
+        <!-- ORDER ITEMS -->
+
+        <div class="admin-detail-card items-card">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+
+            <div class="card-content">
+
+                <h3>Order Items</h3>
+
+                {% for item in order.items %}
+
+                    <div class="order-item-row">
+
+                        <span class="item-name">{{ item.product_name }}</span>
+
+                        <span class="item-qty">Qty: {{ item.quantity }}</span>
+
+                        <span class="item-price">
+                            ₹{{ item.price * item.quantity }}
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- SUMMARY FOOTER -->
+
+    <div class="order-summary-footer">
+
+        <div class="summary-left">
+
+            <span>Total Items</span>
+
+            <strong>{{ order.items|length }}</strong>
+
+        </div>
+
+        <div class="summary-right">
+
+            <span>Order Total</span>
+
+            <strong>₹{{ order.total_amount }}</strong>
+
+        </div>
+
+    </div>
 
 </div>
 
-
-
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
-</body>
-
-</html>
+{% endblock %}

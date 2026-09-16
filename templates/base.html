@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Zenith | Premium Fashion Store{% endblock %}</title>
+
+    <!-- ================= CSS ================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- ================= GOOGLE FONTS ================= -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- ================= FONT AWESOME ================= -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    {% block extra_head %}{% endblock %}
+
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+                    TOP BAR
+================================================== -->
+
+<div class="top-bar">
+
+    <div class="top-bar-inner">
+
+        <span class="top-bar-left">
+            <i class="fa-solid fa-truck-fast"></i>
+            Complimentary shipping on all orders over ₹999
+        </span>
+
+        <span class="top-bar-right">
+            <i class="fa-solid fa-globe"></i>
+            Ship to: India
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==================================================
+                    MAIN HEADER
+================================================== -->
+
+<header class="main-header">
+
+    <!-- Hamburger (Mobile only) -->
+    <button class="hamburger-menu" id="hamburger-btn" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <a href="/" class="logo">
+        Zenith
+    </a>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="/#categories">New In</a></li>
+            <li><a href="/#products">Women</a></li>
+            <li><a href="/#products">Men</a></li>
+            <li><a href="/#categories">Accessories</a></li>
+            <li><a href="/#bestsellers">Collections</a></li>
+
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                    <li><a href="/admin">Admin</a></li>
+                {% endif %}
+                <li><a href="/orders">Orders</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="header-icons">
+
+        <a href="#" class="icon-btn" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </a>
+
+        {% if current_user.is_authenticated %}
+            <a href="/profile" class="icon-btn" title="Profile">
+                <i class="fa-regular fa-user"></i>
+            </a>
+            <a href="/logout" class="icon-btn" title="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        {% else %}
+            <a href="/login" class="icon-btn" title="Login">
+                <i class="fa-regular fa-user"></i>
+            </a>
+        {% endif %}
+
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span id="wishlist-count">0</span>
+        </a>
+
+        <a href="/cart" class="icon-btn cart-icon" title="Cart">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==================================================
+                    MOBILE DRAWER
+================================================== -->
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<aside class="mobile-drawer" id="mobile-drawer">
+
+    <div class="drawer-header">
+        <div class="logo">Zenith</div>
+        <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <nav class="drawer-nav">
+
+        <a href="/">
+            Home
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/#categories">
+            Categories
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/#products">
+            Products
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/#bestsellers">
+            Best Sellers
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/wishlist">
+            Wishlist
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/cart">
+            Cart
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            <a href="/profile">
+                My Profile
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+            <a href="/orders">
+                My Orders
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+            {% if current_user.is_admin %}
+                <a href="/admin">
+                    Admin Panel
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            {% endif %}
+
+            <a href="/logout">
+                Logout
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+        {% endif %}
+
+    </nav>
+
+    <div class="drawer-footer">
+        {% if current_user.is_authenticated %}
+            <a href="/logout" class="drawer-login-btn">Logout</a>
+        {% else %}
+            <a href="/login" class="drawer-login-btn">Log In or Sign Up</a>
+        {% endif %}
+    </div>
+
+</aside>
+
+
+
+<!-- ==================================================
+                    FLASH MESSAGES
+================================================== -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+
+
+<!-- ==================================================
+                    MAIN CONTENT
+================================================== -->
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+
+
+<!-- ==================================================
+                    FOOTER
+================================================== -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-box">
+            <h2>Zenith</h2>
+            <p>Premium fashion brand delivering quality clothing, footwear and accessories across India.</p>
+        </div>
+
+        <div class="footer-box">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/#categories">Categories</a></li>
+                <li><a href="/#products">Products</a></li>
+                <li><a href="/#bestsellers">Best Sellers</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/orders">Orders</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Support</h3>
+            <ul>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Return Policy</a></li>
+                <li><a href="#">Shipping Info</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-box">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <p class="copyright">
+        © 2026 Zenith. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+
+<!-- ==================================================
+                    MOBILE BOTTOM NAV
+================================================== -->
+
+<nav class="mobile-bottom-nav">
+
+    <a href="/" class="bottom-nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="/#categories" class="bottom-nav-item">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Category</span>
+    </a>
+
+    <a href="/wishlist" class="bottom-nav-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+
+    <a href="/cart" class="bottom-nav-item">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Cart</span>
+    </a>
+
+    {% if current_user.is_authenticated %}
+        <a href="/profile" class="bottom-nav-item">
+            <i class="fa-regular fa-user"></i>
+            <span>Account</span>
+        </a>
+    {% else %}
+        <a href="/login" class="bottom-nav-item">
+            <i class="fa-regular fa-user"></i>
+            <span>Login</span>
+        </a>
+    {% endif %}
+
+</nav>
+
+
+
+<!-- ==================================================
+                    JAVASCRIPT
+================================================== -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+
+</html>

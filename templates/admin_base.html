@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Admin Panel | Zenith{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    {% block extra_head %}{% endblock %}
+
+</head>
+
+
+<body>
+
+<!-- ADMIN LAYOUT -->
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-logo">
+            Zenith
+            <span class="admin-badge">Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('admin_panel') }}"
+               class="sidebar-link {% if active_tab is not defined or active_tab == 'dashboard' %}active{% endif %}">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('admin_orders_tab') }}"
+               class="sidebar-link {% if active_tab == 'orders' %}active{% endif %}">
+                <i class="fa-solid fa-box"></i>
+                <span>Orders</span>
+            </a>
+
+            <a href="{{ url_for('admin_products_tab') }}"
+               class="sidebar-link {% if active_tab == 'products' %}active{% endif %}">
+                <i class="fa-solid fa-tags"></i>
+                <span>Products</span>
+            </a>
+
+            <a href="{{ url_for('admin_users_tab') }}"
+               class="sidebar-link {% if active_tab == 'users' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i>
+                <span>Users</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <a href="{{ url_for('home') }}" class="sidebar-link">
+                <i class="fa-solid fa-house"></i>
+                <span>View Store</span>
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="sidebar-link logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="admin-main">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+
+</html>

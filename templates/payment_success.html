@@ -1,99 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}Payment Success | Zenith{% endblock %}
 
-    <meta charset="UTF-8">
+{% block content %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Payment Success | UrbanWear</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-</head>
-
-
-<body>
-
-
-<!-- TOP BAR -->
-
-<div class="top-bar">
-    <div class="top-bar-inner">
-        <span class="top-bar-left">
-            <i class="fa-solid fa-truck-fast"></i>
-            Complimentary shipping on all orders over ₹999
-        </span>
-        <span class="top-bar-right">
-            <i class="fa-solid fa-globe"></i>
-            Ship to: India
-        </span>
-    </div>
-</div>
-
-
-
-<!-- MAIN HEADER -->
-
-<header class="main-header">
-
-    <div class="logo">
-        Urban<span>Wear</span>
-    </div>
-
-    <nav class="main-nav">
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/#products">Products</a></li>
-            <li><a href="/cart">Cart</a></li>
-            <li><a href="/profile">Profile</a></li>
-            <li><a href="/orders">Orders</a></li>
-        </ul>
-    </nav>
-
-    <div class="header-icons">
-
-        <a href="#" class="icon-btn" title="Search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </a>
-
-        <a href="/profile" class="icon-btn" title="Profile">
-            <i class="fa-regular fa-user"></i>
-        </a>
-
-        <a href="/logout" class="icon-btn" title="Logout">
-            <i class="fa-solid fa-right-from-bracket"></i>
-        </a>
-
-        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
-            <i class="fa-regular fa-heart"></i>
-            <span id="wishlist-count">0</span>
-        </a>
-
-        <a href="/cart" class="icon-btn cart-icon" title="Cart">
-            <i class="fa-solid fa-shopping-bag"></i>
-            <span id="cart-count">0</span>
-        </a>
-
-    </div>
-
-</header>
-
-
-
-<!-- SUCCESS SECTION -->
+<!-- ==================================================
+                    SUCCESS SECTION
+================================================== -->
 
 <section class="payment-status-section">
 
@@ -151,67 +64,15 @@
 
 </section>
 
+{% endblock %}
 
 
-<!-- FOOTER -->
-
-<footer class="footer">
-
-    <div class="footer-container">
-
-        <div class="footer-box">
-            <h2>Urban<span>Wear</span></h2>
-            <p>Premium fashion brand delivering quality clothing, footwear and accessories across India.</p>
-        </div>
-
-        <div class="footer-box">
-            <h3>Quick Links</h3>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/#categories">Categories</a></li>
-                <li><a href="/#products">Products</a></li>
-                <li><a href="/orders">Orders</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-box">
-            <h3>Support</h3>
-            <ul>
-                <li><a href="#">Contact Us</a></li>
-                <li><a href="#">Return Policy</a></li>
-                <li><a href="#">Shipping Info</a></li>
-                <li><a href="#">Privacy Policy</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-box">
-            <h3>Follow Us</h3>
-            <div class="social-icons">
-                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
-                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-            </div>
-        </div>
-
-    </div>
-
-    <hr>
-
-    <p class="copyright">
-        © 2026 UrbanWear. All Rights Reserved.
-    </p>
-
-</footer>
-
-
-
+{% block extra_scripts %}
 <script>
+    // Clear cart after successful payment
     localStorage.removeItem("cart");
+
     const cartCountEl = document.getElementById("cart-count");
     if (cartCountEl) cartCountEl.textContent = "0";
 </script>
-
-</body>
-
-</html>
+{% endblock %}

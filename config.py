@@ -30,6 +30,12 @@ class Config:
     DEBUG = not IS_PRODUCTION
 
     # ==================================================
+    # BRAND
+    # ==================================================
+    SITE_NAME = "Zenith"
+    SITE_TAGLINE = "Wear the Peak"
+
+    # ==================================================
     # SECURITY
     # ==================================================
     SECRET_KEY = _get_required_env("SECRET_KEY")
@@ -75,7 +81,7 @@ class Config:
     # ==================================================
     # ADMIN
     # ==================================================
-    ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@urbanwear.com")
+    ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@zenith.com")
     ADMIN_PASSWORD = _get_required_env("ADMIN_PASSWORD")
 
     # ==================================================

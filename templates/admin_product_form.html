@@ -1,412 +1,306 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "admin_base.html" %}
 
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>
-        {% if mode == 'edit' %}Edit Product{% else %}Add New Product{% endif %} | UrbanWear Admin
-    </title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-</head>
+{% block title %}
+    {% if mode == 'edit' %}Edit Product{% else %}Add New Product{% endif %} | Zenith Admin
+{% endblock %}
 
 
-<body>
+{% block content %}
+
+<div class="admin-content">
 
 
-<!-- ADMIN LAYOUT -->
+    <!-- HEADER -->
 
-<div class="admin-layout">
+    <div class="admin-content-header"
+         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
 
+        <div>
 
-    <!-- SIDEBAR -->
+            <h1>
+                <i class="fa-solid {% if mode == 'edit' %}fa-pen{% else %}fa-plus{% endif %}"></i>
+                {% if mode == 'edit' %}
+                    Edit Product
+                {% else %}
+                    Add New Product
+                {% endif %}
+            </h1>
 
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-logo">
-            Urban<span>Wear</span>
-            <span class="admin-badge">Admin</span>
-        </div>
-
-        <nav class="sidebar-nav">
-
-            <a href="{{ url_for('admin_panel') }}" class="sidebar-link">
-                <i class="fa-solid fa-gauge-high"></i>
-                <span>Dashboard</span>
-            </a>
-
-            <a href="{{ url_for('admin_orders_tab') }}" class="sidebar-link">
-                <i class="fa-solid fa-box"></i>
-                <span>Orders</span>
-            </a>
-
-            <a href="{{ url_for('admin_products_tab') }}" class="sidebar-link active">
-                <i class="fa-solid fa-tags"></i>
-                <span>Products</span>
-            </a>
-
-            <a href="{{ url_for('admin_users_tab') }}" class="sidebar-link">
-                <i class="fa-solid fa-users"></i>
-                <span>Users</span>
-            </a>
-
-        </nav>
-
-        <div class="sidebar-footer">
-
-            <a href="{{ url_for('home') }}" class="sidebar-link">
-                <i class="fa-solid fa-house"></i>
-                <span>View Store</span>
-            </a>
-
-            <a href="{{ url_for('logout') }}" class="sidebar-link logout">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
+            <p>
+                {% if mode == 'edit' %}
+                    Update product details
+                {% else %}
+                    Add a new product to your store
+                {% endif %}
+            </p>
 
         </div>
 
-    </aside>
+        <a href="{{ url_for('admin_products_tab') }}" class="back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Products
+
+        </a>
+
+    </div>
 
 
 
-    <!-- MAIN CONTENT -->
+    <!-- FORM -->
 
-    <main class="admin-main">
+    <form method="POST"
+          action="{% if mode == 'edit' %}{{ url_for('admin_edit_product', product_id=product.id) }}{% else %}{{ url_for('admin_add_product') }}{% endif %}"
+          class="product-form">
 
-        <div class="admin-content">
+        <!-- CSRF TOKEN -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 
-            <!-- HEADER -->
+        <!-- BASIC INFO -->
 
-            <div class="admin-content-header"
-                 style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div class="form-section">
 
-                <div>
+            <h2>
+                <i class="fa-solid fa-info-circle"></i>
+                Basic Information
+            </h2>
 
-                    <h1>
-                        <i class="fa-solid {% if mode == 'edit' %}fa-pen{% else %}fa-plus{% endif %}"></i>
-                        {% if mode == 'edit' %}
-                            Edit Product
-                        {% else %}
-                            Add New Product
-                        {% endif %}
-                    </h1>
 
-                    <p>
-                        {% if mode == 'edit' %}
-                            Update product details
-                        {% else %}
-                            Add a new product to your store
-                        {% endif %}
-                    </p>
+            <div class="form-group">
 
-                </div>
+                <label for="name">Product Name *</label>
 
-                <a href="{{ url_for('admin_products_tab') }}" class="back-btn">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Back to Products
-
-                </a>
+                <input type="text"
+                       id="name"
+                       name="name"
+                       value="{{ product.name if product else '' }}"
+                       placeholder="e.g. Premium White T-Shirt"
+                       required>
 
             </div>
 
 
-            {% with messages = get_flashed_messages() %}
+            <div class="form-row">
 
-                {% if messages %}
+                <div class="form-group half">
 
-                    <div class="flash-messages">
+                    <label for="price">Price (₹) *</label>
 
-                        {% for message in messages %}
-
-                            <p>{{ message }}</p>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% endif %}
-
-            {% endwith %}
-
-
-
-            <!-- FORM -->
-
-            <form method="POST"
-                  action="{% if mode == 'edit' %}{{ url_for('admin_edit_product', product_id=product.id) }}{% else %}{{ url_for('admin_add_product') }}{% endif %}"
-                  class="product-form">
-
-                <!-- CSRF TOKEN -->
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-
-                <!-- BASIC INFO -->
-
-                <div class="form-section">
-
-                    <h2>
-                        <i class="fa-solid fa-info-circle"></i>
-                        Basic Information
-                    </h2>
-
-
-                    <div class="form-group">
-
-                        <label for="name">Product Name *</label>
-
-                        <input type="text"
-                               id="name"
-                               name="name"
-                               value="{{ product.name if product else '' }}"
-                               placeholder="e.g. Premium White T-Shirt"
-                               required>
-
-                    </div>
-
-
-                    <div class="form-row">
-
-                        <div class="form-group half">
-
-                            <label for="price">Price (₹) *</label>
-
-                            <input type="number"
-                                   id="price"
-                                   name="price"
-                                   step="0.01"
-                                   min="0"
-                                   value="{{ product.price if product else '' }}"
-                                   placeholder="799"
-                                   required>
-
-                        </div>
-
-                        <div class="form-group half">
-
-                            <label for="old_price">Old Price (₹)</label>
-
-                            <input type="number"
-                                   id="old_price"
-                                   name="old_price"
-                                   step="0.01"
-                                   min="0"
-                                   value="{{ product.old_price if product and product.old_price else '' }}"
-                                   placeholder="999">
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-row">
-
-                        <div class="form-group half">
-
-                            <label for="category">Category *</label>
-
-                            <select id="category"
-                                    name="category"
-                                    required>
-
-                                <option value="featured"
-                                    {% if product and product.category == 'featured' %}selected{% endif %}>
-                                    Featured
-                                </option>
-
-                                <option value="bestseller"
-                                    {% if product and product.category == 'bestseller' %}selected{% endif %}>
-                                    Best Seller
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <div class="form-group half">
-
-                            <label for="stock">Stock Quantity</label>
-
-                            <input type="number"
-                                   id="stock"
-                                   name="stock"
-                                   min="0"
-                                   value="{{ product.stock if product and product.stock else 10 }}"
-                                   placeholder="10">
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="rating">Rating (0-5)</label>
-
-                        <input type="number"
-                               id="rating"
-                               name="rating"
-                               step="0.1"
-                               min="0"
-                               max="5"
-                               value="{{ product.rating if product and product.rating else 4.5 }}"
-                               placeholder="4.5">
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="description">Description</label>
-
-                        <textarea id="description"
-                                  name="description"
-                                  rows="4"
-                                  placeholder="Premium cotton t-shirt made from soft breathable fabric...">{{ product.description if product else '' }}</textarea>
-
-                    </div>
+                    <input type="number"
+                           id="price"
+                           name="price"
+                           step="0.01"
+                           min="0"
+                           value="{{ product.price if product else '' }}"
+                           placeholder="799"
+                           required>
 
                 </div>
 
+                <div class="form-group half">
 
+                    <label for="old_price">Old Price (₹)</label>
 
-                <!-- IMAGES -->
-
-                <div class="form-section">
-
-                    <h2>
-                        <i class="fa-solid fa-image"></i>
-                        Product Images
-                    </h2>
-
-                    <p class="form-hint">
-                        Enter image paths relative to <code>static/</code> folder.
-                        Example: <code>images/products/tshirt.jpg</code>
-                    </p>
-
-
-                    <div class="form-group">
-
-                        <label for="image">Main Image * <span class="required-badge">Required</span></label>
-
-                        <input type="text"
-                               id="image"
-                               name="image"
-                               value="{{ product.image if product else '' }}"
-                               placeholder="images/products/tshirt.jpg"
-                               required>
-
-                        {% if product and product.image %}
-                            <div class="image-preview">
-                                <img src="{{ url_for('static', filename=product.image) }}"
-                                     alt="{{ product.name }}">
-                            </div>
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="form-row">
-
-                        <div class="form-group half">
-
-                            <label for="image2">Image 2</label>
-
-                            <input type="text"
-                                   id="image2"
-                                   name="image2"
-                                   value="{{ product.image2 if product and product.image2 else '' }}"
-                                   placeholder="images/products/tshirt-2.jpg">
-
-                        </div>
-
-                        <div class="form-group half">
-
-                            <label for="image3">Image 3</label>
-
-                            <input type="text"
-                                   id="image3"
-                                   name="image3"
-                                   value="{{ product.image3 if product and product.image3 else '' }}"
-                                   placeholder="images/products/tshirt-3.jpg">
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="image4">Image 4</label>
-
-                        <input type="text"
-                               id="image4"
-                               name="image4"
-                               value="{{ product.image4 if product and product.image4 else '' }}"
-                               placeholder="images/products/tshirt-4.jpg">
-
-                    </div>
+                    <input type="number"
+                           id="old_price"
+                           name="old_price"
+                           step="0.01"
+                           min="0"
+                           value="{{ product.old_price if product and product.old_price else '' }}"
+                           placeholder="999">
 
                 </div>
 
+            </div>
 
 
-                <!-- ACTIONS -->
+            <div class="form-row">
 
-                <div class="form-actions">
+                <div class="form-group half">
 
-                    <a href="{{ url_for('admin_products_tab') }}" class="cancel-btn">
+                    <label for="category">Category *</label>
 
-                        <i class="fa-solid fa-times"></i>
-                        Cancel
+                    <select id="category"
+                            name="category"
+                            required>
 
-                    </a>
+                        <option value="featured"
+                            {% if product and product.category == 'featured' %}selected{% endif %}>
+                            Featured
+                        </option>
 
-                    <button type="submit" class="submit-btn">
+                        <option value="bestseller"
+                            {% if product and product.category == 'bestseller' %}selected{% endif %}>
+                            Best Seller
+                        </option>
 
-                        <i class="fa-solid {% if mode == 'edit' %}fa-save{% else %}fa-plus{% endif %}"></i>
-                        {% if mode == 'edit' %}
-                            Update Product
-                        {% else %}
-                            Add Product
-                        {% endif %}
-
-                    </button>
+                    </select>
 
                 </div>
 
+                <div class="form-group half">
 
-            </form>
+                    <label for="stock">Stock Quantity</label>
+
+                    <input type="number"
+                           id="stock"
+                           name="stock"
+                           min="0"
+                           value="{{ product.stock if product and product.stock else 10 }}"
+                           placeholder="10">
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="rating">Rating (0-5)</label>
+
+                <input type="number"
+                       id="rating"
+                       name="rating"
+                       step="0.1"
+                       min="0"
+                       max="5"
+                       value="{{ product.rating if product and product.rating else 4.5 }}"
+                       placeholder="4.5">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">Description</label>
+
+                <textarea id="description"
+                          name="description"
+                          rows="4"
+                          placeholder="Premium cotton t-shirt made from soft breathable fabric...">{{ product.description if product else '' }}</textarea>
+
+            </div>
 
         </div>
 
-    </main>
+
+
+        <!-- IMAGES -->
+
+        <div class="form-section">
+
+            <h2>
+                <i class="fa-solid fa-image"></i>
+                Product Images
+            </h2>
+
+            <p class="form-hint">
+                Enter image paths relative to <code>static/</code> folder.
+                Example: <code>images/products/tshirt.jpg</code>
+            </p>
+
+
+            <div class="form-group">
+
+                <label for="image">Main Image * <span class="required-badge">Required</span></label>
+
+                <input type="text"
+                       id="image"
+                       name="image"
+                       value="{{ product.image if product else '' }}"
+                       placeholder="images/products/tshirt.jpg"
+                       required>
+
+                {% if product and product.image %}
+                    <div class="image-preview">
+                        <img src="{{ url_for('static', filename=product.image) }}"
+                             alt="{{ product.name }}">
+                    </div>
+                {% endif %}
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group half">
+
+                    <label for="image2">Image 2</label>
+
+                    <input type="text"
+                           id="image2"
+                           name="image2"
+                           value="{{ product.image2 if product and product.image2 else '' }}"
+                           placeholder="images/products/tshirt-2.jpg">
+
+                </div>
+
+                <div class="form-group half">
+
+                    <label for="image3">Image 3</label>
+
+                    <input type="text"
+                           id="image3"
+                           name="image3"
+                           value="{{ product.image3 if product and product.image3 else '' }}"
+                           placeholder="images/products/tshirt-3.jpg">
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="image4">Image 4</label>
+
+                <input type="text"
+                       id="image4"
+                       name="image4"
+                       value="{{ product.image4 if product and product.image4 else '' }}"
+                       placeholder="images/products/tshirt-4.jpg">
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ACTIONS -->
+
+        <div class="form-actions">
+
+            <a href="{{ url_for('admin_products_tab') }}" class="cancel-btn">
+
+                <i class="fa-solid fa-times"></i>
+                Cancel
+
+            </a>
+
+            <button type="submit" class="submit-btn">
+
+                <i class="fa-solid {% if mode == 'edit' %}fa-save{% else %}fa-plus{% endif %}"></i>
+                {% if mode == 'edit' %}
+                    Update Product
+                {% else %}
+                    Add Product
+                {% endif %}
+
+            </button>
+
+        </div>
+
+
+    </form>
 
 </div>
 
+{% endblock %}
 
 
-<!-- ==================================================
-   INLINE CSS FOR FORM
-================================================== -->
+
+{% block extra_scripts %}
 
 <style>
 
@@ -642,6 +536,4 @@
 
 </style>
 
-</body>
-
-</html>
+{% endblock %}

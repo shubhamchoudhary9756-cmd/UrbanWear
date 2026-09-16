@@ -1,5 +1,5 @@
 """
-UrbanWear - Flask E-Commerce Application
+Zenith - Flask E-Commerce Application
 """
 import warnings
 
@@ -419,14 +419,17 @@ def forgot_password():
 
             try:
                 msg = Message(
-                    subject="UrbanWear - Password Reset Link",
+                    subject="Zenith - Password Reset Link",
                     recipients=[email],
                     html=f"""
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background: #faf8f5;">
                         <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #c9a961;">
-                            <h1 style="color: #1a1a1a; font-family: Georgia, serif; margin: 0; font-size: 28px;">
-                                Urban<span style="color: #c9a961; font-style: italic;">Wear</span>
+                            <h1 style="color: #1a1a1a; font-family: Georgia, serif; margin: 0; font-size: 28px; letter-spacing: 3px;">
+                                ZENITH
                             </h1>
+                            <p style="color: #c9a961; font-size: 12px; letter-spacing: 2px; margin: 5px 0 0 0;">
+                                WEAR THE PEAK
+                            </p>
                         </div>
                         <div style="padding: 40px 30px; background: #ffffff;">
                             <h2 style="color: #1a1a1a; font-family: Georgia, serif; font-weight: 500;">Password Reset Request</h2>
@@ -434,7 +437,7 @@ def forgot_password():
                                 Hi <strong>{user.full_name}</strong>,
                             </p>
                             <p style="color: #555; line-height: 1.7; font-size: 15px;">
-                                We received a request to reset your UrbanWear account password.
+                                We received a request to reset your Zenith account password.
                                 Click the button below to create a new password.
                             </p>
                             <div style="text-align: center; margin: 35px 0;">
@@ -451,7 +454,7 @@ def forgot_password():
                             </p>
                         </div>
                         <div style="text-align: center; padding: 20px 0; color: #999; font-size: 12px;">
-                            © 2026 UrbanWear. All Rights Reserved.
+                            © 2026 Zenith. All Rights Reserved.
                         </div>
                     </div>
                     """
@@ -1250,63 +1253,7 @@ def internal_error(error):
 
 
 # ==================================================
-# DATABASE INITIALIZATION
-# (runs on both local + gunicorn/Render)
-# ==================================================
-
-def initialize_database():
-    """Create tables, admin, and seed products. Idempotent."""
-    with app.app_context():
-        try:
-            db.create_all()
-            print("✅ Database tables ready!")
-
-            admin_email = app.config["ADMIN_EMAIL"]
-            admin_password = app.config["ADMIN_PASSWORD"]
-            admin_user = User.query.filter_by(email=admin_email).first()
-
-            if not admin_user:
-                admin_user = User(
-                    full_name="Admin",
-                    email=admin_email,
-                    phone="+919999999999",
-                    password=generate_password_hash(admin_password),
-                    is_admin=True
-                )
-                db.session.add(admin_user)
-                db.session.commit()
-                print(f"✅ Admin created: {admin_email}")
-            else:
-                print(f"✅ Admin exists: {admin_email}")
-
-            if Product.query.count() == 0:
-                seed_products = [
-                    {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured"},
-                    {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured"},
-                    {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured"},
-                    {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller"},
-                    {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller"},
-                    {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller"},
-                    {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller"},
-                ]
-                for p in seed_products:
-                    db.session.add(Product(**p))
-                db.session.commit()
-                print(f"✅ Seeded {len(seed_products)} products!")
-            else:
-                print(f"✅ Products already exist: {Product.query.count()}")
-
-        except Exception as e:
-            print(f"⚠️  Database init error: {e}")
-            db.session.rollback()
-
-
-# ✅ Run on startup (works with gunicorn + local)
-initialize_database()
-
-
-# ==================================================
-# RUN APPLICATION (local development only)
+# RUN APPLICATION
 # ==================================================
 
 if __name__ == "__main__":
@@ -1316,5 +1263,47 @@ if __name__ == "__main__":
     )
     os.makedirs(instance_path, exist_ok=True)
 
+    with app.app_context():
+        db.create_all()
+        print("✅ Database tables ready!")
+
+        # ✅ Create admin from ENV (not hardcoded)
+        admin_email = app.config["ADMIN_EMAIL"]
+        admin_password = app.config["ADMIN_PASSWORD"]
+        admin_user = User.query.filter_by(email=admin_email).first()
+
+        if not admin_user:
+            admin_user = User(
+                full_name="Admin",
+                email=admin_email,
+                phone="+919999999999",
+                password=generate_password_hash(admin_password),
+                is_admin=True
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print(f"✅ Admin created: {admin_email}")
+        else:
+            print(f"✅ Admin exists: {admin_email}")
+
+        # Seed products
+        if Product.query.count() == 0:
+            seed_products = [
+                {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured"},
+                {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured"},
+                {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured"},
+                {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller"},
+                {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller"},
+                {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller"},
+                {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller"},
+            ]
+            for p in seed_products:
+                db.session.add(Product(**p))
+            db.session.commit()
+            print(f"✅ Seeded {len(seed_products)} products!")
+        else:
+            print(f"✅ Products already exists: {Product.query.count()}")
+
+    # ✅ Production me host 0.0.0.0 aur PORT env variable use karein
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=app.config.get("FLASK_ENV") != "production")
