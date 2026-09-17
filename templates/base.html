@@ -133,13 +133,146 @@
 
     </a>
 
+    <!-- ============================================
+                MAIN NAVIGATION WITH MEGA MENU
+    ============================================ -->
     <nav class="main-nav">
         <ul>
-            <li><a href="/#categories">New In</a></li>
-            <li><a href="/#products">Women</a></li>
-            <li><a href="/#products">Men</a></li>
-            <li><a href="/#categories">Accessories</a></li>
-            <li><a href="/#bestsellers">Collections</a></li>
+
+            <!-- NEW IN -->
+            <li class="has-mega">
+                <a href="/#categories">New In <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Just Dropped</h4>
+                            <a href="/#products">New Arrivals</a>
+                            <a href="/#products">Trending Now</a>
+                            <a href="/#bestsellers">Best Sellers</a>
+                            <a href="/#products">Editor's Picks</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Shop By</h4>
+                            <a href="/#products">Under ₹999</a>
+                            <a href="/#products">Premium Edit</a>
+                            <a href="/#products">Limited Drop</a>
+                            <a href="/#products">Sale</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="New In">
+                            <span>Fresh Drops</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- WOMEN -->
+            <li class="has-mega">
+                <a href="/#products">Women <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Clothing</h4>
+                            <a href="/#products">Tops & Tees</a>
+                            <a href="/#products">Dresses</a>
+                            <a href="/#products">Jeans</a>
+                            <a href="/#products">Jackets</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Accessories</h4>
+                            <a href="/#products">Bags</a>
+                            <a href="/#products">Jewellery</a>
+                            <a href="/#products">Footwear</a>
+                            <a href="/#products">Watches</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/women.jpg') }}" alt="Women">
+                            <span>Women's Edit</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- MEN -->
+            <li class="has-mega">
+                <a href="/#products">Men <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Clothing</h4>
+                            <a href="/#products">Shirts</a>
+                            <a href="/#products">T-Shirts</a>
+                            <a href="/#products">Jeans</a>
+                            <a href="/#products">Jackets</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Accessories</h4>
+                            <a href="/#products">Watches</a>
+                            <a href="/#products">Wallets</a>
+                            <a href="/#products">Shoes</a>
+                            <a href="/#products">Caps</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/men.jpg') }}" alt="Men">
+                            <span>Men's Edit</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- ACCESSORIES -->
+            <li class="has-mega">
+                <a href="/#categories">Accessories <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Bags & Wallets</h4>
+                            <a href="/#products">Backpacks</a>
+                            <a href="/#products">Sling Bags</a>
+                            <a href="/#products">Wallets</a>
+                            <a href="/#products">Travel Bags</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Others</h4>
+                            <a href="/#products">Caps</a>
+                            <a href="/#products">Belts</a>
+                            <a href="/#products">Sunglasses</a>
+                            <a href="/#products">Socks</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="Accessories">
+                            <span>Accessories</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- COLLECTIONS -->
+            <li class="has-mega">
+                <a href="/#bestsellers">Collections <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Shop By Season</h4>
+                            <a href="/#products">Spring / Summer</a>
+                            <a href="/#products">Autumn / Winter</a>
+                            <a href="/#products">Monsoon Edit</a>
+                            <a href="/#products">Holiday Edit</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Curated</h4>
+                            <a href="/#products">Best Sellers</a>
+                            <a href="/#products">Sale</a>
+                            <a href="/#products">New In</a>
+                            <a href="/#products">Limited Edition</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/banners/sale-banner.jpg') }}" alt="Collections">
+                            <span>Collections</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
 
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin %}
@@ -147,6 +280,7 @@
                 {% endif %}
                 <li><a href="/orders">Orders</a></li>
             {% endif %}
+
         </ul>
     </nav>
 
