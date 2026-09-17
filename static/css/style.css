@@ -4712,26 +4712,90 @@ section {
         gap: 6px;
         justify-content: center;
     }
+    
+    /* ===== MAIN HEADER — NOBERO LAYOUT ===== */
+/* [☰]      [LOGO]      [🔍] [🛍️] */
 
-    /* ===== MAIN HEADER — 1 ROW WITH HAMBURGER ===== */
-    .main-header {
-        display: flex;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        height: 85px !important;
-        min-height: 85px !important;
-        padding: 0 4% !important;
-        gap: 10px;
-        align-items: center;
-        justify-content: space-between;
-    }
+.main-header {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    padding: 0 4% !important;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
 
-    .main-header .zenith-logo-header {
-        flex: 1;
-        justify-content: center;
-        margin: 0 10px;
-        min-width: 0;
-    }
+/* Hamburger — Left Side */
+.main-header .hamburger-menu {
+    order: 1;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Logo — Center */
+.main-header .zenith-logo-header {
+    order: 2;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+/* Icons — Right Side */
+.main-header .header-icons {
+    order: 3;
+    flex-shrink: 0;
+    gap: 14px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Hide user/login icon (only show search + cart) */
+.main-header .header-icons .icon-btn[title="Profile"],
+.main-header .header-icons .icon-btn[title="Login"],
+.main-header .header-icons .icon-btn[title="Logout"] {
+    display: none !important;
+}
+
+/* Mobile logo sizing */
+.main-header .zenith-header-mountain {
+    width: 42px;
+    height: 21px;
+    margin: 0 auto 0px auto;
+}
+
+.main-header .zenith-header-text {
+    font-size: 13px;
+    letter-spacing: 4px;
+    padding-left: 4px;
+    line-height: 1;
+}
+
+.main-header .zenith-header-tagline {
+    font-size: 5px;
+    letter-spacing: 1.5px;
+    padding-left: 1.5px;
+    margin-top: 2px;
+}
+
 
     /* Nav links hide karo */
     .main-nav {
@@ -13769,10 +13833,17 @@ body {
 
 @media (max-width: 768px) {
 
-    /* Prevent any element from causing horizontal scroll */
-    html, body {
+    /* Prevent horizontal scroll - BUT allow vertical */
+    html {
         max-width: 100%;
         overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     /* Common culprits */
@@ -13969,7 +14040,7 @@ body {
 /* ============ FIX: Prevent overscroll bounce (iOS) ============ */
 
 body {
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
 }
 
 
