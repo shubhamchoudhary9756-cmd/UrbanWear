@@ -6430,10 +6430,9 @@ section {
     width: 92px;
     height: 46px;
     display: block;
-    margin: 0 auto 0.5px auto;
+    margin: 0 auto 2px auto;
     filter: drop-shadow(0 1px 2px rgba(201, 169, 97, 0.4));
 }
-
 
 /* ZENITH — Middle */
 .zenith-header-text {
@@ -6450,8 +6449,6 @@ section {
     margin: 0;
 }
 
-
-
 /* Tagline — Bottom */
 .zenith-header-tagline {
     display: block;
@@ -6467,7 +6464,6 @@ section {
     padding-left: 3.5px;
     white-space: nowrap;
 }
-
 
 /* =====================================================
    5. ZENITH OFFICIAL FULL LOGO (Footer + Standalone Pages)
