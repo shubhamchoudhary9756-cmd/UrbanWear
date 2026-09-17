@@ -6730,3 +6730,92 @@ section {
 .razorpay-container {
     z-index: 99999 !important;
 }
+/* =====================================================
+   ANNOUNCEMENT BAR (Scrolling)
+===================================================== */
+
+.announcement-bar {
+    background: var(--bg-dark);
+    color: var(--accent-gold);
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.announcement-track {
+    display: flex;
+    gap: 80px;
+    animation: scrollAnnouncement 30s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+}
+
+.announcement-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.announcement-track span i {
+    color: var(--accent-gold);
+    font-size: 12px;
+}
+
+/* Hover pe pause */
+.announcement-bar:hover .announcement-track {
+    animation-play-state: paused;
+}
+
+@keyframes scrollAnnouncement {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+
+/* =====================================================
+   ANNOUNCEMENT BAR — Mobile
+===================================================== */
+
+@media (max-width: 768px) {
+    .announcement-bar {
+        font-size: 11px;
+        letter-spacing: 1px;
+        padding: 8px 0;
+    }
+
+    .announcement-track {
+        gap: 50px;
+        animation-duration: 20s;
+    }
+
+    .announcement-track span i {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .announcement-bar {
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        padding: 7px 0;
+    }
+
+    .announcement-track {
+        gap: 40px;
+        animation-duration: 18s;
+    }
+
+    .announcement-track span i {
+        font-size: 9px;
+    }
+}
