@@ -5,41 +5,108 @@
 {% block content %}
 
 <!-- ==================================================
-                    ORDERS PAGE
+                    ORDERS PAGE — NOBERO STYLE
 ================================================== -->
 
-<section class="orders-section">
+<section class="orders-nb">
 
-    <div class="orders-container">
+    <!-- ============================================
+                    HEADER
+    ============================================ -->
 
-        <div class="orders-header">
+    <div class="orders-header-nb">
 
+        <div class="orders-header-left-nb">
+            <span class="orders-tag-nb">Account</span>
             <h1>My Orders</h1>
+            <p class="orders-subtitle-nb">
+                <span id="orders-count-nb">{{ orders|length if orders else 0 }}</span>
+                {% if orders and orders|length == 1 %}order{% else %}orders{% endif %} placed
+            </p>
+        </div>
 
-            <p>Track and manage your orders</p>
+        <a href="/#products" class="orders-shop-btn-nb">
+            <i class="fa-solid fa-bag-shopping"></i>
+            Continue Shopping
+        </a>
+
+    </div>
+
+
+    {% if orders %}
+
+        <!-- ============================================
+                        FILTER TABS
+        ============================================ -->
+
+        <div class="orders-filters-nb">
+
+            <button type="button"
+                    class="order-filter-btn-nb active-nb"
+                    data-filter="all">
+                All
+                <span>{{ orders|length }}</span>
+            </button>
+
+            <button type="button"
+                    class="order-filter-btn-nb"
+                    data-filter="active">
+                Active
+                <span>{{ orders|selectattr('status', 'in', ['pending', 'processing', 'shipped'])|list|length }}</span>
+            </button>
+
+            <button type="button"
+                    class="order-filter-btn-nb"
+                    data-filter="completed">
+                Completed
+                <span>{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</span>
+            </button>
+
+            <button type="button"
+                    class="order-filter-btn-nb"
+                    data-filter="cancelled">
+                Cancelled
+                <span>{{ orders|selectattr('status', 'equalto', 'cancelled')|list|length }}</span>
+            </button>
 
         </div>
 
 
-        {% if orders %}
+        <!-- ============================================
+                        ORDERS LIST
+        ============================================ -->
+
+        <div class="orders-list-nb" id="orders-list-nb">
 
             {% for order in orders %}
 
-                <div class="order-card-modern">
+                <div class="order-card-nb"
+                     data-status="{{ order.status }}">
 
-                    <div class="order-card-modern-header">
+                    <!-- ============================
+                            STATUS STRIP
+                    ============================ -->
 
-                        <div class="order-card-modern-left">
+                    <div class="order-status-strip-nb status-{{ order.status }}"></div>
 
-                            <div class="order-card-icon">
+
+                    <!-- ============================
+                            HEADER
+                    ============================ -->
+
+                    <div class="order-card-header-nb">
+
+                        <div class="order-card-left-nb">
+
+                            <div class="order-icon-nb">
                                 <i class="fa-solid fa-box"></i>
                             </div>
 
-                            <div class="order-card-info">
+                            <div class="order-info-nb">
 
                                 <h3>Order #{{ order.id }}</h3>
 
-                                <span class="order-card-date">
+                                <span class="order-date-nb">
                                     <i class="fa-solid fa-calendar"></i>
                                     {{ order.created_at.strftime('%d %b %Y') }}
                                 </span>
@@ -48,7 +115,7 @@
 
                         </div>
 
-                        <span class="order-status-pill {{ order.status }}">
+                        <span class="order-status-pill-nb status-{{ order.status }}">
                             <i class="fa-solid fa-circle"></i>
                             {{ order.status|upper }}
                         </span>
@@ -56,35 +123,85 @@
                     </div>
 
 
-                    <div class="order-card-modern-items">
+                    <!-- ============================
+                            TIMELINE (Progress)
+                    ============================ -->
+
+                    {% if order.status not in ['cancelled'] %}
+
+                    <div class="order-timeline-nb">
+
+                        <div class="timeline-step-nb {% if order.status in ['pending', 'processing', 'shipped', 'delivered'] %}done-nb{% endif %}">
+                            <div class="timeline-dot-nb"></div>
+                            <span>Placed</span>
+                        </div>
+
+                        <div class="timeline-line-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}done-nb{% endif %}"></div>
+
+                        <div class="timeline-step-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}done-nb{% endif %}">
+                            <div class="timeline-dot-nb"></div>
+                            <span>Processing</span>
+                        </div>
+
+                        <div class="timeline-line-nb {% if order.status in ['shipped', 'delivered'] %}done-nb{% endif %}"></div>
+
+                        <div class="timeline-step-nb {% if order.status in ['shipped', 'delivered'] %}done-nb{% endif %}">
+                            <div class="timeline-dot-nb"></div>
+                            <span>Shipped</span>
+                        </div>
+
+                        <div class="timeline-line-nb {% if order.status == 'delivered' %}done-nb{% endif %}"></div>
+
+                        <div class="timeline-step-nb {% if order.status == 'delivered' %}done-nb{% endif %}">
+                            <div class="timeline-dot-nb"></div>
+                            <span>Delivered</span>
+                        </div>
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="order-cancelled-banner-nb">
+                        <i class="fa-solid fa-ban"></i>
+                        <span>This order was cancelled</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    <!-- ============================
+                            ITEMS PREVIEW
+                    ============================ -->
+
+                    <div class="order-items-nb">
 
                         {% for item in order.items %}
 
-                            <div class="modern-order-item">
+                            <div class="order-item-row-nb">
 
-                                <div class="modern-item-left">
+                                <div class="order-item-left-nb">
 
-                                    <div class="modern-item-icon">
+                                    <div class="order-item-icon-nb">
                                         <i class="fa-solid fa-cube"></i>
                                     </div>
 
-                                    <div class="modern-item-info">
+                                    <div class="order-item-info-nb">
 
-                                        <span class="modern-item-name">
+                                        <span class="order-item-name-nb">
                                             {{ item.product_name }}
                                         </span>
 
-                                        <span class="modern-item-meta">
+                                        <span class="order-item-meta-nb">
                                             Qty: {{ item.quantity }}
-                                            {% if item.size %} | Size: {{ item.size }}{% endif %}
-                                            {% if item.color %} | Color: {{ item.color }}{% endif %}
+                                            {% if item.size %} • Size: {{ item.size }}{% endif %}
+                                            {% if item.color %} • Color: {{ item.color }}{% endif %}
                                         </span>
 
                                     </div>
 
                                 </div>
 
-                                <div class="modern-item-price">
+                                <div class="order-item-price-nb">
                                     <strong>₹{{ item.price * item.quantity }}</strong>
                                 </div>
 
@@ -95,20 +212,21 @@
                     </div>
 
 
-                    <div class="order-card-modern-footer">
+                    <!-- ============================
+                            FOOTER
+                    ============================ -->
 
-                        <div class="order-card-total">
+                    <div class="order-card-footer-nb">
 
+                        <div class="order-total-nb">
                             <span>Total Amount</span>
-
                             <strong>₹{{ order.total_amount }}</strong>
-
                         </div>
 
-                        <div class="order-card-actions">
+                        <div class="order-actions-nb">
 
                             <a href="{{ url_for('order_details', order_id=order.id) }}"
-                               class="modern-view-btn">
+                               class="order-view-btn-nb">
 
                                 <i class="fa-solid fa-eye"></i>
                                 View Details
@@ -119,16 +237,14 @@
 
                                 <form method="POST"
                                       action="{{ url_for('cancel_order', order_id=order.id) }}"
-                                      onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                                      onsubmit="return confirm('Are you sure you want to cancel this order?')"
+                                      style="display: inline;">
 
-                                    <!-- CSRF TOKEN -->
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                                    <button type="submit" class="modern-cancel-btn">
-
+                                    <button type="submit" class="order-cancel-btn-nb">
                                         <i class="fa-solid fa-ban"></i>
                                         Cancel
-
                                     </button>
 
                                 </form>
@@ -143,29 +259,114 @@
 
             {% endfor %}
 
-        {% else %}
+        </div>
 
-            <div class="empty-orders">
 
-                <div class="empty-orders-icon">
-                    <i class="fa-solid fa-box-open"></i>
-                </div>
+    {% else %}
 
-                <h2>No Orders Yet</h2>
+        <!-- ============================================
+                        EMPTY STATE
+        ============================================ -->
 
-                <p>You haven't placed any orders yet.</p>
+        <div class="orders-empty-nb">
 
-                <a href="/#products" class="continue-shopping">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    Start Shopping
-                </a>
-
+            <div class="orders-empty-icon-nb">
+                <i class="fa-solid fa-box-open"></i>
             </div>
 
-        {% endif %}
+            <h2>No Orders Yet</h2>
 
-    </div>
+            <p>
+                You haven't placed any orders yet.
+                Start exploring our collection and place your first order!
+            </p>
+
+            <a href="/#products" class="orders-empty-btn-nb">
+                <i class="fa-solid fa-bag-shopping"></i>
+                Start Shopping
+            </a>
+
+        </div>
+
+    {% endif %}
 
 </section>
 
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+    /* =====================================================
+       ORDER FILTER TABS
+    ===================================================== */
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const filterBtns = document.querySelectorAll(".order-filter-btn-nb");
+        const orderCards = document.querySelectorAll(".order-card-nb");
+        const ordersList = document.getElementById("orders-list-nb");
+
+        if (!filterBtns.length || !orderCards.length) return;
+
+        filterBtns.forEach(btn => {
+
+            btn.addEventListener("click", function () {
+
+                // Remove active from all
+                filterBtns.forEach(b => b.classList.remove("active-nb"));
+                this.classList.add("active-nb");
+
+                const filter = this.dataset.filter;
+
+                let visibleCount = 0;
+
+                orderCards.forEach(card => {
+
+                    const status = card.dataset.status;
+
+                    let show = false;
+
+                    if (filter === "all") {
+                        show = true;
+                    } else if (filter === "active") {
+                        show = ["pending", "processing", "shipped"].includes(status);
+                    } else if (filter === "completed") {
+                        show = status === "delivered";
+                    } else if (filter === "cancelled") {
+                        show = status === "cancelled";
+                    }
+
+                    if (show) {
+                        card.style.display = "";
+                        visibleCount++;
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+
+                // If no orders in this filter
+                let noResult = document.getElementById("no-filter-result-nb");
+
+                if (visibleCount === 0) {
+                    if (!noResult && ordersList) {
+                        noResult = document.createElement("div");
+                        noResult.id = "no-filter-result-nb";
+                        noResult.className = "no-filter-result-nb";
+                        noResult.innerHTML = `
+                            <i class="fa-solid fa-inbox"></i>
+                            <p>No orders in this category</p>
+                        `;
+                        ordersList.appendChild(noResult);
+                    }
+                } else {
+                    if (noResult) noResult.remove();
+                }
+
+            });
+
+        });
+
+    });
+</script>
 {% endblock %}

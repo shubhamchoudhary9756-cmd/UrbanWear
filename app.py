@@ -526,7 +526,21 @@ def reset_password(token):
 @app.route("/profile")
 @login_required
 def profile():
-    return render_template("profile.html", user=current_user)
+    # ✅ Safely count orders (works with both lazy='dynamic' and normal relationships)
+    try:
+        if hasattr(current_user.orders, 'count'):
+            orders_count = current_user.orders.count()
+        else:
+            orders_count = len(current_user.orders)
+    except Exception as e:
+        print(f"Profile orders count error: {e}")
+        orders_count = 0
+
+    return render_template(
+        "profile.html",
+        user=current_user,
+        orders_count=orders_count
+    )
 
 
 @app.route("/profile/update", methods=["POST"])

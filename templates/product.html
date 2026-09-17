@@ -5,126 +5,309 @@
 {% block content %}
 
 <!-- ==================================================
-                    PRODUCT DETAILS
+                    BREADCRUMB
 ================================================== -->
 
-<section class="product-details">
-
-    <!-- THUMBNAILS -->
-
-    <div class="thumbnail-list">
-
-        {% for img in product.images %}
-
-        <img src="{{ url_for('static', filename=img) }}"
-             class="thumbnail {% if loop.first %}active{% endif %}"
-             onclick="changeImage(this)"
-             alt="{{ product.name }} thumbnail">
-
-        {% endfor %}
-
+<div class="breadcrumb-nb">
+    <div class="breadcrumb-inner-nb">
+        <a href="/">Home</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <a href="/#categories">{{ product.category }}</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span>{{ product.name }}</span>
     </div>
+</div>
 
 
-    <!-- MAIN PRODUCT IMAGE -->
 
-    <div class="product-image">
+<!-- ==================================================
+                    PRODUCT DETAILS — NOBERO STYLE
+================================================== -->
 
-        <img id="main-image"
-             src="{{ url_for('static', filename=product.image) }}"
-             alt="{{ product.name }}">
+<section class="product-nb">
 
-    </div>
+    <div class="product-nb-grid">
 
+        <!-- ============================================
+                    LEFT — GALLERY
+        ============================================ -->
 
-    <!-- PRODUCT INFORMATION -->
+        <div class="gallery-nb">
 
-    <div class="product-info">
+            <!-- Thumbnails -->
+            <div class="thumbnails-nb">
 
-        <span class="product-category">
-            {{ product.category }}
-        </span>
+                {% if product.images %}
+                    {% for img in product.images %}
+                    <div class="thumb-nb {% if loop.first %}active{% endif %}"
+                         data-img="{{ url_for('static', filename=img) }}"
+                         onclick="changeImage(this)">
+                        <img src="{{ url_for('static', filename=img) }}"
+                             alt="{{ product.name }} thumbnail">
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="thumb-nb active"
+                         data-img="{{ url_for('static', filename=product.image) }}"
+                         onclick="changeImage(this)">
+                        <img src="{{ url_for('static', filename=product.image) }}"
+                             alt="{{ product.name }}">
+                    </div>
+                {% endif %}
 
-        <h1>{{ product.name }}</h1>
+            </div>
 
-        <div class="product-rating">
-            ⭐⭐⭐⭐⭐ ({{ product.rating }})
-        </div>
+            <!-- Main Image -->
+            <div class="main-image-nb">
+                <img id="main-image"
+                     src="{{ url_for('static', filename=product.image) }}"
+                     alt="{{ product.name }}">
 
-        <div class="product-price">
-            ₹{{ product.price }}
-            <del>₹{{ product.old_price }}</del>
-        </div>
+                {% if product.old_price and product.old_price > product.price %}
+                <span class="discount-badge-nb">
+                    -{{ ((product.old_price - product.price) / product.old_price * 100)|round|int }}%
+                </span>
+                {% endif %}
 
-        <p class="product-description">
-            {{ product.description }}
-        </p>
+                <button type="button" class="zoom-hint-nb" aria-label="Hover to zoom">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i>
+                </button>
+            </div>
 
-
-        <!-- SIZE -->
-
-        <h3 class="option-title">Select Size</h3>
-
-        <div class="size-options">
-            <button type="button">S</button>
-            <button type="button" class="active">M</button>
-            <button type="button">L</button>
-            <button type="button">XL</button>
-        </div>
-
-
-        <!-- COLOR -->
-
-        <h3 class="option-title">Select Color</h3>
-
-        <div class="color-options">
-            <span class="color black" data-color="Black" title="Black"></span>
-            <span class="color white" data-color="White" title="White"></span>
-            <span class="color blue" data-color="Blue" title="Blue"></span>
-        </div>
-
-
-        <!-- QUANTITY -->
-
-        <h3 class="option-title">Quantity</h3>
-
-        <div class="quantity-box">
-            <input id="quantity" type="number" min="1" max="10" value="1">
         </div>
 
 
-        <!-- BUTTONS -->
 
-        <div class="product-buttons">
+        <!-- ============================================
+                    RIGHT — PRODUCT INFO
+        ============================================ -->
 
-            <button type="button"
-                    class="buy-btn"
-                    onclick="buyNow()">
-                Buy Now
-            </button>
+        <div class="info-nb">
 
-            <button type="button"
-                    class="cart-btn add-cart"
-                    data-id="{{ product.id }}"
-                    data-name="{{ product.name }}"
-                    data-price="{{ product.price }}"
-                    data-image="{{ product.image }}">
-                <i class="fa-solid fa-shopping-cart"></i>
-                Add To Cart
-            </button>
+            <!-- Category -->
+            <span class="cat-tag-nb">{{ product.category }}</span>
 
-            <button type="button"
-                    class="wishlist-btn wishlist-btn-icon"
-                    data-id="{{ product.id }}"
-                    data-name="{{ product.name }}"
-                    data-price="{{ product.price }}"
-                    data-old-price="{{ product.old_price }}"
-                    data-image="{{ product.image }}"
-                    data-rating="{{ product.rating }}"
-                    data-description="{{ product.description|e }}"
-                    aria-label="Add to Wishlist">
-                <i class="fa-regular fa-heart"></i>
-            </button>
+            <!-- Title -->
+            <h1 class="title-nb">{{ product.name }}</h1>
+
+            <!-- Rating -->
+            <div class="rating-row-nb">
+                <span class="stars-nb">⭐⭐⭐⭐⭐</span>
+                <span class="rating-value-nb">{{ product.rating }}</span>
+                <span class="rating-count-nb">(128 Reviews)</span>
+            </div>
+
+            <!-- Price -->
+            <div class="price-nb">
+                <span class="current-price-nb">₹{{ product.price }}</span>
+                {% if product.old_price and product.old_price > product.price %}
+                    <span class="old-price-nb">₹{{ product.old_price }}</span>
+                    <span class="save-badge-nb">
+                        Save ₹{{ product.old_price - product.price }}
+                    </span>
+                {% endif %}
+            </div>
+
+            <p class="tax-note-nb">Inclusive of all taxes</p>
+
+            <!-- Description -->
+            <p class="desc-nb">{{ product.description }}</p>
+
+
+
+            <!-- ============================================
+                        COLOR SELECTOR
+            ============================================ -->
+
+            <div class="option-block-nb">
+                <h3 class="option-title-nb">
+                    Color: <span id="selected-color-nb">Black</span>
+                </h3>
+
+                <div class="color-options-nb">
+                    <span class="color-nb black-nb"
+                          data-color="Black"
+                          title="Black"
+                          onclick="selectColor(this)"></span>
+                    <span class="color-nb white-nb"
+                          data-color="White"
+                          title="White"
+                          onclick="selectColor(this)"></span>
+                    <span class="color-nb blue-nb"
+                          data-color="Blue"
+                          title="Blue"
+                          onclick="selectColor(this)"></span>
+                    <span class="color-nb gold-nb"
+                          data-color="Gold"
+                          title="Gold"
+                          onclick="selectColor(this)"></span>
+                </div>
+            </div>
+
+
+
+            <!-- ============================================
+                        SIZE SELECTOR
+            ============================================ -->
+
+            <div class="option-block-nb">
+                <div class="size-header-nb">
+                    <h3 class="option-title-nb">
+                        Select Size: <span id="selected-size-nb">M</span>
+                    </h3>
+                    <button type="button" class="size-guide-nb">
+                        <i class="fa-solid fa-ruler"></i> Size Guide
+                    </button>
+                </div>
+
+                <div class="size-options-nb">
+                    <button type="button" class="size-btn-nb" data-size="S" onclick="selectSize(this)">S</button>
+                    <button type="button" class="size-btn-nb active" data-size="M" onclick="selectSize(this)">M</button>
+                    <button type="button" class="size-btn-nb" data-size="L" onclick="selectSize(this)">L</button>
+                    <button type="button" class="size-btn-nb" data-size="XL" onclick="selectSize(this)">XL</button>
+                    <button type="button" class="size-btn-nb" data-size="XXL" onclick="selectSize(this)">XXL</button>
+                </div>
+            </div>
+
+
+
+            <!-- ============================================
+                        QUANTITY
+            ============================================ -->
+
+            <div class="option-block-nb">
+                <h3 class="option-title-nb">Quantity</h3>
+
+                <div class="qty-nb">
+                    <button type="button" onclick="changeQty(-1)">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <input id="quantity" type="number" min="1" max="10" value="1" readonly>
+                    <button type="button" onclick="changeQty(1)">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+
+
+            <!-- ============================================
+                        ACTION BUTTONS
+            ============================================ -->
+
+            <div class="actions-nb">
+
+                <button type="button"
+                        class="add-cart-btn-nb add-cart"
+                        data-id="{{ product.id }}"
+                        data-name="{{ product.name }}"
+                        data-price="{{ product.price }}"
+                        data-image="{{ product.image }}">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    Add to Cart
+                </button>
+
+                <button type="button"
+                        class="buy-now-btn-nb"
+                        onclick="buyNow()">
+                    <i class="fa-solid fa-bolt"></i>
+                    Buy Now
+                </button>
+
+                <button type="button"
+                        class="wishlist-btn-nb wishlist-btn-icon"
+                        data-id="{{ product.id }}"
+                        data-name="{{ product.name }}"
+                        data-price="{{ product.price }}"
+                        data-old-price="{{ product.old_price }}"
+                        data-image="{{ product.image }}"
+                        data-rating="{{ product.rating }}"
+                        data-description="{{ product.description|e }}"
+                        aria-label="Add to Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+
+            </div>
+
+
+
+            <!-- ============================================
+                        TRUST BADGES
+            ============================================ -->
+
+            <div class="trust-badges-nb">
+
+                <div class="trust-item-nb">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <div>
+                        <strong>Free Shipping</strong>
+                        <span>On orders above ₹999</span>
+                    </div>
+                </div>
+
+                <div class="trust-item-nb">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <div>
+                        <strong>Easy Returns</strong>
+                        <span>7-day return policy</span>
+                    </div>
+                </div>
+
+                <div class="trust-item-nb">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <div>
+                        <strong>Secure Payment</strong>
+                        <span>100% safe & encrypted</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <!-- ============================================
+                        ACCORDION — DETAILS
+            ============================================ -->
+
+            <div class="accordion-nb">
+
+                <details class="acc-item-nb" open>
+                    <summary>
+                        <span>Product Details</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </summary>
+                    <div class="acc-content-nb">
+                        <ul>
+                            <li>Premium quality fabric</li>
+                            <li>Comfortable fit for all-day wear</li>
+                            <li>Made with sustainable materials</li>
+                            <li>Color: As selected above</li>
+                            <li>Style Code: ZN-{{ product.id }}</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="acc-item-nb">
+                    <summary>
+                        <span>Shipping & Delivery</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </summary>
+                    <div class="acc-content-nb">
+                        <p>Free shipping on orders above ₹999. Standard delivery takes 3-5 business days across India.</p>
+                    </div>
+                </details>
+
+                <details class="acc-item-nb">
+                    <summary>
+                        <span>Returns & Exchange</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </summary>
+                    <div class="acc-content-nb">
+                        <p>7-day easy return and exchange. Products must be unused with original tags.</p>
+                    </div>
+                </details>
+
+            </div>
 
         </div>
 
@@ -132,16 +315,117 @@
 
 </section>
 
+
+
+<!-- ==================================================
+                    MOBILE STICKY BUY BAR
+================================================== -->
+
+<div class="sticky-buy-nb">
+
+    <div class="sticky-price-nb">
+        <span>₹{{ product.price }}</span>
+        {% if product.old_price and product.old_price > product.price %}
+            <del>₹{{ product.old_price }}</del>
+        {% endif %}
+    </div>
+
+    <button type="button"
+            class="add-cart-btn-nb add-cart sticky-cart-nb"
+            data-id="{{ product.id }}"
+            data-name="{{ product.name }}"
+            data-price="{{ product.price }}"
+            data-image="{{ product.image }}">
+        <i class="fa-solid fa-bag-shopping"></i> Add to Cart
+    </button>
+
+</div>
+
+
+
+<!-- ==================================================
+                    RELATED PRODUCTS (Optional)
+================================================== -->
+
+{% if related_products %}
+<section class="related-nb">
+
+    <div class="section-header-nb">
+        <span class="section-tag-nb">You May Also Like</span>
+        <h2>Related Products</h2>
+    </div>
+
+    <div class="related-grid-nb">
+
+        {% for rp in related_products[:4] %}
+
+        <div class="related-card-nb">
+            <a href="/product/{{ rp.id }}">
+                <img src="{{ url_for('static', filename=rp.image) }}" alt="{{ rp.name }}">
+            </a>
+            <h3><a href="/product/{{ rp.id }}">{{ rp.name }}</a></h3>
+            <p>₹{{ rp.price }} <span>₹{{ rp.old_price }}</span></p>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+{% endif %}
+
 {% endblock %}
+
 
 
 {% block extra_scripts %}
 <script>
+    /* ============ IMAGE GALLERY ============ */
+    function changeImage(thumb) {
+        const imgSrc = thumb.dataset.img;
+        if (imgSrc) {
+            document.getElementById('main-image').src = imgSrc;
+            document.querySelectorAll('.thumb-nb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+        }
+    }
+
+    /* ============ COLOR SELECTOR ============ */
+    function selectColor(el) {
+        document.querySelectorAll('.color-nb').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('selected-color-nb').textContent = el.dataset.color;
+    }
+
+    /* Default selected color */
+    document.addEventListener('DOMContentLoaded', function () {
+        const firstColor = document.querySelector('.color-nb');
+        if (firstColor) firstColor.classList.add('active');
+    });
+
+    /* ============ SIZE SELECTOR ============ */
+    function selectSize(btn) {
+        document.querySelectorAll('.size-btn-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('selected-size-nb').textContent = btn.dataset.size;
+    }
+
+    /* ============ QUANTITY ============ */
+    function changeQty(delta) {
+        const input = document.getElementById('quantity');
+        let val = parseInt(input.value) || 1;
+        val += delta;
+        if (val < 1) val = 1;
+        if (val > 10) val = 10;
+        input.value = val;
+    }
+
+    /* ============ BUY NOW ============ */
     function buyNow() {
-        const addCartBtn = document.querySelector(".add-cart");
+        const addCartBtn = document.querySelector('.add-cart');
         if (addCartBtn) {
             addToCart(addCartBtn);
-            setTimeout(function() {
+            setTimeout(function () {
                 window.location.href = "/cart";
             }, 500);
         }

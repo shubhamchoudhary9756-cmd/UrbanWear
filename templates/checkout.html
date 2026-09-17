@@ -5,215 +5,280 @@
 {% block content %}
 
 <!-- ==================================================
-                    CHECKOUT
+                    CHECKOUT — NOBERO STYLE
 ================================================== -->
 
-<section class="checkout-section">
+<section class="checkout-nb">
 
-    <div class="checkout-container">
+    <!-- ============================================
+                    PROGRESS BAR
+    ============================================ -->
 
-        <div class="checkout-header">
+    <div class="checkout-progress-nb">
+        <div class="progress-inner-nb">
 
-            <h1>Checkout</h1>
+            <div class="progress-step-nb done-nb">
+                <div class="step-circle-nb">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <span>Cart</span>
+            </div>
 
-            <p>Complete your order</p>
+            <div class="progress-line-nb done-nb"></div>
+
+            <div class="progress-step-nb active-nb">
+                <div class="step-circle-nb">2</div>
+                <span>Shipping</span>
+            </div>
+
+            <div class="progress-line-nb"></div>
+
+            <div class="progress-step-nb">
+                <div class="step-circle-nb">3</div>
+                <span>Payment</span>
+            </div>
+
+            <div class="progress-line-nb"></div>
+
+            <div class="progress-step-nb">
+                <div class="step-circle-nb">4</div>
+                <span>Done</span>
+            </div>
 
         </div>
+    </div>
 
 
-        <form method="POST"
-              action="{{ url_for('checkout') }}"
-              id="checkout-form">
+    <!-- ============================================
+                    HEADER
+    ============================================ -->
 
-            <!-- CSRF TOKEN -->
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="checkout-header-nb">
+        <h1>Checkout</h1>
+        <p>Complete your order in a few easy steps</p>
+    </div>
 
-            <div class="checkout-grid">
 
-                <!-- LEFT COLUMN -->
+    <!-- ============================================
+                    FORM
+    ============================================ -->
 
-                <div class="checkout-left">
+    <form method="POST"
+          action="{{ url_for('checkout') }}"
+          id="checkout-form"
+          class="checkout-form-nb">
 
-                    <div class="checkout-box">
+        <!-- CSRF TOKEN -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+        <div class="checkout-grid-nb">
+
+            <!-- ============================================
+                        LEFT — FORMS
+            ============================================ -->
+
+            <div class="checkout-left-nb">
+
+                <!-- ============================
+                        CONTACT INFO
+                ============================ -->
+
+                <div class="checkout-box-nb">
+
+                    <div class="checkout-box-header-nb">
+                        <span class="checkout-step-badge-nb">1</span>
                         <h2>
-                            <i class="fa-solid fa-truck"></i>
-                            Shipping Details
+                            <i class="fa-solid fa-user"></i>
+                            Contact Information
                         </h2>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="full_name">Full Name</label>
+                    <div class="form-row-nb">
+
+                        <div class="form-group-nb">
+                            <label for="full_name">Full Name <span>*</span></label>
                             <input type="text"
                                    id="full_name"
                                    name="full_name"
                                    value="{{ current_user.full_name }}"
+                                   placeholder="Enter your full name"
                                    required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="address">Address</label>
-                            <textarea id="address"
-                                      name="address"
-                                      rows="3"
-                                      placeholder="Enter your complete address"
-                                      required></textarea>
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="form-group half">
-                                <label for="city">City</label>
-                                <input type="text"
-                                       id="city"
-                                       name="city"
-                                       placeholder="City"
-                                       required>
-                            </div>
-
-                            <div class="form-group half">
-                                <label for="state">State</label>
-                                <input type="text"
-                                       id="state"
-                                       name="state"
-                                       placeholder="State"
-                                       required>
-                            </div>
-
-                        </div>
-
-                        <div class="form-group">
-                            <label for="pincode">Pincode</label>
-                            <input type="text"
-                                   id="pincode"
-                                   name="pincode"
-                                   placeholder="Pincode"
+                        <div class="form-group-nb">
+                            <label for="email">Email <span>*</span></label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   value="{{ current_user.email }}"
+                                   placeholder="you@example.com"
                                    required>
                         </div>
 
                     </div>
 
-
-                    <div class="checkout-box">
-
-                        <h2>
-                            <i class="fa-solid fa-credit-card"></i>
-                            Payment Method
-                        </h2>
-
-                        <div class="payment-options">
-
-                            <label class="payment-option">
-
-                                <input type="radio"
-                                       name="payment_method"
-                                       value="cod"
-                                       checked>
-
-                                <div class="payment-icon">
-                                    <i class="fa-solid fa-money-bill-wave"></i>
-                                </div>
-
-                                <div class="payment-info">
-                                    <span class="payment-title">Cash on Delivery</span>
-                                    <span class="payment-desc">Pay when you receive</span>
-                                </div>
-
-                            </label>
-
-
-                            <label class="payment-option">
-
-                                <input type="radio"
-                                       name="payment_method"
-                                       value="card">
-
-                                <div class="payment-icon">
-                                    <i class="fa-solid fa-credit-card"></i>
-                                </div>
-
-                                <div class="payment-info">
-                                    <span class="payment-title">Credit / Debit Card</span>
-                                    <span class="payment-desc">Pay securely with card</span>
-                                </div>
-
-                            </label>
-
-
-                            <label class="payment-option">
-
-                                <input type="radio"
-                                       name="payment_method"
-                                       value="upi">
-
-                                <div class="payment-icon">
-                                    <i class="fa-solid fa-mobile-screen"></i>
-                                </div>
-
-                                <div class="payment-info">
-                                    <span class="payment-title">UPI</span>
-                                    <span class="payment-desc">Pay using UPI apps</span>
-                                </div>
-
-                            </label>
-
-                        </div>
-
+                    <div class="form-group-nb">
+                        <label for="phone">Phone Number <span>*</span></label>
+                        <input type="tel"
+                               id="phone"
+                               name="phone"
+                               placeholder="10-digit mobile number"
+                               pattern="[0-9]{10}"
+                               maxlength="10"
+                               required>
                     </div>
 
                 </div>
 
 
-                <!-- RIGHT COLUMN -->
+                <!-- ============================
+                        SHIPPING ADDRESS
+                ============================ -->
 
-                <div class="checkout-right">
+                <div class="checkout-box-nb">
 
-                    <div class="checkout-summary">
-
+                    <div class="checkout-box-header-nb">
+                        <span class="checkout-step-badge-nb">2</span>
                         <h2>
-                            <i class="fa-solid fa-bag-shopping"></i>
-                            Order Summary
+                            <i class="fa-solid fa-truck"></i>
+                            Shipping Address
                         </h2>
+                    </div>
 
-                        <div id="checkout-items">
-                            <!-- JavaScript will load cart items here -->
+                    <div class="form-group-nb">
+                        <label for="address">Address Line <span>*</span></label>
+                        <textarea id="address"
+                                  name="address"
+                                  rows="3"
+                                  placeholder="House no, Street, Area"
+                                  required></textarea>
+                    </div>
+
+                    <div class="form-row-nb">
+
+                        <div class="form-group-nb">
+                            <label for="city">City <span>*</span></label>
+                            <input type="text"
+                                   id="city"
+                                   name="city"
+                                   placeholder="City"
+                                   required>
                         </div>
 
-                        <div class="checkout-total-row">
-                            <span>Subtotal</span>
-                            <span id="checkout-subtotal">₹0</span>
+                        <div class="form-group-nb">
+                            <label for="state">State <span>*</span></label>
+                            <input type="text"
+                                   id="state"
+                                   name="state"
+                                   placeholder="State"
+                                   required>
                         </div>
 
-                        <div class="checkout-total-row">
-                            <span>Shipping</span>
-                            <span>FREE</span>
-                        </div>
+                    </div>
 
-                        <div class="checkout-grand-total">
+                    <div class="form-group-nb">
+                        <label for="pincode">Pincode <span>*</span></label>
+                        <input type="text"
+                               id="pincode"
+                               name="pincode"
+                               placeholder="6-digit pincode"
+                               pattern="[0-9]{6}"
+                               maxlength="6"
+                               required>
+                    </div>
 
-                            <span>Total</span>
+                    <label class="save-address-nb">
+                        <input type="checkbox" name="save_address" value="1">
+                        <span>Save this address for next time</span>
+                    </label>
 
-                            <strong>₹<span id="checkout-total">0</span></strong>
+                </div>
 
-                        </div>
 
-                        <input type="hidden"
-                               name="cart_data"
-                               id="cart-data"
-                               value="">
+                <!-- ============================
+                        PAYMENT METHOD
+                ============================ -->
 
-                        <button type="submit" class="place-order-btn">
+                <div class="checkout-box-nb">
 
-                            <i class="fa-solid fa-lock"></i>
-                            Place Order
+                    <div class="checkout-box-header-nb">
+                        <span class="checkout-step-badge-nb">3</span>
+                        <h2>
+                            <i class="fa-solid fa-credit-card"></i>
+                            Payment Method
+                        </h2>
+                    </div>
 
-                        </button>
+                    <div class="payment-options-nb">
 
-                        <p class="secure-note">
+                        <!-- COD -->
+                        <label class="payment-option-nb">
+                            <input type="radio"
+                                   name="payment_method"
+                                   value="cod"
+                                   checked>
+                            <div class="payment-icon-nb">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </div>
+                            <div class="payment-info-nb">
+                                <span class="payment-title-nb">Cash on Delivery</span>
+                                <span class="payment-desc-nb">Pay when you receive</span>
+                            </div>
+                            <span class="payment-check-nb">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                        </label>
 
-                            <i class="fa-solid fa-shield-halved"></i>
-                            Your payment information is secure
+                        <!-- CARD -->
+                        <label class="payment-option-nb">
+                            <input type="radio"
+                                   name="payment_method"
+                                   value="card">
+                            <div class="payment-icon-nb">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div class="payment-info-nb">
+                                <span class="payment-title-nb">Credit / Debit Card</span>
+                                <span class="payment-desc-nb">Visa, Mastercard, RuPay</span>
+                            </div>
+                            <span class="payment-check-nb">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                        </label>
 
-                        </p>
+                        <!-- UPI -->
+                        <label class="payment-option-nb">
+                            <input type="radio"
+                                   name="payment_method"
+                                   value="upi">
+                            <div class="payment-icon-nb">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <div class="payment-info-nb">
+                                <span class="payment-title-nb">UPI</span>
+                                <span class="payment-desc-nb">GPay, PhonePe, Paytm, BHIM</span>
+                            </div>
+                            <span class="payment-check-nb">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                        </label>
+
+                        <!-- NET BANKING -->
+                        <label class="payment-option-nb">
+                            <input type="radio"
+                                   name="payment_method"
+                                   value="netbanking">
+                            <div class="payment-icon-nb">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+                            <div class="payment-info-nb">
+                                <span class="payment-title-nb">Net Banking</span>
+                                <span class="payment-desc-nb">All major banks supported</span>
+                            </div>
+                            <span class="payment-check-nb">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                        </label>
 
                     </div>
 
@@ -221,9 +286,102 @@
 
             </div>
 
-        </form>
 
-    </div>
+            <!-- ============================================
+                        RIGHT — ORDER SUMMARY
+            ============================================ -->
+
+            <div class="checkout-right-nb">
+
+                <div class="checkout-summary-nb">
+
+                    <div class="summary-header-nb">
+                        <h2>
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            Order Summary
+                        </h2>
+                        <span class="summary-count-nb" id="summary-count-nb">0 items</span>
+                    </div>
+
+
+                    <!-- ITEMS -->
+                    <div id="checkout-items" class="checkout-items-nb">
+                        <!-- JavaScript will load cart items here -->
+                    </div>
+
+
+                    <!-- TOTALS -->
+                    <div class="summary-totals-nb">
+
+                        <div class="summary-total-row-nb">
+                            <span>Subtotal</span>
+                            <span id="checkout-subtotal">₹0</span>
+                        </div>
+
+                        <div class="summary-total-row-nb">
+                            <span>Shipping</span>
+                            <span class="free-nb">FREE</span>
+                        </div>
+
+                        <div class="summary-total-row-nb discount-nb"
+                             id="checkout-discount-row"
+                             style="display: none;">
+                            <span>Discount</span>
+                            <span id="checkout-discount">- ₹0</span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- GRAND TOTAL -->
+                    <div class="checkout-grand-total-nb">
+                        <span>Total</span>
+                        <strong>₹<span id="checkout-total">0</span></strong>
+                    </div>
+
+                    <p class="tax-note-checkout-nb">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Inclusive of all taxes
+                    </p>
+
+
+                    <!-- HIDDEN CART DATA -->
+                    <input type="hidden"
+                           name="cart_data"
+                           id="cart-data"
+                           value="">
+
+
+                    <!-- PLACE ORDER BUTTON -->
+                    <button type="submit" class="place-order-btn-nb">
+                        <i class="fa-solid fa-lock"></i>
+                        Place Order
+                    </button>
+
+
+                    <!-- TRUST BADGES -->
+                    <div class="checkout-trust-nb">
+                        <div class="trust-item-checkout-nb">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>100% Secure</span>
+                        </div>
+                        <div class="trust-item-checkout-nb">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>7-Day Returns</span>
+                        </div>
+                        <div class="trust-item-checkout-nb">
+                            <i class="fa-solid fa-headset"></i>
+                            <span>24/7 Support</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
 
 </section>
 
@@ -232,7 +390,7 @@
 
 {% block extra_scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
 
         const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
@@ -240,31 +398,45 @@
         const checkoutSubtotal = document.getElementById("checkout-subtotal");
         const checkoutTotal = document.getElementById("checkout-total");
         const cartDataInput = document.getElementById("cart-data");
+        const summaryCount = document.getElementById("summary-count-nb");
 
         if (cart.length === 0) {
-            checkoutItems.innerHTML = '<div class="empty-checkout"><i class="fa-solid fa-cart-arrow-down"></i><p>Your cart is empty.</p></div>';
+            checkoutItems.innerHTML = `
+                <div class="empty-checkout-nb">
+                    <i class="fa-solid fa-cart-arrow-down"></i>
+                    <p>Your cart is empty.</p>
+                    <a href="/" class="empty-checkout-btn-nb">Continue Shopping</a>
+                </div>
+            `;
+            if (summaryCount) summaryCount.textContent = "0 items";
             return;
         }
 
         let total = 0;
+        let totalQty = 0;
         let html = "";
 
         cart.forEach(item => {
             const subtotal = item.price * item.quantity;
             total += subtotal;
+            totalQty += item.quantity;
 
             html += `
-                <div class="checkout-item">
-                    <div class="checkout-item-info">
-                        <span class="checkout-item-name">${item.name}</span>
-                        <span class="checkout-item-meta">
+                <div class="checkout-item-nb">
+                    <div class="checkout-item-img-nb">
+                        ${item.image
+                            ? `<img src="/static/${item.image}" alt="${item.name}">`
+                            : `<i class="fa-solid fa-image"></i>`}
+                    </div>
+                    <div class="checkout-item-info-nb">
+                        <span class="checkout-item-name-nb">${item.name}</span>
+                        <span class="checkout-item-meta-nb">
                             Qty: ${item.quantity}
-                            ${item.size ? ` | Size: ${item.size}` : ''}
-                            ${item.color ? ` | Color: ${item.color}` : ''}
+                            ${item.size ? ` • ${item.size}` : ''}
+                            ${item.color ? ` • ${item.color}` : ''}
                         </span>
                     </div>
-                    <div class="checkout-item-price">
-                        <span>₹${item.price}</span>
+                    <div class="checkout-item-price-nb">
                         <strong>₹${subtotal.toLocaleString("en-IN")}</strong>
                     </div>
                 </div>
@@ -274,7 +446,9 @@
         checkoutItems.innerHTML = html;
         checkoutSubtotal.textContent = "₹" + total.toLocaleString("en-IN");
         checkoutTotal.textContent = total.toLocaleString("en-IN");
-
+        if (summaryCount) {
+            summaryCount.textContent = totalQty + (totalQty === 1 ? " item" : " items");
+        }
         cartDataInput.value = JSON.stringify(cart);
     });
 </script>

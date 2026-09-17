@@ -5,74 +5,275 @@
 {% block content %}
 
 <!-- ==================================================
-                    CART PAGE
+                    CART PAGE — NOBERO STYLE
 ================================================== -->
 
-<section class="cart-page">
+<section class="cart-nb">
 
-    <div class="cart-header">
+    <!-- ============================================
+                    HEADER
+    ============================================ -->
+
+    <div class="cart-header-nb">
 
         <div>
-
-            <h1>Your Shopping Cart</h1>
-
-            <p class="cart-subtitle">
+            <span class="cart-tag-nb">Shopping Bag</span>
+            <h1>Your Cart</h1>
+            <p class="cart-subtitle-nb">
                 Review your items before checkout
             </p>
-
         </div>
 
-    </div>
-
-
-    <!-- CART ITEMS -->
-
-    <div id="cart-items">
-
-        <!-- JavaScript will load cart items here -->
-
-    </div>
-
-
-    <!-- CART SUMMARY -->
-
-    <div class="cart-summary">
-
-        <div class="cart-summary-header">
-
-            <h2>Order Summary</h2>
-
-        </div>
-
-        <div class="cart-summary-total">
-
-            <span>Grand Total</span>
-
-            <strong>
-                ₹<span id="grand-total">0</span>
-            </strong>
-
-        </div>
-
-        <button type="button"
-                class="checkout-btn"
-                onclick="window.location.href='/checkout'">
-
-            <i class="fa-solid fa-lock"></i>
-            Proceed To Checkout
-
-        </button>
-
-        <a href="/"
-           class="continue-shopping summary-shopping">
-
+        <a href="/" class="cart-continue-nb">
             <i class="fa-solid fa-arrow-left"></i>
             Continue Shopping
-
         </a>
+
+    </div>
+
+
+    <!-- ============================================
+                    FREE SHIPPING BAR
+    ============================================ -->
+
+    <div class="shipping-bar-nb" id="shipping-bar">
+        <div class="shipping-bar-inner-nb">
+            <i class="fa-solid fa-truck-fast"></i>
+            <span id="shipping-text-nb">
+                Add <strong>₹999</strong> more for <strong>FREE Shipping</strong>
+            </span>
+        </div>
+        <div class="shipping-progress-nb">
+            <div class="shipping-progress-fill-nb" id="shipping-progress"></div>
+        </div>
+    </div>
+
+
+    <!-- ============================================
+                    2-COLUMN GRID
+    ============================================ -->
+
+    <div class="cart-grid-nb">
+
+        <!-- ============================================
+                    LEFT — CART ITEMS
+        ============================================ -->
+
+        <div class="cart-items-col-nb">
+
+            <div class="cart-items-header-nb">
+                <h2>
+                    Your Items
+                    <span id="cart-items-count-nb">(0)</span>
+                </h2>
+            </div>
+
+            <div id="cart-items" class="cart-items-list-nb">
+                <!-- JavaScript will load cart items here -->
+            </div>
+
+        </div>
+
+
+        <!-- ============================================
+                    RIGHT — ORDER SUMMARY
+        ============================================ -->
+
+        <aside class="cart-summary-col-nb">
+
+            <div class="cart-summary-nb">
+
+                <div class="cart-summary-header-nb">
+                    <h2>Order Summary</h2>
+                </div>
+
+
+                <!-- ============================
+                        COUPON CODE
+                ============================ -->
+
+                <div class="coupon-box-nb">
+                    <label for="coupon-input-nb">
+                        <i class="fa-solid fa-tag"></i> Have a coupon?
+                    </label>
+
+                    <div class="coupon-input-wrap-nb">
+                        <input type="text"
+                               id="coupon-input-nb"
+                               placeholder="Enter code (e.g. ZENITH20)"
+                               autocomplete="off">
+                        <button type="button"
+                                class="coupon-apply-btn-nb"
+                                onclick="applyCouponNB()">
+                            Apply
+                        </button>
+                    </div>
+
+                    <p id="coupon-message-nb" class="coupon-message-nb"></p>
+                </div>
+
+
+                <!-- ============================
+                        SUMMARY LINES
+                ============================ -->
+
+                <div class="summary-lines-nb">
+
+                    <div class="summary-line-nb">
+                        <span>Subtotal</span>
+                        <strong>₹<span id="subtotal-nb">0</span></strong>
+                    </div>
+
+                    <div class="summary-line-nb">
+                        <span>Shipping</span>
+                        <strong id="shipping-cost-nb">
+                            <span class="free-shipping-nb">FREE</span>
+                        </strong>
+                    </div>
+
+                    <div class="summary-line-nb discount-line-nb"
+                         id="discount-line-nb"
+                         style="display: none;">
+                        <span>Discount</span>
+                        <strong id="discount-value-nb">- ₹0</strong>
+                    </div>
+
+                </div>
+
+
+                <!-- ============================
+                        GRAND TOTAL
+                ============================ -->
+
+                <div class="cart-summary-total-nb">
+                    <span>Total</span>
+                    <strong>
+                        ₹<span id="grand-total">0</span>
+                    </strong>
+                </div>
+
+                <p class="tax-note-cart-nb">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Inclusive of all taxes
+                </p>
+
+
+                <!-- ============================
+                        CHECKOUT BUTTON
+                ============================ -->
+
+                <button type="button"
+                        class="checkout-btn-nb"
+                        onclick="window.location.href='/checkout'">
+
+                    <i class="fa-solid fa-lock"></i>
+                    Proceed to Checkout
+
+                </button>
+
+                <a href="/"
+                   class="cart-continue-btn-nb">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Continue Shopping
+                </a>
+
+
+                <!-- ============================
+                        TRUST BADGES
+                ============================ -->
+
+                <div class="cart-trust-nb">
+
+                    <div class="cart-trust-item-nb">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Secure Payment</span>
+                    </div>
+
+                    <div class="cart-trust-item-nb">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Easy Returns</span>
+                    </div>
+
+                    <div class="cart-trust-item-nb">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>24/7 Support</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
 
     </div>
 
 </section>
 
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+    /* =====================================================
+       COUPON — Extra JS Function
+       (Your existing script.js handles the cart loading)
+    ===================================================== */
+
+    function applyCouponNB() {
+        const input = document.getElementById('coupon-input-nb');
+        const message = document.getElementById('coupon-message-nb');
+        const code = input.value.trim().toUpperCase();
+
+        if (!code) {
+            message.textContent = 'Please enter a coupon code';
+            message.className = 'coupon-message-nb error-nb';
+            return;
+        }
+
+        const validCoupons = {
+            'ZENITH20': 20,
+            'ZENITH10': 10,
+            'WELCOME15': 15
+        };
+
+        if (validCoupons[code]) {
+            const percent = validCoupons[code];
+            message.textContent = `✅ ${code} applied — ${percent}% OFF`;
+            message.className = 'coupon-message-nb success-nb';
+
+            // TODO: Apply discount logic (JS ko call karo ya backend pe bhejo)
+            if (typeof window.applyCouponCode === 'function') {
+                window.applyCouponCode(code, percent);
+            }
+        } else {
+            message.textContent = '❌ Invalid coupon code';
+            message.className = 'coupon-message-nb error-nb';
+        }
+    }
+
+    /* Free Shipping Bar Update — called by existing script.js when cart updates */
+    window.updateShippingBar = function (subtotal) {
+        const FREE_LIMIT = 999;
+        const bar = document.getElementById('shipping-bar');
+        const text = document.getElementById('shipping-text-nb');
+        const progress = document.getElementById('shipping-progress');
+        const cost = document.getElementById('shipping-cost-nb');
+
+        if (!bar) return;
+
+        if (subtotal >= FREE_LIMIT) {
+            text.innerHTML = '🎉 <strong>Yay!</strong> You got <strong>FREE Shipping</strong>';
+            progress.style.width = '100%';
+            progress.classList.add('full-nb');
+            if (cost) cost.innerHTML = '<span class="free-shipping-nb">FREE</span>';
+        } else {
+            const remaining = (FREE_LIMIT - subtotal).toFixed(0);
+            text.innerHTML = `Add <strong>₹${remaining}</strong> more for <strong>FREE Shipping</strong>`;
+            const pct = Math.min((subtotal / FREE_LIMIT) * 100, 100);
+            progress.style.width = pct + '%';
+            progress.classList.remove('full-nb');
+            if (cost) cost.textContent = '₹99';
+        }
+    };
+</script>
 {% endblock %}

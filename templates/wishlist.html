@@ -5,62 +5,72 @@
 {% block content %}
 
 <!-- ==================================================
-                    WISHLIST PAGE
+                    WISHLIST PAGE — NOBERO STYLE
 ================================================== -->
 
-<main class="wishlist-page">
+<section class="wishlist-nb">
 
-    <section class="wishlist-header">
+    <!-- ============================================
+                    HEADER
+    ============================================ -->
 
-        <h1>My Wishlist</h1>
+    <div class="wishlist-header-nb">
 
-        <p>Products you have saved for later</p>
+        <div class="wishlist-header-left-nb">
+            <span class="wishlist-tag-nb">Saved for Later</span>
+            <h1>My Wishlist</h1>
+            <p class="wishlist-subtitle-nb">
+                <span id="wishlist-count-nb">0</span> products you've saved
+            </p>
+        </div>
 
-    </section>
-
-
-    <section class="wishlist-section">
-
-        <div class="wishlist-actions">
-
+        <div class="wishlist-header-right-nb">
             <button type="button"
                     id="clear-wishlist"
-                    class="clear-wishlist-btn">
-
+                    class="wishlist-clear-nb">
                 <i class="fa-solid fa-trash"></i>
-                Clear Wishlist
-
+                Clear All
             </button>
-
         </div>
 
+    </div>
 
-        <div id="wishlist-items" class="wishlist-items">
-            <!-- JavaScript will load wishlist items here -->
+
+    <!-- ============================================
+                    ITEMS GRID
+    ============================================ -->
+
+    <div id="wishlist-items" class="wishlist-grid-nb">
+        <!-- JavaScript will load wishlist items here -->
+    </div>
+
+
+    <!-- ============================================
+                    EMPTY STATE
+    ============================================ -->
+
+    <div id="wishlist-empty"
+         class="wishlist-empty-nb"
+         style="display: none;">
+
+        <div class="wishlist-empty-icon-nb">
+            <i class="fa-regular fa-heart"></i>
         </div>
 
+        <h2>Your Wishlist is Empty</h2>
 
-        <div id="wishlist-empty"
-             class="wishlist-empty"
-             style="display: none;">
+        <p>
+            Looks like you haven't saved anything yet.
+            Explore our collections and start adding your favourites.
+        </p>
 
-            <div class="wishlist-empty-icon">
-                <i class="fa-regular fa-heart"></i>
-            </div>
+        <a href="/#products" class="wishlist-empty-btn-nb">
+            <i class="fa-solid fa-bag-shopping"></i>
+            Start Shopping
+        </a>
 
-            <h2>Your Wishlist is Empty</h2>
+    </div>
 
-            <p>You haven't added any products to your wishlist yet.</p>
-
-            <a href="/#products" class="continue-shopping">
-                <i class="fa-solid fa-bag-shopping"></i>
-                Continue Shopping
-            </a>
-
-        </div>
-
-    </section>
-
-</main>
+</section>
 
 {% endblock %}

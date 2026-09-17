@@ -5,142 +5,239 @@
 {% block content %}
 
 <!-- ==================================================
-                    SIGNUP SECTION
+                    SIGNUP PAGE — NOBERO STYLE
 ================================================== -->
 
-<section class="signup-section">
+<section class="auth-nb">
 
-    <div class="signup-box">
+    <div class="auth-split-nb">
 
-        <!-- ============ ZENITH LOGO ============ -->
-        <div class="zenith-logo-official centered">
+        <!-- ============================================
+                    LEFT — IMAGE / QUOTE
+        ============================================ -->
 
-            <svg class="zenith-mountain-icon"
-                 viewBox="0 0 200 100"
-                 xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="goldGradSignup" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#D4AF37"/>
-                        <stop offset="50%" stop-color="#F4E5A1"/>
-                        <stop offset="100%" stop-color="#B8945A"/>
-                    </linearGradient>
-                </defs>
-                <path d="M100 15 L125 55 L118 55 L100 30 L82 55 L75 55 Z"
-                      fill="url(#goldGradSignup)"/>
-                <path d="M55 55 L80 30 L92 48 L80 48 L65 62 Z"
-                      fill="url(#goldGradSignup)" opacity="0.85"/>
-                <path d="M145 55 L120 30 L108 48 L120 48 L135 62 Z"
-                      fill="url(#goldGradSignup)" opacity="0.85"/>
-            </svg>
+        <div class="auth-image-nb auth-image-signup-nb">
 
-            <h1 class="zenith-brand-name">ZENITH</h1>
+            <div class="auth-image-overlay-nb"></div>
 
-            <div class="zenith-tagline-wrapper">
-                <span class="zenith-line"></span>
-                <span class="zenith-tagline-text">WEAR YOUR HIGHER SELF</span>
-                <span class="zenith-line"></span>
+            <div class="auth-image-content-nb">
+                <span class="auth-image-tag-nb">Join Zenith</span>
+                <h2>Start Your<br>Journey Today</h2>
+                <p>Create an account and unlock exclusive offers.</p>
             </div>
 
         </div>
-        <!-- ============ LOGO END ============ -->
 
 
-        <h1>Create Account</h1>
+        <!-- ============================================
+                    RIGHT — FORM
+        ============================================ -->
 
-        <p>Join Zenith and start shopping</p>
+        <div class="auth-form-wrap-nb">
+
+            <div class="auth-form-nb">
+
+                <!-- Logo -->
+                <div class="auth-logo-nb">
+                    <svg class="auth-logo-svg-nb"
+                         viewBox="0 0 200 100"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="goldGradSignup" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#D4AF37"/>
+                                <stop offset="50%" stop-color="#F4E5A1"/>
+                                <stop offset="100%" stop-color="#B8945A"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M100 15 L125 55 L118 55 L100 30 L82 55 L75 55 Z"
+                              fill="url(#goldGradSignup)"/>
+                        <path d="M55 55 L80 30 L92 48 L80 48 L65 62 Z"
+                              fill="url(#goldGradSignup)" opacity="0.85"/>
+                        <path d="M145 55 L120 30 L108 48 L120 48 L135 62 Z"
+                              fill="url(#goldGradSignup)" opacity="0.85"/>
+                    </svg>
+                    <div class="auth-brand-nb">ZENITH</div>
+                </div>
+
+                <h1 class="auth-title-nb">Create Account</h1>
+                <p class="auth-subtitle-nb">Join Zenith and start shopping</p>
 
 
-        <form method="POST" action="{{ url_for('signup') }}">
+                <form method="POST"
+                      action="{{ url_for('signup') }}"
+                      class="auth-form-fields-nb">
 
-            <!-- CSRF TOKEN -->
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <div class="form-group">
 
-                <label for="full_name">Full Name</label>
+                    <!-- Full Name -->
+                    <div class="auth-field-nb">
+                        <label for="full_name">Full Name</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-regular fa-user"></i>
+                            <input type="text"
+                                   id="full_name"
+                                   name="full_name"
+                                   placeholder="Enter your full name"
+                                   autocomplete="name"
+                                   required>
+                        </div>
+                    </div>
 
-                <input type="text"
-                       id="full_name"
-                       name="full_name"
-                       placeholder="Enter your full name"
-                       required>
+
+                    <!-- Email -->
+                    <div class="auth-field-nb">
+                        <label for="email">Email Address</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-regular fa-envelope"></i>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="you@example.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                    </div>
+
+
+                    <!-- Phone -->
+                    <div class="auth-field-nb">
+                        <label for="phone">Phone Number</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-solid fa-phone"></i>
+                            <input type="tel"
+                                   id="phone"
+                                   name="phone"
+                                   placeholder="10-digit mobile number"
+                                   pattern="[0-9]{10}"
+                                   maxlength="10"
+                                   autocomplete="tel"
+                                   required>
+                        </div>
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="auth-field-nb">
+                        <label for="password">Password</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Min 8 chars, A-Z, a-z, 0-9"
+                                   autocomplete="new-password"
+                                   required>
+                            <button type="button"
+                                    class="auth-password-toggle-nb"
+                                    onclick="togglePasswordNB('password', this)"
+                                    aria-label="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Confirm Password -->
+                    <div class="auth-field-nb">
+                        <label for="confirm_password">Confirm Password</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password"
+                                   id="confirm_password"
+                                   name="confirm_password"
+                                   placeholder="Re-enter password"
+                                   autocomplete="new-password"
+                                   required>
+                            <button type="button"
+                                    class="auth-password-toggle-nb"
+                                    onclick="togglePasswordNB('confirm_password', this)"
+                                    aria-label="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Terms Checkbox -->
+                    <label class="auth-remember-nb auth-terms-nb">
+                        <input type="checkbox" required>
+                        <span>
+                            I agree to the
+                            <a href="#">Terms</a> &amp;
+                            <a href="#">Privacy Policy</a>
+                        </span>
+                    </label>
+
+
+                    <!-- Submit -->
+                    <button type="submit" class="auth-submit-nb">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <!-- Divider -->
+                <div class="auth-divider-nb">
+                    <span>or sign up with</span>
+                </div>
+
+
+                <!-- Social Buttons -->
+                <div class="auth-social-nb">
+                    <button type="button" class="auth-social-btn-nb">
+                        <i class="fa-brands fa-google"></i>
+                        Google
+                    </button>
+                    <button type="button" class="auth-social-btn-nb">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        Facebook
+                    </button>
+                </div>
+
+
+                <!-- Login Link -->
+                <p class="auth-footer-nb">
+                    Already have an account?
+                    <a href="{{ url_for('login') }}">Sign In</a>
+                </p>
+
+
+                <!-- Trust -->
+                <div class="auth-trust-nb">
+                    <span><i class="fa-solid fa-shield-halved"></i> Secure</span>
+                    <span><i class="fa-solid fa-lock"></i> SSL Encrypted</span>
+                    <span><i class="fa-solid fa-user-shield"></i> Privacy</span>
+                </div>
 
             </div>
 
-
-            <div class="form-group">
-
-                <label for="email">Email</label>
-
-                <input type="email"
-                       id="email"
-                       name="email"
-                       placeholder="Enter your email"
-                       required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="phone">Phone Number</label>
-
-                <input type="text"
-                       id="phone"
-                       name="phone"
-                       placeholder="Enter your phone number"
-                       required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">Password</label>
-
-                <input type="password"
-                       id="password"
-                       name="password"
-                       placeholder="Create password (min 8 chars, A-Z, a-z, 0-9)"
-                       required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="confirm_password">Confirm Password</label>
-
-                <input type="password"
-                       id="confirm_password"
-                       name="confirm_password"
-                       placeholder="Confirm password"
-                       required>
-
-            </div>
-
-
-            <button type="submit" class="signup-btn">
-
-                Create Account
-
-            </button>
-
-        </form>
-
-
-        <p class="login-link">
-
-            Already have an account?
-
-            <a href="{{ url_for('login') }}">
-                Sign In
-            </a>
-
-        </p>
+        </div>
 
     </div>
 
 </section>
+
+
+<script>
+    function togglePasswordNB(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector("i");
+
+        if (!input) return;
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>
 
 {% endblock %}

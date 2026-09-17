@@ -1,5 +1,5 @@
 // ==================================================
-// Zenith JavaScript v11.0
+// Zenith JavaScript v12.0
 // CART + PERSISTENT WISHLIST + MOBILE DRAWER
 // ==================================================
 
@@ -256,14 +256,14 @@ function updateCartCount() {
 function getSelectedSize() {
 
     const activeSize = document.querySelector(
-        ".size-options button.active"
+        ".size-options button.active, .size-btn-nb.active"
     );
 
     if (!activeSize) {
         return null;
     }
 
-    return activeSize.textContent.trim();
+    return activeSize.textContent.trim() || activeSize.dataset.size || null;
 }
 
 
@@ -274,7 +274,7 @@ function getSelectedSize() {
 function getSelectedColor() {
 
     const activeColor = document.querySelector(
-        ".color-options .color.active"
+        ".color-options .color.active, .color-options-nb .color-nb.active"
     );
 
     if (!activeColor) {
@@ -417,7 +417,7 @@ function displayCart() {
     const cartContainer = document.getElementById("cart-items");
     const totalElement = document.getElementById("grand-total");
 
-    if (!cartContainer || !totalElement) {
+    if (!cartContainer) {
         return;
     }
 
@@ -428,31 +428,30 @@ function displayCart() {
 
         cartContainer.innerHTML = `
 
-            <div class="empty-cart">
+            <div class="empty-cart-nb">
 
-                <div class="empty-cart-icon">
-                    🛒
+                <div class="empty-cart-icon-nb">
+                    <i class="fa-solid fa-cart-shopping"></i>
                 </div>
 
-                <h2>
-                    Your Cart is Empty
-                </h2>
+                <h2>Your Cart is Empty</h2>
 
                 <p>
                     Add some products to continue shopping.
                 </p>
 
-                <a
-                    href="/#products"
-                    class="continue-shopping"
-                >
+                <a href="/#products" class="empty-cart-btn-nb">
+                    <i class="fa-solid fa-bag-shopping"></i>
                     Continue Shopping
                 </a>
 
             </div>
         `;
 
-        totalElement.textContent = "0";
+        if (totalElement) totalElement.textContent = "0";
+
+        // Update summary (if present)
+        updateCartSummaryNB(0, 0);
 
         updateCartCount();
 
@@ -460,6 +459,7 @@ function displayCart() {
     }
 
     let grandTotal = 0;
+    let totalQty = 0;
 
     cart.forEach((item, index) => {
 
@@ -468,6 +468,7 @@ function displayCart() {
         const subtotal = price * quantity;
 
         grandTotal += subtotal;
+        totalQty += quantity;
 
         const imageUrl = getImageUrl(item.image);
 
@@ -578,9 +579,39 @@ function displayCart() {
         cartContainer.appendChild(cartItem);
     });
 
-    totalElement.textContent = grandTotal.toLocaleString("en-IN");
+    if (totalElement) {
+        totalElement.textContent = grandTotal.toLocaleString("en-IN");
+    }
+
+    // Update summary (if present)
+    updateCartSummaryNB(grandTotal, totalQty);
 
     registerCartActions();
+}
+
+
+// --------------------------------------------------
+// UPDATE CART SUMMARY (Nobero Style)
+// --------------------------------------------------
+
+function updateCartSummaryNB(subtotal, qty) {
+
+    // Subtotal
+    const subtotalEl = document.getElementById("subtotal-nb");
+    if (subtotalEl) {
+        subtotalEl.textContent = subtotal.toLocaleString("en-IN");
+    }
+
+    // Item count
+    const countEl = document.getElementById("cart-items-count-nb");
+    if (countEl) {
+        countEl.textContent = `(${qty})`;
+    }
+
+    // Shipping bar
+    if (typeof window.updateShippingBar === "function") {
+        window.updateShippingBar(subtotal);
+    }
 }
 
 
@@ -702,9 +733,18 @@ function changeImage(element) {
         return;
     }
 
-    mainImage.src = element.src;
+    // Support both data-img (new) and src (old)
+    const newSrc = element.dataset && element.dataset.img
+        ? element.dataset.img
+        : (element.querySelector && element.querySelector("img")
+            ? element.querySelector("img").src
+            : element.src);
 
-    document.querySelectorAll(".thumbnail").forEach(img => {
+    if (newSrc) {
+        mainImage.src = newSrc;
+    }
+
+    document.querySelectorAll(".thumbnail, .thumb-nb").forEach(img => {
         img.classList.remove("active");
     });
 
@@ -718,7 +758,9 @@ function changeImage(element) {
 
 function registerSizeButtons() {
 
-    const buttons = document.querySelectorAll(".size-options button");
+    const buttons = document.querySelectorAll(
+        ".size-options button, .size-btn-nb"
+    );
 
     buttons.forEach(button => {
 
@@ -731,6 +773,12 @@ function registerSizeButtons() {
             });
 
             this.classList.add("active");
+
+            // Update label (Nobero style)
+            const label = document.getElementById("selected-size-nb");
+            if (label && this.dataset.size) {
+                label.textContent = this.dataset.size;
+            }
         });
     });
 }
@@ -742,7 +790,9 @@ function registerSizeButtons() {
 
 function registerColorButtons() {
 
-    const colors = document.querySelectorAll(".color-options .color");
+    const colors = document.querySelectorAll(
+        ".color-options .color, .color-options-nb .color-nb"
+    );
 
     colors.forEach(color => {
 
@@ -755,6 +805,12 @@ function registerColorButtons() {
             });
 
             this.classList.add("active");
+
+            // Update label (Nobero style)
+            const label = document.getElementById("selected-color-nb");
+            if (label && this.dataset.color) {
+                label.textContent = this.dataset.color;
+            }
         });
     });
 }
@@ -883,7 +939,7 @@ function isInWishlist(id) {
 
 function updateWishlistCount() {
 
-    const counters = document.querySelectorAll("#wishlist-count");
+    const counters = document.querySelectorAll("#wishlist-count, #wishlist-count-nb");
 
     counters.forEach(counter => {
         counter.textContent = wishlist.length;
@@ -911,7 +967,7 @@ function getWishlistProductData(button) {
     let description = button.dataset.description || "";
 
     // Fallback: Get from parent card
-    const card = button.closest(".card");
+    const card = button.closest(".card, .product-card-nb, .related-card-nb");
 
     if (card) {
 
@@ -937,14 +993,14 @@ function getWishlistProductData(button) {
         }
 
         if (!oldPrice) {
-            const oldPriceElement = card.querySelector(".price span");
+            const oldPriceElement = card.querySelector(".price span, .product-price-nb span");
             if (oldPriceElement) {
                 oldPrice = Number(oldPriceElement.textContent.replace(/[^\d]/g, "")) || 0;
             }
         }
 
         if (!rating) {
-            const ratingElement = card.querySelector(".rating");
+            const ratingElement = card.querySelector(".rating, .product-rating-nb");
             if (ratingElement) {
                 rating = ratingElement.textContent.trim();
             }
@@ -1019,7 +1075,7 @@ function toggleWishlist(button) {
 
 function updateWishlistButtons() {
 
-    const buttons = document.querySelectorAll(".wishlist-btn");
+    const buttons = document.querySelectorAll(".wishlist-btn, .wishlist-btn-nb, .wishlist-btn-icon");
 
     buttons.forEach(button => {
 
@@ -1069,7 +1125,7 @@ function registerWishlistButtons() {
 
     document.addEventListener("click", function(event) {
 
-        const button = event.target.closest(".wishlist-btn");
+        const button = event.target.closest(".wishlist-btn, .wishlist-btn-nb, .wishlist-btn-icon");
 
         if (!button) return;
 
@@ -1182,7 +1238,7 @@ function addWishlistItemToCart(id) {
 
 
 // ==================================================
-// WISHLIST PAGE
+// WISHLIST PAGE (NOBERO STYLE)
 // ==================================================
 
 // --------------------------------------------------
@@ -1216,19 +1272,14 @@ function displayWishlist() {
                         ❤️
                     </div>
 
-                    <h2>
-                        Your Wishlist is Empty
-                    </h2>
+                    <h2>Your Wishlist is Empty</h2>
 
                     <p>
                         Save your favorite products here
                         and come back later.
                     </p>
 
-                    <a
-                        href="/#products"
-                        class="continue-shopping"
-                    >
+                    <a href="/#products" class="continue-shopping">
                         Continue Shopping
                     </a>
 
@@ -1254,105 +1305,87 @@ function displayWishlist() {
         clearButton.style.display = "inline-flex";
     }
 
-    // Create products
+    // Create product cards (Nobero Style)
     wishlist.forEach(product => {
 
         const item = document.createElement("div");
 
-        item.className = "wishlist-item";
+        item.className = "wishlist-card-nb";
         item.dataset.id = product.id;
 
         const imageUrl = getImageUrl(product.image);
 
         item.innerHTML = `
 
-            <div class="wishlist-product">
+            <a href="/product/${Number(product.id)}" class="wishlist-img-wrap-nb">
 
-                <a
-                    href="/product/${Number(product.id)}"
-                    class="wishlist-image-link"
+                <img
+                    src="${escapeHTML(imageUrl)}"
+                    alt="${escapeHTML(product.name)}"
                 >
 
-                    <img
-                        src="${escapeHTML(imageUrl)}"
-                        alt="${escapeHTML(product.name)}"
-                    >
+            </a>
 
-                </a>
+            <button
+                type="button"
+                class="wishlist-remove-nb"
+                data-id="${Number(product.id)}"
+                aria-label="Remove from wishlist"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
 
+            <div class="wishlist-info-nb">
 
-                <div class="wishlist-info">
+                <span class="wishlist-cat-nb">Wishlist</span>
 
-                    <h3>
+                <h3 class="wishlist-name-nb">
+                    <a href="/product/${Number(product.id)}">
+                        ${escapeHTML(product.name)}
+                    </a>
+                </h3>
 
-                        <a
-                            href="/product/${Number(product.id)}"
-                        >
-                            ${escapeHTML(product.name)}
-                        </a>
+                ${
+                    product.rating
+                        ? `
+                            <div class="wishlist-rating-nb">
+                                <i class="fa-solid fa-star"></i>
+                                ${escapeHTML(product.rating)}
+                            </div>
+                          `
+                        : ""
+                }
 
-                    </h3>
-
-
+                <p class="wishlist-price-nb">
+                    ₹${Number(product.price).toLocaleString("en-IN")}
                     ${
-                        product.rating
-                            ? `
-                                <div class="wishlist-rating">
-                                    ⭐⭐⭐⭐⭐
-                                    (${escapeHTML(product.rating)})
-                                </div>
-                              `
+                        product.old_price
+                            ? `<del>₹${Number(product.old_price).toLocaleString("en-IN")}</del>`
                             : ""
                     }
+                </p>
 
+                <div class="wishlist-actions-nb">
 
-                    <p class="wishlist-price">
+                    <button
+                        type="button"
+                        class="wishlist-add-cart-nb"
+                        data-id="${Number(product.id)}"
+                    >
+                        <i class="fa-solid fa-cart-plus"></i>
+                        Add to Cart
+                    </button>
 
-                        ₹${Number(product.price).toLocaleString("en-IN")}
-
-                        ${
-                            product.old_price
-                                ? `
-                                    <span>
-                                        ₹${Number(product.old_price).toLocaleString("en-IN")}
-                                    </span>
-                                  `
-                                : ""
-                        }
-
-                    </p>
+                    <button
+                        type="button"
+                        class="wishlist-remove-btn-nb"
+                        data-id="${Number(product.id)}"
+                        aria-label="Remove"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
 
                 </div>
-
-            </div>
-
-
-            <div class="wishlist-actions">
-
-                <button
-                    type="button"
-                    class="wishlist-cart-btn"
-                    data-id="${Number(product.id)}"
-                >
-
-                    <i class="fa-solid fa-cart-plus"></i>
-
-                    Add To Cart
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="wishlist-remove-btn"
-                    data-id="${Number(product.id)}"
-                >
-
-                    <i class="fa-solid fa-trash"></i>
-
-                    Remove
-
-                </button>
 
             </div>
         `;
@@ -1377,7 +1410,7 @@ function registerWishlistPageActions() {
     }
 
     // Add to cart
-    container.querySelectorAll(".wishlist-cart-btn").forEach(button => {
+    container.querySelectorAll(".wishlist-add-cart-nb").forEach(button => {
 
         button.addEventListener("click", function(event) {
 
@@ -1390,8 +1423,8 @@ function registerWishlistPageActions() {
         });
     });
 
-    // Remove
-    container.querySelectorAll(".wishlist-remove-btn").forEach(button => {
+    // Remove (both buttons)
+    container.querySelectorAll(".wishlist-remove-btn-nb, .wishlist-remove-nb").forEach(button => {
 
         button.addEventListener("click", function(event) {
 

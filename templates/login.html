@@ -5,125 +5,188 @@
 {% block content %}
 
 <!-- ==================================================
-                    LOGIN SECTION
+                    LOGIN PAGE — NOBERO STYLE
 ================================================== -->
 
-<section class="login-section">
+<section class="auth-nb">
 
-    <div class="login-box">
+    <div class="auth-split-nb">
 
-        <!-- ============ ZENITH LOGO ============ -->
-        <div class="zenith-logo-official centered">
+        <!-- ============================================
+                    LEFT — IMAGE / QUOTE
+        ============================================ -->
 
-            <svg class="zenith-mountain-icon"
-                 viewBox="0 0 200 100"
-                 xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="goldGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#D4AF37"/>
-                        <stop offset="50%" stop-color="#F4E5A1"/>
-                        <stop offset="100%" stop-color="#B8945A"/>
-                    </linearGradient>
-                </defs>
-                <path d="M100 15 L125 55 L118 55 L100 30 L82 55 L75 55 Z"
-                      fill="url(#goldGradLogin)"/>
-                <path d="M55 55 L80 30 L92 48 L80 48 L65 62 Z"
-                      fill="url(#goldGradLogin)" opacity="0.85"/>
-                <path d="M145 55 L120 30 L108 48 L120 48 L135 62 Z"
-                      fill="url(#goldGradLogin)" opacity="0.85"/>
-            </svg>
+        <div class="auth-image-nb">
 
-            <h1 class="zenith-brand-name">ZENITH</h1>
+            <div class="auth-image-overlay-nb"></div>
 
-            <div class="zenith-tagline-wrapper">
-                <span class="zenith-line"></span>
-                <span class="zenith-tagline-text">WEAR YOUR HIGHER SELF</span>
-                <span class="zenith-line"></span>
+            <div class="auth-image-content-nb">
+                <span class="auth-image-tag-nb">Welcome Back</span>
+                <h2>Wear Your<br>Higher Self</h2>
+                <p>Premium fashion for those who dare to rise.</p>
             </div>
 
         </div>
-        <!-- ============ LOGO END ============ -->
 
 
-        <h1>Welcome Back</h1>
+        <!-- ============================================
+                    RIGHT — FORM
+        ============================================ -->
 
-        <p>Sign in to your Zenith account</p>
+        <div class="auth-form-wrap-nb">
+
+            <div class="auth-form-nb">
+
+                <!-- Logo -->
+                <div class="auth-logo-nb">
+                    <svg class="auth-logo-svg-nb"
+                         viewBox="0 0 200 100"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="goldGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#D4AF37"/>
+                                <stop offset="50%" stop-color="#F4E5A1"/>
+                                <stop offset="100%" stop-color="#B8945A"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M100 15 L125 55 L118 55 L100 30 L82 55 L75 55 Z"
+                              fill="url(#goldGradLogin)"/>
+                        <path d="M55 55 L80 30 L92 48 L80 48 L65 62 Z"
+                              fill="url(#goldGradLogin)" opacity="0.85"/>
+                        <path d="M145 55 L120 30 L108 48 L120 48 L135 62 Z"
+                              fill="url(#goldGradLogin)" opacity="0.85"/>
+                    </svg>
+                    <div class="auth-brand-nb">ZENITH</div>
+                </div>
+
+                <h1 class="auth-title-nb">Welcome Back</h1>
+                <p class="auth-subtitle-nb">Sign in to continue shopping</p>
 
 
-        <form method="POST" action="{{ url_for('login') }}">
+                <form method="POST"
+                      action="{{ url_for('login') }}"
+                      class="auth-form-fields-nb">
 
-            <!-- CSRF TOKEN -->
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <div class="form-group">
 
-                <label for="email">Email</label>
+                    <!-- Email -->
+                    <div class="auth-field-nb">
+                        <label for="email">Email Address</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-regular fa-envelope"></i>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="you@example.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                    </div>
 
-                <input type="email"
-                       id="email"
-                       name="email"
-                       placeholder="Enter your email"
-                       required>
+
+                    <!-- Password -->
+                    <div class="auth-field-nb">
+                        <label for="password">Password</label>
+                        <div class="auth-input-wrap-nb">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password"
+                                   required>
+                            <button type="button"
+                                    class="auth-password-toggle-nb"
+                                    onclick="togglePasswordNB('password', this)"
+                                    aria-label="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Remember + Forgot -->
+                    <div class="auth-options-nb">
+                        <label class="auth-remember-nb">
+                            <input type="checkbox" name="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="{{ url_for('forgot_password') }}"
+                           class="auth-forgot-nb">
+                            Forgot password?
+                        </a>
+                    </div>
+
+
+                    <!-- Submit -->
+                    <button type="submit" class="auth-submit-nb">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Sign In
+                    </button>
+
+                </form>
+
+
+                <!-- Divider -->
+                <div class="auth-divider-nb">
+                    <span>or continue with</span>
+                </div>
+
+
+                <!-- Social Buttons -->
+                <div class="auth-social-nb">
+                    <button type="button" class="auth-social-btn-nb">
+                        <i class="fa-brands fa-google"></i>
+                        Google
+                    </button>
+                    <button type="button" class="auth-social-btn-nb">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        Facebook
+                    </button>
+                </div>
+
+
+                <!-- Signup Link -->
+                <p class="auth-footer-nb">
+                    Don't have an account?
+                    <a href="{{ url_for('signup') }}">Create Account</a>
+                </p>
+
+
+                <!-- Trust -->
+                <div class="auth-trust-nb">
+                    <span><i class="fa-solid fa-shield-halved"></i> Secure</span>
+                    <span><i class="fa-solid fa-lock"></i> SSL Encrypted</span>
+                    <span><i class="fa-solid fa-user-shield"></i> Privacy</span>
+                </div>
 
             </div>
 
-
-            <div class="form-group">
-
-                <label for="password">Password</label>
-
-                <input type="password"
-                       id="password"
-                       name="password"
-                       placeholder="Enter your password"
-                       required>
-
-            </div>
-
-
-            <div class="remember-row">
-
-                <label>
-
-                    <input type="checkbox" name="remember">
-
-                    Remember Me
-
-                </label>
-
-            </div>
-
-
-            <button type="submit" class="login-btn">
-
-                Sign In
-
-            </button>
-
-        </form>
-
-
-        <p class="forgot-password">
-
-            <a href="{{ url_for('forgot_password') }}">
-                Forgot Password?
-            </a>
-
-        </p>
-
-
-        <p class="login-link">
-
-            Don't have an account?
-
-            <a href="{{ url_for('signup') }}">
-                Create Account
-            </a>
-
-        </p>
+        </div>
 
     </div>
 
 </section>
+
+
+<script>
+    function togglePasswordNB(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector("i");
+
+        if (!input) return;
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>
 
 {% endblock %}

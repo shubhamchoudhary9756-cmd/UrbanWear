@@ -5,112 +5,188 @@
 {% block content %}
 
 <!-- ==================================================
-                    PROFILE PAGE
+                    PROFILE PAGE — NOBERO STYLE
 ================================================== -->
 
-<section class="profile-section">
+<section class="profile-nb">
 
-    <div class="profile-container">
+    <div class="profile-grid-nb">
 
-        <!-- SIDEBAR -->
+        <!-- ============================================
+                    LEFT — SIDEBAR
+        ============================================ -->
 
-        <div class="profile-sidebar">
+        <aside class="profile-sidebar-nb">
 
-            <div class="profile-avatar-large">
-                <i class="fa-solid fa-user"></i>
-            </div>
+            <!-- Avatar + Info -->
+            <div class="profile-user-nb">
 
-            <h2>{{ user.full_name }}</h2>
-
-            <p class="profile-email">{{ user.email }}</p>
-
-            <div class="profile-stats">
-
-                <div class="stat-item">
-                    <span class="stat-number">
-                        {{ user.orders|length if user.orders else 0 }}
-                    </span>
-                    <span class="stat-label">Orders</span>
+                <div class="profile-avatar-nb">
+                    <i class="fa-solid fa-user"></i>
                 </div>
 
-                <div class="stat-item">
-                    <span class="stat-number">0</span>
-                    <span class="stat-label">Wishlist</span>
-                </div>
+                <h2>{{ user.full_name }}</h2>
+                <p class="profile-email-nb">{{ user.email }}</p>
 
-                <div class="stat-item">
-                    <span class="stat-number">
-                        {{ user.created_at.strftime('%Y') }}
-                    </span>
-                    <span class="stat-label">Member</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- MAIN CONTENT -->
-
-        <div class="profile-main">
-
-            <div class="profile-main-header">
-
-                <h1>Account Settings</h1>
-
-                <p>Manage your personal information</p>
+                <span class="profile-badge-nb">
+                    <i class="fa-solid fa-crown"></i>
+                    Member since {{ user.created_at.strftime('%Y') }}
+                </span>
 
             </div>
 
 
-            <form method="POST" action="{{ url_for('update_profile') }}">
+            <!-- Stats -->
+            <div class="profile-stats-nb">
 
-                <!-- CSRF TOKEN -->
+                <div class="profile-stat-item-nb">
+                    <div class="profile-stat-icon-nb">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="profile-stat-content-nb">
+                        <strong>{{ user.orders.count() }}</strong>
+                        <span>Orders</span>
+                    </div>
+                </div>
+
+                <div class="profile-stat-item-nb">
+                    <div class="profile-stat-icon-nb">
+                        <i class="fa-regular fa-heart"></i>
+                    </div>
+                    <div class="profile-stat-content-nb">
+                        <strong id="profile-wishlist-count-nb">0</strong>
+                        <span>Wishlist</span>
+                    </div>
+                </div>
+
+                <div class="profile-stat-item-nb">
+                    <div class="profile-stat-icon-nb">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div class="profile-stat-content-nb">
+                        <strong id="profile-cart-count-nb">0</strong>
+                        <span>In Cart</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Quick Links -->
+            <div class="profile-links-nb">
+
+                <a href="/orders" class="profile-link-nb">
+                    <i class="fa-solid fa-receipt"></i>
+                    My Orders
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <a href="/wishlist" class="profile-link-nb">
+                    <i class="fa-regular fa-heart"></i>
+                    My Wishlist
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <a href="/cart" class="profile-link-nb">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    My Cart
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+                <a href="/logout" class="profile-link-nb logout-nb">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+            </div>
+
+
+            <!-- Trust -->
+            <div class="profile-trust-nb">
+                <div class="profile-trust-item-nb">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Secure</span>
+                </div>
+                <div class="profile-trust-item-nb">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Encrypted</span>
+                </div>
+            </div>
+
+        </aside>
+
+
+        <!-- ============================================
+                    RIGHT — MAIN CONTENT
+        ============================================ -->
+
+        <main class="profile-main-nb">
+
+            <!-- Header -->
+            <div class="profile-header-nb">
+                <div>
+                    <span class="profile-tag-nb">Account</span>
+                    <h1>Account Settings</h1>
+                    <p class="profile-subtitle-nb">Manage your personal information</p>
+                </div>
+            </div>
+
+
+            <!-- Form -->
+            <form method="POST"
+                  action="{{ url_for('update_profile') }}"
+                  class="profile-form-nb">
+
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 
-                <!-- PERSONAL INFO -->
+                <!-- ============================
+                        PERSONAL INFO
+                ============================ -->
 
-                <div class="profile-form-section">
+                <div class="profile-section-nb">
 
-                    <h3>
-                        <i class="fa-solid fa-user"></i>
-                        Personal Information
-                    </h3>
-
-                    <div class="form-group">
-
-                        <label for="full_name">Full Name</label>
-
-                        <div class="input-icon-wrapper">
-
+                    <div class="profile-section-header-nb">
+                        <div class="profile-section-icon-nb">
                             <i class="fa-solid fa-user"></i>
-
-                            <input type="text"
-                                   id="full_name"
-                                   name="full_name"
-                                   value="{{ user.full_name }}"
-                                   required>
-
                         </div>
-
+                        <div>
+                            <h3>Personal Information</h3>
+                            <p>Update your basic details</p>
+                        </div>
                     </div>
 
 
-                    <div class="form-group">
+                    <div class="profile-fields-nb">
 
-                        <label for="phone">Phone Number</label>
+                        <div class="profile-field-nb">
+                            <label for="full_name">Full Name</label>
+                            <div class="profile-input-wrap-nb">
+                                <i class="fa-regular fa-user"></i>
+                                <input type="text"
+                                       id="full_name"
+                                       name="full_name"
+                                       value="{{ user.full_name }}"
+                                       placeholder="Enter your full name"
+                                       required>
+                            </div>
+                        </div>
 
-                        <div class="input-icon-wrapper">
 
-                            <i class="fa-solid fa-phone"></i>
-
-                            <input type="text"
-                                   id="phone"
-                                   name="phone"
-                                   value="{{ user.phone }}"
-                                   required>
-
+                        <div class="profile-field-nb">
+                            <label for="phone">Phone Number</label>
+                            <div class="profile-input-wrap-nb">
+                                <i class="fa-solid fa-phone"></i>
+                                <input type="tel"
+                                       id="phone"
+                                       name="phone"
+                                       value="{{ user.phone }}"
+                                       placeholder="10-digit mobile number"
+                                       pattern="[0-9]{10}"
+                                       maxlength="10"
+                                       required>
+                            </div>
                         </div>
 
                     </div>
@@ -118,91 +194,140 @@
                 </div>
 
 
+                <!-- ============================
+                        EMAIL INFO
+                ============================ -->
 
-                <!-- EMAIL INFO -->
+                <div class="profile-section-nb">
 
-                <div class="profile-form-section">
-
-                    <h3>
-                        <i class="fa-solid fa-envelope"></i>
-                        Email Information
-                    </h3>
-
-                    <div class="form-group">
-
-                        <label for="email">Email Address</label>
-
-                        <div class="input-icon-wrapper">
-
-                            <i class="fa-solid fa-envelope"></i>
-
-                            <input type="email"
-                                   id="email"
-                                   value="{{ user.email }}"
-                                   disabled>
-
+                    <div class="profile-section-header-nb">
+                        <div class="profile-section-icon-nb">
+                            <i class="fa-regular fa-envelope"></i>
                         </div>
+                        <div>
+                            <h3>Email Address</h3>
+                            <p>Email cannot be changed</p>
+                        </div>
+                    </div>
 
-                        <p class="form-hint">
-                            Email cannot be changed
-                        </p>
+
+                    <div class="profile-fields-nb">
+
+                        <div class="profile-field-nb">
+                            <label for="email">Email</label>
+                            <div class="profile-input-wrap-nb disabled-nb">
+                                <i class="fa-regular fa-envelope"></i>
+                                <input type="email"
+                                       id="email"
+                                       value="{{ user.email }}"
+                                       disabled>
+                                <span class="profile-lock-icon-nb">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                            </div>
+                            <p class="profile-hint-nb">
+                                <i class="fa-solid fa-circle-info"></i>
+                                If you need to change your email, contact support.
+                            </p>
+                        </div>
 
                     </div>
 
                 </div>
 
 
+                <!-- ============================
+                        SECURITY
+                ============================ -->
 
-                <!-- SECURITY -->
+                <div class="profile-section-nb">
 
-                <div class="profile-form-section">
-
-                    <h3>
-                        <i class="fa-solid fa-lock"></i>
-                        Security
-                    </h3>
-
-                    <div class="form-group">
-
-                        <label for="password">Password</label>
-
-                        <div class="input-icon-wrapper">
-
+                    <div class="profile-section-header-nb">
+                        <div class="profile-section-icon-nb">
                             <i class="fa-solid fa-lock"></i>
-
-                            <input type="password"
-                                   id="password"
-                                   value="••••••••"
-                                   disabled>
-
                         </div>
+                        <div>
+                            <h3>Password & Security</h3>
+                            <p>Keep your account secure</p>
+                        </div>
+                    </div>
 
-                        <a href="{{ url_for('forgot_password') }}"
-                           class="form-hint-link">
-                            Change Password
-                        </a>
+
+                    <div class="profile-fields-nb">
+
+                        <div class="profile-field-nb">
+                            <label>Password</label>
+                            <div class="profile-password-row-nb">
+                                <div class="profile-password-dots-nb">
+                                    <i class="fa-solid fa-lock"></i>
+                                    ••••••••••
+                                </div>
+                                <a href="{{ url_for('forgot_password') }}"
+                                   class="profile-change-pwd-btn-nb">
+                                    <i class="fa-solid fa-key"></i>
+                                    Change Password
+                                </a>
+                            </div>
+                        </div>
 
                     </div>
 
                 </div>
 
 
+                <!-- ============================
+                        SAVE BUTTON
+                ============================ -->
 
-                <!-- SAVE BUTTON -->
+                <div class="profile-actions-nb">
 
-                <button type="submit" class="save-profile-btn">
+                    <button type="submit" class="profile-save-btn-nb">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Save Changes
+                    </button>
 
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    Save Changes
+                    <a href="/" class="profile-cancel-btn-nb">
+                        Cancel
+                    </a>
 
-                </button>
+                </div>
 
             </form>
 
-        </div>
+        </main>
 
     </div>
 
 </section>
 
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+    /* Sync wishlist + cart counts from localStorage */
+    document.addEventListener("DOMContentLoaded", function () {
+
+        try {
+            const wishlist = JSON.parse(localStorage.getItem("zenith_wishlist") || "[]");
+            const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+            const wishlistEl = document.getElementById("profile-wishlist-count-nb");
+            const cartEl = document.getElementById("profile-cart-count-nb");
+
+            if (wishlistEl) {
+                wishlistEl.textContent = Array.isArray(wishlist) ? wishlist.length : 0;
+            }
+
+            if (cartEl) {
+                const totalQty = Array.isArray(cart)
+                    ? cart.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)
+                    : 0;
+                cartEl.textContent = totalQty;
+            }
+        } catch (e) {
+            console.error("Profile stats error:", e);
+        }
+    });
+</script>
 {% endblock %}
