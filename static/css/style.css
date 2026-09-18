@@ -5036,16 +5036,35 @@ section {
         letter-spacing: 1.2px;
     }
 
-    .wishlist {
-        top: 10px;
-        right: 10px;
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 13px !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(5px);
-    }
+    .wishlist,
+    .product-card-nb .wishlist-btn-nb {
+    top: 10px !important;
+    right: 10px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    border-radius: 50% !important;
+    font-size: 14px !important;
+    padding: 0 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
 
+.wishlist i,
+.product-card-nb .wishlist-btn-nb i {
+    font-size: 14px !important;
+    line-height: 1 !important;
+}
+    
     /* ===== SALE BANNER ===== */
     .sale-banner {
         width: 94%;
@@ -5173,10 +5192,11 @@ section {
     }
 
     /* ===== FOOTER ===== */
-    .footer {
-        padding: 50px 5% 20px !important;
-        margin-bottom: 60px;
-    }
+     .footer {
+    padding: 50px 5% 100px !important;
+    margin-bottom: 0 !important;
+}
+
 
     .footer-container {
         grid-template-columns: 1fr !important;
@@ -9054,7 +9074,8 @@ section {
 /* ============ CART SECTION ============ */
 
 .cart-nb {
-    padding: 60px 8% 100px;
+    
+    padding: 40px 5% 140px !important;
     background: #faf8f5;
     min-height: 70vh;
 }
@@ -9768,7 +9789,7 @@ section {
 /* ============ SECTION ============ */
 
 .checkout-nb {
-    padding: 50px 8% 100px;
+    padding: 30px 5% 140px !important;
     background: #faf8f5;
     min-height: 70vh;
 }
@@ -14115,5 +14136,47 @@ body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
+    }
+}
+/* =====================================================
+   MOBILE — BOTTOM NAV SPACING FIX (GLOBAL)
+   Har page pe bottom nav ke liye space
+===================================================== */
+
+@media (max-width: 768px) {
+
+    /* All main sections — extra bottom padding */
+    section,
+    .main-content,
+    .cart-nb,
+    .checkout-nb,
+    .wishlist-nb,
+    .orders-nb,
+    .profile-nb,
+    .auth-nb,
+    .product-nb,
+    .error-section {
+        padding-bottom: 100px !important;
+    }
+
+    /* Footer — extra bottom padding */
+    .footer {
+        padding-bottom: 100px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Remove any duplicate body padding */
+    body {
+        padding-bottom: 0 !important;
+    }
+
+    /* Product page sticky buy bar — bottom nav ke upar */
+    .sticky-buy-nb {
+        bottom: 60px !important;
+    }
+
+    /* Toast — bottom nav ke upar */
+    .zenith-toast {
+        bottom: 80px !important;
     }
 }
