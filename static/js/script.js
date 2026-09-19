@@ -1,6 +1,6 @@
 // ==================================================
-// Zenith JavaScript v12.0
-// CART + PERSISTENT WISHLIST + MOBILE DRAWER
+// Zenith JavaScript v13.0
+// CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // ==================================================
 
 "use strict";
@@ -246,6 +246,9 @@ function updateCartCount() {
     });
 
     counter.textContent = total;
+
+    // Also update bottom nav badge
+    updateBottomNavBadges();
 }
 
 
@@ -450,7 +453,6 @@ function displayCart() {
 
         if (totalElement) totalElement.textContent = "0";
 
-        // Update summary (if present)
         updateCartSummaryNB(0, 0);
 
         updateCartCount();
@@ -583,7 +585,6 @@ function displayCart() {
         totalElement.textContent = grandTotal.toLocaleString("en-IN");
     }
 
-    // Update summary (if present)
     updateCartSummaryNB(grandTotal, totalQty);
 
     registerCartActions();
@@ -596,19 +597,16 @@ function displayCart() {
 
 function updateCartSummaryNB(subtotal, qty) {
 
-    // Subtotal
     const subtotalEl = document.getElementById("subtotal-nb");
     if (subtotalEl) {
         subtotalEl.textContent = subtotal.toLocaleString("en-IN");
     }
 
-    // Item count
     const countEl = document.getElementById("cart-items-count-nb");
     if (countEl) {
         countEl.textContent = `(${qty})`;
     }
 
-    // Shipping bar
     if (typeof window.updateShippingBar === "function") {
         window.updateShippingBar(subtotal);
     }
@@ -627,7 +625,6 @@ function registerCartActions() {
         return;
     }
 
-    // Remove
     cartContainer.querySelectorAll(".remove-btn").forEach(button => {
 
         button.addEventListener("click", function(event) {
@@ -640,7 +637,6 @@ function registerCartActions() {
         });
     });
 
-    // Decrease
     cartContainer.querySelectorAll(".quantity-decrease").forEach(button => {
 
         button.addEventListener("click", function(event) {
@@ -653,7 +649,6 @@ function registerCartActions() {
         });
     });
 
-    // Increase
     cartContainer.querySelectorAll(".quantity-increase").forEach(button => {
 
         button.addEventListener("click", function(event) {
@@ -721,10 +716,6 @@ function removeItemByIndex(index) {
 // PRODUCT PAGE
 // ==================================================
 
-// --------------------------------------------------
-// IMAGE GALLERY
-// --------------------------------------------------
-
 function changeImage(element) {
 
     const mainImage = document.getElementById("main-image");
@@ -733,7 +724,6 @@ function changeImage(element) {
         return;
     }
 
-    // Support both data-img (new) and src (old)
     const newSrc = element.dataset && element.dataset.img
         ? element.dataset.img
         : (element.querySelector && element.querySelector("img")
@@ -751,10 +741,6 @@ function changeImage(element) {
     element.classList.add("active");
 }
 
-
-// --------------------------------------------------
-// SIZE BUTTONS
-// --------------------------------------------------
 
 function registerSizeButtons() {
 
@@ -774,7 +760,6 @@ function registerSizeButtons() {
 
             this.classList.add("active");
 
-            // Update label (Nobero style)
             const label = document.getElementById("selected-size-nb");
             if (label && this.dataset.size) {
                 label.textContent = this.dataset.size;
@@ -783,10 +768,6 @@ function registerSizeButtons() {
     });
 }
 
-
-// --------------------------------------------------
-// COLOR BUTTONS
-// --------------------------------------------------
 
 function registerColorButtons() {
 
@@ -806,7 +787,6 @@ function registerColorButtons() {
 
             this.classList.add("active");
 
-            // Update label (Nobero style)
             const label = document.getElementById("selected-color-nb");
             if (label && this.dataset.color) {
                 label.textContent = this.dataset.color;
@@ -819,10 +799,6 @@ function registerColorButtons() {
 // ==================================================
 // WISHLIST SYSTEM
 // ==================================================
-
-// --------------------------------------------------
-// LOAD WISHLIST
-// --------------------------------------------------
 
 function loadWishlist() {
 
@@ -855,10 +831,6 @@ function loadWishlist() {
     normalizeWishlist();
 }
 
-
-// --------------------------------------------------
-// NORMALIZE WISHLIST
-// --------------------------------------------------
 
 function normalizeWishlist() {
 
@@ -901,10 +873,6 @@ function normalizeWishlist() {
 }
 
 
-// --------------------------------------------------
-// SAVE WISHLIST
-// --------------------------------------------------
-
 function saveWishlist() {
 
     try {
@@ -921,10 +889,6 @@ function saveWishlist() {
 }
 
 
-// --------------------------------------------------
-// CHECK WISHLIST
-// --------------------------------------------------
-
 function isInWishlist(id) {
 
     return wishlist.some(item => {
@@ -933,10 +897,6 @@ function isInWishlist(id) {
 }
 
 
-// --------------------------------------------------
-// WISHLIST COUNT
-// --------------------------------------------------
-
 function updateWishlistCount() {
 
     const counters = document.querySelectorAll("#wishlist-count, #wishlist-count-nb");
@@ -944,12 +904,11 @@ function updateWishlistCount() {
     counters.forEach(counter => {
         counter.textContent = wishlist.length;
     });
+
+    // Also update bottom nav badge
+    updateBottomNavBadges();
 }
 
-
-// --------------------------------------------------
-// GET WISHLIST PRODUCT DATA
-// --------------------------------------------------
 
 function getWishlistProductData(button) {
 
@@ -966,7 +925,6 @@ function getWishlistProductData(button) {
     let rating = button.dataset.rating || "";
     let description = button.dataset.description || "";
 
-    // Fallback: Get from parent card
     const card = button.closest(".card, .product-card-nb, .related-card-nb");
 
     if (card) {
@@ -1023,10 +981,6 @@ function getWishlistProductData(button) {
 }
 
 
-// --------------------------------------------------
-// TOGGLE WISHLIST
-// --------------------------------------------------
-
 function toggleWishlist(button) {
 
     if (!button) {
@@ -1044,7 +998,6 @@ function toggleWishlist(button) {
         return Number(item.id) === Number(product.id);
     });
 
-    // Remove from wishlist
     if (existingIndex !== -1) {
 
         wishlist.splice(existingIndex, 1);
@@ -1058,7 +1011,6 @@ function toggleWishlist(button) {
         return;
     }
 
-    // Add to wishlist
     wishlist.push(product);
 
     saveWishlist();
@@ -1068,10 +1020,6 @@ function toggleWishlist(button) {
     showToast(`${product.name} added to wishlist ❤️`);
 }
 
-
-// --------------------------------------------------
-// UPDATE WISHLIST BUTTONS
-// --------------------------------------------------
 
 function updateWishlistButtons() {
 
@@ -1117,10 +1065,6 @@ function updateWishlistButtons() {
 }
 
 
-// --------------------------------------------------
-// REGISTER WISHLIST BUTTONS
-// --------------------------------------------------
-
 function registerWishlistButtons() {
 
     document.addEventListener("click", function(event) {
@@ -1139,10 +1083,6 @@ function registerWishlistButtons() {
     updateWishlistButtons();
 }
 
-
-// --------------------------------------------------
-// REMOVE FROM WISHLIST
-// --------------------------------------------------
 
 function removeFromWishlist(id) {
 
@@ -1163,10 +1103,6 @@ function removeFromWishlist(id) {
     showToast("Removed from wishlist");
 }
 
-
-// --------------------------------------------------
-// CLEAR WISHLIST
-// --------------------------------------------------
 
 function clearWishlist() {
 
@@ -1192,10 +1128,6 @@ function clearWishlist() {
     showToast("Wishlist cleared");
 }
 
-
-// --------------------------------------------------
-// ADD WISHLIST ITEM TO CART
-// --------------------------------------------------
 
 function addWishlistItemToCart(id) {
 
@@ -1241,10 +1173,6 @@ function addWishlistItemToCart(id) {
 // WISHLIST PAGE (NOBERO STYLE)
 // ==================================================
 
-// --------------------------------------------------
-// DISPLAY WISHLIST
-// --------------------------------------------------
-
 function displayWishlist() {
 
     const container = document.getElementById("wishlist-items");
@@ -1257,7 +1185,6 @@ function displayWishlist() {
 
     container.innerHTML = "";
 
-    // Empty
     if (wishlist.length === 0) {
 
         if (emptyState) {
@@ -1296,7 +1223,6 @@ function displayWishlist() {
         return;
     }
 
-    // Show wishlist
     if (emptyState) {
         emptyState.style.display = "none";
     }
@@ -1305,7 +1231,6 @@ function displayWishlist() {
         clearButton.style.display = "inline-flex";
     }
 
-    // Create product cards (Nobero Style)
     wishlist.forEach(product => {
 
         const item = document.createElement("div");
@@ -1397,10 +1322,6 @@ function displayWishlist() {
 }
 
 
-// --------------------------------------------------
-// WISHLIST PAGE ACTIONS
-// --------------------------------------------------
-
 function registerWishlistPageActions() {
 
     const container = document.getElementById("wishlist-items");
@@ -1409,7 +1330,6 @@ function registerWishlistPageActions() {
         return;
     }
 
-    // Add to cart
     container.querySelectorAll(".wishlist-add-cart-nb").forEach(button => {
 
         button.addEventListener("click", function(event) {
@@ -1423,7 +1343,6 @@ function registerWishlistPageActions() {
         });
     });
 
-    // Remove (both buttons)
     container.querySelectorAll(".wishlist-remove-btn-nb, .wishlist-remove-nb").forEach(button => {
 
         button.addEventListener("click", function(event) {
@@ -1440,12 +1359,8 @@ function registerWishlistPageActions() {
 
 
 // ==================================================
-// MOBILE DRAWER + BOTTOM NAV
+// MOBILE DRAWER
 // ==================================================
-
-// --------------------------------------------------
-// DRAWER TOGGLE
-// --------------------------------------------------
 
 function openDrawer() {
 
@@ -1461,6 +1376,7 @@ function openDrawer() {
     }
 
     document.body.style.overflow = "hidden";
+    document.body.classList.add("drawer-open");
 }
 
 
@@ -1478,6 +1394,7 @@ function closeDrawer() {
     }
 
     document.body.style.overflow = "";
+    document.body.classList.remove("drawer-open");
 }
 
 
@@ -1502,13 +1419,15 @@ function registerDrawer() {
         drawerOverlay.addEventListener("click", closeDrawer);
     }
 
-    // Drawer links par click hone par drawer band karein
+    // Close drawer on link click
     const drawerLinks = document.querySelectorAll(".drawer-nav a");
     drawerLinks.forEach(link => {
-        link.addEventListener("click", closeDrawer);
+        link.addEventListener("click", function() {
+            setTimeout(closeDrawer, 150);
+        });
     });
 
-    // Escape key se drawer band karein
+    // Close on Escape key
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") {
             closeDrawer();
@@ -1517,50 +1436,152 @@ function registerDrawer() {
 }
 
 
-// --------------------------------------------------
-// BOTTOM NAV — ACTIVE STATE
-// --------------------------------------------------
+// ==================================================
+// BOTTOM NAV — ACTIVE STATE + BADGES
+// ==================================================
 
 function registerBottomNav() {
 
     const currentPath = window.location.pathname;
-    const currentHash = window.location.hash;
-
     const bottomNavItems = document.querySelectorAll(".bottom-nav-item");
 
     bottomNavItems.forEach(item => {
         item.classList.remove("active");
     });
 
-    // Home
-    if (currentPath === "/" && !currentHash) {
-        const homeItem = document.querySelector('.bottom-nav-item[href="/"]');
+    if (currentPath === "/" || currentPath === "") {
+        const homeItem = document.querySelector('.bottom-nav-item[data-page="home"]');
         if (homeItem) homeItem.classList.add("active");
     }
 
-    // Cart
     if (currentPath === "/cart") {
-        const cartItem = document.querySelector('.bottom-nav-item[href="/cart"]');
+        const cartItem = document.querySelector('.bottom-nav-item[data-page="cart"]');
         if (cartItem) cartItem.classList.add("active");
     }
 
-    // Wishlist
     if (currentPath === "/wishlist") {
-        const wishlistItem = document.querySelector('.bottom-nav-item[href="/wishlist"]');
+        const wishlistItem = document.querySelector('.bottom-nav-item[data-page="wishlist"]');
         if (wishlistItem) wishlistItem.classList.add("active");
     }
 
-    // Profile / Account
     if (currentPath === "/profile" || currentPath === "/orders") {
-        const profileItem = document.querySelector('.bottom-nav-item[href="/profile"]');
+        const profileItem = document.querySelector('.bottom-nav-item[data-page="profile"]');
         if (profileItem) profileItem.classList.add("active");
     }
 
-    // Login
     if (currentPath === "/login" || currentPath === "/signup") {
-        const loginItem = document.querySelector('.bottom-nav-item[href="/login"]');
+        const loginItem = document.querySelector('.bottom-nav-item[data-page="login"]');
         if (loginItem) loginItem.classList.add("active");
     }
+}
+
+
+// ==================================================
+// BOTTOM NAV BADGES — Sync with Cart/Wishlist
+// ==================================================
+
+function updateBottomNavBadges() {
+
+    const cartCountEl = document.getElementById('cart-count');
+    const wishlistCountEl = document.getElementById('wishlist-count');
+
+    const cartCount = cartCountEl ? parseInt(cartCountEl.textContent) || 0 : 0;
+    const wishlistCount = wishlistCountEl ? parseInt(wishlistCountEl.textContent) || 0 : 0;
+
+    const bottomCartBadge = document.getElementById('bottom-cart-count');
+    const bottomWishlistBadge = document.getElementById('bottom-wishlist-count');
+
+    if (bottomCartBadge) {
+        bottomCartBadge.textContent = cartCount;
+        if (cartCount > 0) {
+            bottomCartBadge.classList.add('show');
+        } else {
+            bottomCartBadge.classList.remove('show');
+        }
+    }
+
+    if (bottomWishlistBadge) {
+        bottomWishlistBadge.textContent = wishlistCount;
+        if (wishlistCount > 0) {
+            bottomWishlistBadge.classList.add('show');
+        } else {
+            bottomWishlistBadge.classList.remove('show');
+        }
+    }
+}
+
+
+// ==================================================
+// SEARCH OVERLAY
+// ==================================================
+
+function registerSearch() {
+
+    const searchBtn = document.getElementById('search-btn');
+    const searchOverlay = document.getElementById('search-overlay');
+    const searchClose = document.getElementById('search-close');
+    const searchInput = document.getElementById('search-input');
+
+    function openSearch() {
+        if (!searchOverlay) return;
+        searchOverlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function() {
+            if (searchInput) searchInput.focus();
+        }, 300);
+    }
+
+    function closeSearch() {
+        if (!searchOverlay) return;
+        searchOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+        if (searchInput) searchInput.value = '';
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', openSearch);
+    }
+
+    if (searchClose) {
+        searchClose.addEventListener('click', closeSearch);
+    }
+
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', function(e) {
+            if (e.target === searchOverlay) {
+                closeSearch();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && searchOverlay && searchOverlay.classList.contains('show')) {
+            closeSearch();
+        }
+    });
+}
+
+
+// ==================================================
+// HEADER SCROLL SHADOW
+// ==================================================
+
+function registerHeaderScroll() {
+
+    const mainHeader = document.querySelector('.main-header');
+
+    if (!mainHeader) return;
+
+    function handleScroll() {
+        if (window.scrollY > 10) {
+            mainHeader.classList.add('is-scrolled');
+        } else {
+            mainHeader.classList.remove('is-scrolled');
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
 }
 
 
@@ -1583,6 +1604,12 @@ document.addEventListener("DOMContentLoaded", function() {
     // Mobile drawer + bottom nav
     registerDrawer();
     registerBottomNav();
+
+    // Search overlay
+    registerSearch();
+
+    // Header scroll shadow
+    registerHeaderScroll();
 
     // Update counters
     updateCartCount();

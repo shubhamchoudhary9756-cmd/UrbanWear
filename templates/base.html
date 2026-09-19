@@ -2,44 +2,32 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>{% block title %}Zenith | Premium Fashion Store{% endblock %}</title>
 
     <!-- ================= CSS ================= -->
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <!-- ================= GOOGLE FONTS ================= -->
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
 
     <!-- ================= FONT AWESOME ================= -->
-
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     {% block extra_head %}{% endblock %}
-
 </head>
 
-
 <body>
-
 
 <!-- ==================================================
                     ANNOUNCEMENT BAR (Scrolling)
 ================================================== -->
-
 <div class="announcement-bar">
     <div class="announcement-track">
         <span><i class="fa-solid fa-truck-fast"></i> FREE SHIPPING on orders above ₹999</span>
@@ -51,36 +39,26 @@
     </div>
 </div>
 
-
-
 <!-- ==================================================
                     TOP BAR
 ================================================== -->
-
 <div class="top-bar">
-
     <div class="top-bar-inner">
-
         <span class="top-bar-left">
             <i class="fa-solid fa-truck-fast"></i>
             Complimentary shipping on all orders over ₹999
         </span>
-
         <span class="top-bar-right">
             <i class="fa-solid fa-globe"></i>
             Ship to: India
         </span>
-
     </div>
-
 </div>
-
-
 
 <!-- ==================================================
                     MAIN HEADER
+                    [☰]   [ZENITH]   [🔍] [🛍️]
 ================================================== -->
-
 <header class="main-header">
 
     <!-- Hamburger (Mobile only) -->
@@ -89,13 +67,14 @@
     </button>
 
     <!-- ZENITH HEADER LOGO -->
-    <a href="/" class="zenith-logo-header">
+    <a href="/" class="zenith-logo-header" aria-label="Zenith Home">
 
-        <!-- Mountain SVG (3D) -->
+        <!-- Mountain SVG -->
         <svg class="zenith-header-mountain"
              viewBox="0 0 800 240"
              xmlns="http://www.w3.org/2000/svg"
-             preserveAspectRatio="xMidYMid meet">
+             preserveAspectRatio="xMidYMid meet"
+             aria-hidden="true">
             <defs>
                 <linearGradient id="goldGradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#D4AF37"/>
@@ -108,35 +87,28 @@
                     <stop offset="100%" stop-color="#8B6F3F"/>
                 </linearGradient>
             </defs>
-
             <path d="M290 155 L355 95 L380 130 L360 130 L330 160 Z"
                   fill="url(#goldGradHeaderDark)" opacity="0.85"/>
-
             <path d="M510 155 L445 95 L420 130 L440 130 L470 160 Z"
                   fill="url(#goldGradHeaderDark)" opacity="0.85"/>
-
             <path d="M400 55 L440 130 L400 110 Z"
                   fill="url(#goldGradHeaderDark)"/>
-
             <path d="M400 55 L440 130 L455 155 L400 110 L400 55 Z"
                   fill="url(#goldGradHeader)"/>
-
             <path d="M400 55 L400 110 L380 135 L370 155 L400 110 Z"
                   fill="url(#goldGradHeader)" opacity="0.9"/>
-
             <path d="M370 155 L400 110 L430 155 L400 155 Z"
                   fill="url(#goldGradHeaderDark)" opacity="0.7"/>
         </svg>
 
         <span class="zenith-header-text">ZENITH</span>
         <span class="zenith-header-tagline">WEAR YOUR HIGHER SELF</span>
-
     </a>
 
     <!-- ============================================
                 MAIN NAVIGATION WITH MEGA MENU
     ============================================ -->
-    <nav class="main-nav">
+    <nav class="main-nav" aria-label="Main navigation">
         <ul>
 
             <!-- NEW IN -->
@@ -284,31 +256,33 @@
         </ul>
     </nav>
 
+    <!-- HEADER ICONS -->
     <div class="header-icons">
 
-        <a href="#" class="icon-btn" title="Search">
+        <!-- Search -->
+        <button class="icon-btn" id="search-btn" title="Search" aria-label="Search">
             <i class="fa-solid fa-magnifying-glass"></i>
-        </a>
+        </button>
 
         {% if current_user.is_authenticated %}
-            <a href="/profile" class="icon-btn" title="Profile">
+            <a href="/profile" class="icon-btn" title="Profile" aria-label="Profile">
                 <i class="fa-regular fa-user"></i>
             </a>
-            <a href="/logout" class="icon-btn" title="Logout">
+            <a href="/logout" class="icon-btn" title="Logout" aria-label="Logout">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>
         {% else %}
-            <a href="/login" class="icon-btn" title="Login">
+            <a href="/login" class="icon-btn" title="Login" aria-label="Login">
                 <i class="fa-regular fa-user"></i>
             </a>
         {% endif %}
 
-        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist">
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist" aria-label="Wishlist">
             <i class="fa-regular fa-heart"></i>
             <span id="wishlist-count">0</span>
         </a>
 
-        <a href="/cart" class="icon-btn cart-icon" title="Cart">
+        <a href="/cart" class="icon-btn cart-icon" title="Cart" aria-label="Cart">
             <i class="fa-solid fa-shopping-bag"></i>
             <span id="cart-count">0</span>
         </a>
@@ -318,54 +292,37 @@
 </header>
 
 
+<!-- ==================================================
+                    SEARCH OVERLAY
+================================================== -->
+<div class="search-overlay" id="search-overlay">
+    <button class="search-close" id="search-close" aria-label="Close search">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <form class="search-form" action="/search" method="GET">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="search" 
+               name="q" 
+               id="search-input" 
+               placeholder="Search for products..." 
+               autocomplete="off"
+               aria-label="Search products">
+        <button type="submit" class="search-submit">Search</button>
+    </form>
+</div>
+
 
 <!-- ==================================================
                     MOBILE DRAWER
 ================================================== -->
-
 <div class="drawer-overlay" id="drawer-overlay"></div>
 
-<aside class="mobile-drawer" id="mobile-drawer">
+<aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile menu">
 
+    <!-- DRAWER HEADER -->
     <div class="drawer-header">
 
-        <a href="/" class="zenith-logo-header">
-
-            <svg class="zenith-header-mountain"
-                 viewBox="0 0 800 240"
-                 xmlns="http://www.w3.org/2000/svg"
-                 preserveAspectRatio="xMidYMid meet">
-                <defs>
-                    <linearGradient id="goldGradDrawer" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#D4AF37"/>
-                        <stop offset="50%" stop-color="#F4E5A1"/>
-                        <stop offset="100%" stop-color="#B8945A"/>
-                    </linearGradient>
-                    <linearGradient id="goldGradDrawerDark" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#B8945A"/>
-                        <stop offset="50%" stop-color="#D4AF37"/>
-                        <stop offset="100%" stop-color="#8B6F3F"/>
-                    </linearGradient>
-                </defs>
-
-                <path d="M290 155 L355 95 L380 130 L360 130 L330 160 Z"
-                      fill="url(#goldGradDrawerDark)" opacity="0.85"/>
-                <path d="M510 155 L445 95 L420 130 L440 130 L470 160 Z"
-                      fill="url(#goldGradDrawerDark)" opacity="0.85"/>
-                <path d="M400 55 L440 130 L400 110 Z"
-                      fill="url(#goldGradDrawerDark)"/>
-                <path d="M400 55 L440 130 L455 155 L400 110 L400 55 Z"
-                      fill="url(#goldGradDrawer)"/>
-                <path d="M400 55 L400 110 L380 135 L370 155 L400 110 Z"
-                      fill="url(#goldGradDrawer)" opacity="0.9"/>
-                <path d="M370 155 L400 110 L430 155 L400 155 Z"
-                      fill="url(#goldGradDrawerDark)" opacity="0.7"/>
-            </svg>
-
-            <span class="zenith-header-text">ZENITH</span>
-            <span class="zenith-header-tagline">WEAR YOUR HIGHER SELF</span>
-
-        </a>
+        <span class="drawer-title">MENU</span>
 
         <button class="drawer-close" id="drawer-close" aria-label="Close menu">
             <i class="fa-solid fa-xmark"></i>
@@ -373,59 +330,60 @@
 
     </div>
 
-    <nav class="drawer-nav">
+    <!-- DRAWER NAV -->
+    <nav class="drawer-nav" aria-label="Mobile navigation">
 
         <a href="/">
-            Home
+            <span><i class="fa-solid fa-house drawer-icon"></i> Home</span>
             <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         <a href="/#categories">
-            Categories
+            <span><i class="fa-solid fa-layer-group drawer-icon"></i> Categories</span>
             <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         <a href="/#products">
-            Products
+            <span><i class="fa-solid fa-bag-shopping drawer-icon"></i> Shop</span>
             <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         <a href="/#bestsellers">
-            Best Sellers
+            <span><i class="fa-solid fa-star drawer-icon"></i> Best Sellers</span>
             <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         <a href="/wishlist">
-            Wishlist
+            <span><i class="fa-regular fa-heart drawer-icon"></i> Wishlist</span>
             <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         <a href="/cart">
-            Cart
+            <span><i class="fa-solid fa-shopping-bag drawer-icon"></i> Cart</span>
             <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         {% if current_user.is_authenticated %}
 
             <a href="/profile">
-                My Profile
+                <span><i class="fa-regular fa-user drawer-icon"></i> My Profile</span>
                 <i class="fa-solid fa-chevron-right"></i>
             </a>
 
             <a href="/orders">
-                My Orders
+                <span><i class="fa-solid fa-box drawer-icon"></i> My Orders</span>
                 <i class="fa-solid fa-chevron-right"></i>
             </a>
 
             {% if current_user.is_admin %}
                 <a href="/admin">
-                    Admin Panel
+                    <span><i class="fa-solid fa-gauge-high drawer-icon"></i> Admin Panel</span>
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
             {% endif %}
 
             <a href="/logout">
-                Logout
+                <span><i class="fa-solid fa-right-from-bracket drawer-icon"></i> Logout</span>
                 <i class="fa-solid fa-chevron-right"></i>
             </a>
 
@@ -433,22 +391,25 @@
 
     </nav>
 
+    <!-- DRAWER FOOTER -->
     <div class="drawer-footer">
         {% if current_user.is_authenticated %}
-            <a href="/logout" class="drawer-login-btn">Logout</a>
+            <a href="/logout" class="drawer-login-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
         {% else %}
-            <a href="/login" class="drawer-login-btn">Log In or Sign Up</a>
+            <a href="/login" class="drawer-login-btn">
+                <i class="fa-regular fa-user"></i> Log In or Sign Up
+            </a>
         {% endif %}
     </div>
 
 </aside>
 
 
-
 <!-- ==================================================
                     FLASH MESSAGES
 ================================================== -->
-
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <div class="flash-messages">
@@ -462,33 +423,30 @@
 {% endwith %}
 
 
-
 <!-- ==================================================
                     MAIN CONTENT
 ================================================== -->
-
 <main class="main-content">
     {% block content %}{% endblock %}
 </main>
 
 
-
 <!-- ==================================================
                     FOOTER
 ================================================== -->
-
 <footer class="footer">
 
     <div class="footer-container">
 
         <div class="footer-box">
 
-            <a href="/" class="zenith-logo-official">
+            <a href="/" class="zenith-logo-official" aria-label="Zenith Home">
 
                 <svg class="zenith-mountain-icon"
                      viewBox="0 0 800 240"
                      xmlns="http://www.w3.org/2000/svg"
-                     preserveAspectRatio="xMidYMid meet">
+                     preserveAspectRatio="xMidYMid meet"
+                     aria-hidden="true">
                     <defs>
                         <linearGradient id="goldGradFooter" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#D4AF37"/>
@@ -501,7 +459,6 @@
                             <stop offset="100%" stop-color="#8B6F3F"/>
                         </linearGradient>
                     </defs>
-
                     <path d="M290 155 L355 95 L380 130 L360 130 L330 160 Z"
                           fill="url(#goldGradFooterDark)" opacity="0.85"/>
                     <path d="M510 155 L445 95 L420 130 L440 130 L470 160 Z"
@@ -573,40 +530,41 @@
 </footer>
 
 
-
 <!-- ==================================================
                     MOBILE BOTTOM NAV
+                    🏠  🛍️  🛒  ❤️  👤
 ================================================== -->
+<nav class="mobile-bottom-nav" aria-label="Mobile bottom navigation">
 
-<nav class="mobile-bottom-nav">
-
-    <a href="/" class="bottom-nav-item">
+    <a href="/" class="bottom-nav-item" data-page="home">
         <i class="fa-solid fa-house"></i>
         <span>Home</span>
     </a>
 
-    <a href="/#categories" class="bottom-nav-item">
+    <a href="/#categories" class="bottom-nav-item" data-page="shop">
         <i class="fa-solid fa-layer-group"></i>
-        <span>Category</span>
+        <span>Shop</span>
     </a>
 
-    <a href="/wishlist" class="bottom-nav-item">
+    <a href="/wishlist" class="bottom-nav-item" data-page="wishlist">
         <i class="fa-regular fa-heart"></i>
         <span>Wishlist</span>
+        <span class="bottom-nav-badge" id="bottom-wishlist-count">0</span>
     </a>
 
-    <a href="/cart" class="bottom-nav-item">
+    <a href="/cart" class="bottom-nav-item" data-page="cart">
         <i class="fa-solid fa-bag-shopping"></i>
         <span>Cart</span>
+        <span class="bottom-nav-badge" id="bottom-cart-count">0</span>
     </a>
 
     {% if current_user.is_authenticated %}
-        <a href="/profile" class="bottom-nav-item">
+        <a href="/profile" class="bottom-nav-item" data-page="profile">
             <i class="fa-regular fa-user"></i>
             <span>Account</span>
         </a>
     {% else %}
-        <a href="/login" class="bottom-nav-item">
+        <a href="/login" class="bottom-nav-item" data-page="login">
             <i class="fa-regular fa-user"></i>
             <span>Login</span>
         </a>
@@ -615,15 +573,12 @@
 </nav>
 
 
-
 <!-- ==================================================
                     JAVASCRIPT
 ================================================== -->
-
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 {% block extra_scripts %}{% endblock %}
 
 </body>
-
 </html>
