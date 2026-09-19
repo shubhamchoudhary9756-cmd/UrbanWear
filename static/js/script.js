@@ -1,7 +1,7 @@
 // ==================================================
 // Zenith JavaScript v14.0
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
-// + HERO CAROUSEL
+// + HERO CAROUSEL (COMPLETE)
 // ==================================================
 
 "use strict";
@@ -1531,7 +1531,7 @@ function registerHeaderScroll() {
 
 
 // ==================================================
-// HERO CAROUSEL — NEW ✅
+// HERO CAROUSEL — COMPLETE ✅
 // ==================================================
 
 function registerHeroCarousel() {
@@ -1655,4 +1655,134 @@ function registerHeroCarousel() {
     let touchStartX = 0;
     let touchStartY = 0;
     let touchEndX = 0;
-   
+    let touchEndY = 0;
+    let isSwiping = false;
+
+    carousel.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+        isSwiping = false;
+        stopAutoPlay();
+    }, { passive: true });
+
+    carousel.addEventListener('touchmove', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+
+        const diffX = Math.abs(touchEndX - touchStartX);
+        const diffY = Math.abs(touchEndY - touchStartY);
+
+        // Horizontal swipe detect
+        if (diffX > diffY && diffX > 10) {
+            isSwiping = true;
+        }
+    }, { passive: true });
+
+    carousel.addEventListener('touchend', function(e) {
+        if (!isSwiping) {
+            startAutoPlay();
+            return;
+        }
+
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+
+        if (diff > swipeThreshold) {
+            // Swipe left → next
+            nextSlide();
+        } else if (diff < -swipeThreshold) {
+            // Swipe right → prev
+            prevSlide();
+        }
+
+        startAutoPlay();
+    }, { passive: true });
+
+    // =====================================================
+    // 7. KEYBOARD NAVIGATION
+    // =====================================================
+    document.addEventListener('keydown', function(e) {
+        // Only if carousel is in viewport-ish (basic check)
+        const rect = carousel.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+
+        if (e.key === 'ArrowLeft') {
+            prevSlide();
+            resetAutoPlay();
+        } else if (e.key === 'ArrowRight') {
+            nextSlide();
+            resetAutoPlay();
+        }
+    });
+
+    // =====================================================
+    // 8. PAUSE ON HOVER (Desktop)
+    // =====================================================
+    carousel.addEventListener('mouseenter', stopAutoPlay);
+    carousel.addEventListener('mouseleave', startAutoPlay);
+
+    // =====================================================
+    // 9. PAUSE WHEN TAB HIDDEN
+    // =====================================================
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopAutoPlay();
+        } else {
+            startAutoPlay();
+        }
+    });
+
+    // =====================================================
+    // 10. INIT
+    // =====================================================
+    createDots();
+    startAutoPlay();
+}
+
+
+// ==================================================
+// INITIALIZATION
+// ==================================================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    console.log("🚀 Zenith JS v14.0 loaded");
+
+    // Load data
+    loadCart();
+    loadWishlist();
+
+    // Setup systems
+    registerCartButtons();
+    registerWishlistButtons();
+    registerDrawer();
+    registerSearch();
+    registerHeaderScroll();
+    registerSizeButtons();
+    registerColorButtons();
+    registerBottomNav();
+
+    // ✅ HERO CAROUSEL — IMPORTANT!
+    registerHeroCarousel();
+
+    // Page-specific displays
+    updateCartCount();
+    updateWishlistCount();
+    updateBottomNavBadges();
+
+    // Cart page
+    if (document.getElementById("cart-items")) {
+        displayCart();
+    }
+
+    // Wishlist page
+    if (document.getElementById("wishlist-items")) {
+        displayWishlist();
+    }
+
+    // Clear wishlist button
+    const clearBtn = document.getElementById("clear-wishlist");
+    if (clearBtn) {
+        clearBtn.addEventListener("click", clearWishlist);
+    }
+});
