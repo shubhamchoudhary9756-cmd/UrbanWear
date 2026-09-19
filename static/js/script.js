@@ -1,6 +1,7 @@
 // ==================================================
-// Zenith JavaScript v13.0
+// Zenith JavaScript v14.0
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
+// + HERO CAROUSEL
 // ==================================================
 
 "use strict";
@@ -98,10 +99,6 @@ function showToast(message, type = "success") {
 // CART SYSTEM
 // ==================================================
 
-// --------------------------------------------------
-// LOAD CART
-// --------------------------------------------------
-
 function loadCart() {
 
     try {
@@ -133,10 +130,6 @@ function loadCart() {
     normalizeCart();
 }
 
-
-// --------------------------------------------------
-// NORMALIZE CART
-// --------------------------------------------------
 
 function normalizeCart() {
 
@@ -187,10 +180,6 @@ function normalizeCart() {
 }
 
 
-// --------------------------------------------------
-// SAVE CART
-// --------------------------------------------------
-
 function saveCart() {
 
     try {
@@ -207,10 +196,6 @@ function saveCart() {
 }
 
 
-// --------------------------------------------------
-// FIND PRODUCT IN CART
-// --------------------------------------------------
-
 function findProduct(id, size = null, color = null) {
 
     return cart.find(item => {
@@ -226,10 +211,6 @@ function findProduct(id, size = null, color = null) {
     });
 }
 
-
-// --------------------------------------------------
-// CART COUNT
-// --------------------------------------------------
 
 function updateCartCount() {
 
@@ -252,10 +233,6 @@ function updateCartCount() {
 }
 
 
-// --------------------------------------------------
-// SELECTED SIZE
-// --------------------------------------------------
-
 function getSelectedSize() {
 
     const activeSize = document.querySelector(
@@ -269,10 +246,6 @@ function getSelectedSize() {
     return activeSize.textContent.trim() || activeSize.dataset.size || null;
 }
 
-
-// --------------------------------------------------
-// SELECTED COLOR
-// --------------------------------------------------
 
 function getSelectedColor() {
 
@@ -307,10 +280,6 @@ function getSelectedColor() {
     return null;
 }
 
-
-// --------------------------------------------------
-// ADD TO CART
-// --------------------------------------------------
 
 function addToCart(button) {
 
@@ -390,10 +359,6 @@ function addToCart(button) {
 }
 
 
-// --------------------------------------------------
-// REGISTER CART BUTTONS
-// --------------------------------------------------
-
 function registerCartButtons() {
 
     document.addEventListener("click", function(event) {
@@ -410,10 +375,6 @@ function registerCartButtons() {
     });
 }
 
-
-// --------------------------------------------------
-// DISPLAY CART
-// --------------------------------------------------
 
 function displayCart() {
 
@@ -591,10 +552,6 @@ function displayCart() {
 }
 
 
-// --------------------------------------------------
-// UPDATE CART SUMMARY (Nobero Style)
-// --------------------------------------------------
-
 function updateCartSummaryNB(subtotal, qty) {
 
     const subtotalEl = document.getElementById("subtotal-nb");
@@ -612,10 +569,6 @@ function updateCartSummaryNB(subtotal, qty) {
     }
 }
 
-
-// --------------------------------------------------
-// CART ACTIONS
-// --------------------------------------------------
 
 function registerCartActions() {
 
@@ -663,10 +616,6 @@ function registerCartActions() {
 }
 
 
-// --------------------------------------------------
-// CHANGE QUANTITY BY INDEX
-// --------------------------------------------------
-
 function changeQuantityByIndex(index, change) {
 
     if (index < 0 || index >= cart.length) {
@@ -693,10 +642,6 @@ function changeQuantityByIndex(index, change) {
     displayCart();
 }
 
-
-// --------------------------------------------------
-// REMOVE CART ITEM BY INDEX
-// --------------------------------------------------
 
 function removeItemByIndex(index) {
 
@@ -1586,48 +1531,128 @@ function registerHeaderScroll() {
 
 
 // ==================================================
-// INITIALIZE
+// HERO CAROUSEL — NEW ✅
 // ==================================================
 
-document.addEventListener("DOMContentLoaded", function() {
+function registerHeroCarousel() {
 
-    // Load storage
-    loadCart();
-    loadWishlist();
+    const carousel = document.getElementById('heroCarousel');
+    const slides = document.querySelectorAll('.hero-slide');
+    const prevBtn = document.getElementById('heroPrev');
+    const nextBtn = document.getElementById('heroNext');
+    const dotsContainer = document.getElementById('heroDots');
 
-    // Register buttons
-    registerCartButtons();
-    registerWishlistButtons();
-    registerSizeButtons();
-    registerColorButtons();
+    // If no carousel, exit
+    if (!carousel || slides.length === 0) return;
 
-    // Mobile drawer + bottom nav
-    registerDrawer();
-    registerBottomNav();
+    let currentIndex = 0;
+    let autoPlayTimer = null;
+    const AUTO_PLAY_INTERVAL = 5000; // 5 seconds
 
-    // Search overlay
-    registerSearch();
+    // =====================================================
+    // 1. CREATE DOTS
+    // =====================================================
+    function createDots() {
+        if (!dotsContainer) return;
 
-    // Header scroll shadow
-    registerHeaderScroll();
+        dotsContainer.innerHTML = '';
 
-    // Update counters
-    updateCartCount();
-    updateWishlistCount();
+        slides.forEach((slide, index) => {
+            const dot = document.createElement('button');
+            dot.className = 'hero-dot' + (index === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+            dot.setAttribute('data-index', index);
 
-    // Update wishlist hearts
-    updateWishlistButtons();
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                resetAutoPlay();
+            });
 
-    // Display cart if cart page
-    displayCart();
-
-    // Display wishlist if wishlist page
-    displayWishlist();
-
-    // Clear wishlist button
-    const clearButton = document.getElementById("clear-wishlist");
-
-    if (clearButton) {
-        clearButton.addEventListener("click", clearWishlist);
+            dotsContainer.appendChild(dot);
+        });
     }
-});
+
+    // =====================================================
+    // 2. GO TO SLIDE
+    // =====================================================
+    function goToSlide(index) {
+        // Wrap around
+        if (index < 0) index = slides.length - 1;
+        if (index >= slides.length) index = 0;
+
+        // Remove active from all
+        slides.forEach(slide => slide.classList.remove('active'));
+
+        // Remove active from all dots
+        if (dotsContainer) {
+            dotsContainer.querySelectorAll('.hero-dot').forEach(dot => {
+                dot.classList.remove('active');
+            });
+        }
+
+        // Add active to current
+        slides[index].classList.add('active');
+
+        if (dotsContainer) {
+            const activeDot = dotsContainer.querySelector(`.hero-dot[data-index="${index}"]`);
+            if (activeDot) activeDot.classList.add('active');
+        }
+
+        currentIndex = index;
+    }
+
+    // =====================================================
+    // 3. NEXT / PREV
+    // =====================================================
+    function nextSlide() {
+        goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+        goToSlide(currentIndex - 1);
+    }
+
+    // =====================================================
+    // 4. AUTO PLAY
+    // =====================================================
+    function startAutoPlay() {
+        stopAutoPlay();
+        autoPlayTimer = setInterval(nextSlide, AUTO_PLAY_INTERVAL);
+    }
+
+    function stopAutoPlay() {
+        if (autoPlayTimer) {
+            clearInterval(autoPlayTimer);
+            autoPlayTimer = null;
+        }
+    }
+
+    function resetAutoPlay() {
+        stopAutoPlay();
+        startAutoPlay();
+    }
+
+    // =====================================================
+    // 5. EVENT LISTENERS — Arrows
+    // =====================================================
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+            resetAutoPlay();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+            resetAutoPlay();
+        });
+    }
+
+    // =====================================================
+    // 6. TOUCH SWIPE SUPPORT
+    // =====================================================
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+   

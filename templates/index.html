@@ -5,44 +5,135 @@
 {% block content %}
 
 <!-- ==================================================
-                    HERO — NOBERO STYLE
+                    HERO BANNER CAROUSEL — NOBERO STYLE
 ================================================== -->
 
-<section class="hero-nb">
+<section class="hero-carousel" id="heroCarousel">
 
-    <div class="hero-nb-bg">
-        <img src="{{ url_for('static', filename='images/Hero.jpg') }}" alt="Zenith Collection">
-    </div>
+    <!-- Slides Container -->
+    <div class="hero-carousel-track" id="heroTrack">
 
-    <div class="hero-nb-overlay"></div>
+        <!-- Slide 1 -->
+        <div class="hero-slide active">
+            <div class="hero-slide-bg">
+                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920"
+                     alt="Fall Collection"
+                     loading="eager">
+            </div>
+            <div class="hero-slide-overlay"></div>
+            <div class="hero-slide-content">
+                <span class="hero-slide-tag">
+                    <i class="fa-solid fa-star"></i>
+                    Spring / Summer 2026
+                </span>
+                <h1 class="hero-slide-title">
+                    Wear the Peak.<br>
+                    Own the Moment.
+                </h1>
+                <p class="hero-slide-sub">
+                    Discover effortless pieces crafted for a life well-lived.
+                    Premium quality, sustainable fabrics, timeless style.
+                </p>
+                <div class="hero-nb-buttons">
+                    <a href="#products" class="btn-nb-primary">Shop Women</a>
+                    <a href="#products" class="btn-nb-outline">Shop Men</a>
+                </div>
+            </div>
+        </div>
 
-    <div class="hero-nb-content">
+        <!-- Slide 2 -->
+        <div class="hero-slide">
+            <div class="hero-slide-bg">
+                <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1920"
+                     alt="Winter Edit"
+                     loading="lazy">
+            </div>
+            <div class="hero-slide-overlay"></div>
+            <div class="hero-slide-content">
+                <span class="hero-slide-tag">
+                    <i class="fa-solid fa-snowflake"></i>
+                    Winter Special
+                </span>
+                <h1 class="hero-slide-title">
+                    Winter<br>
+                    Edit 2026
+                </h1>
+                <p class="hero-slide-sub">
+                    Stay warm. Stay elegant. Explore our winter essentials
+                    crafted for the modern wardrobe.
+                </p>
+                <div class="hero-nb-buttons">
+                    <a href="#products" class="btn-nb-primary">Explore Now</a>
+                </div>
+            </div>
+        </div>
 
-        <span class="hero-nb-tag">
-            <i class="fa-solid fa-star"></i> Spring / Summer 2026
-        </span>
+        <!-- Slide 3 -->
+        <div class="hero-slide">
+            <div class="hero-slide-bg">
+                <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1920"
+                     alt="Best Sellers"
+                     loading="lazy">
+            </div>
+            <div class="hero-slide-overlay"></div>
+            <div class="hero-slide-content">
+                <span class="hero-slide-tag">
+                    <i class="fa-solid fa-fire"></i>
+                    Trending Now
+                </span>
+                <h1 class="hero-slide-title">
+                    Best<br>
+                    Sellers
+                </h1>
+                <p class="hero-slide-sub">
+                    Our most-loved pieces, chosen by thousands of customers
+                    across India.
+                </p>
+                <div class="hero-nb-buttons">
+                    <a href="#bestsellers" class="btn-nb-primary">Shop Best</a>
+                </div>
+            </div>
+        </div>
 
-        <h1 class="hero-nb-title">
-            Wear the Peak.<br>
-            Own the Moment.
-        </h1>
-
-        <p class="hero-nb-sub">
-            Discover effortless pieces crafted for a life well-lived.
-            Premium quality, sustainable fabrics, timeless style.
-        </p>
-
-        <div class="hero-nb-buttons">
-            <a href="#products" class="btn-nb-primary">Shop Women</a>
-            <a href="#products" class="btn-nb-outline">Shop Men</a>
+        <!-- Slide 4 -->
+        <div class="hero-slide">
+            <div class="hero-slide-bg">
+                <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920"
+                     alt="Limited Edition"
+                     loading="lazy">
+            </div>
+            <div class="hero-slide-overlay"></div>
+            <div class="hero-slide-content">
+                <span class="hero-slide-tag">
+                    <i class="fa-solid fa-gem"></i>
+                    Exclusive Drop
+                </span>
+                <h1 class="hero-slide-title">
+                    Limited<br>
+                    Edition
+                </h1>
+                <p class="hero-slide-sub">
+                    Once they're gone, they're gone. Handcrafted, numbered,
+                    and never restocked.
+                </p>
+                <div class="hero-nb-buttons">
+                    <a href="#products" class="btn-nb-primary">Shop Now</a>
+                </div>
+            </div>
         </div>
 
     </div>
 
-    <div class="hero-nb-scroll">
-        <span>Scroll</span>
-        <i class="fa-solid fa-arrow-down"></i>
-    </div>
+    <!-- Navigation Arrows (Desktop) -->
+    <button class="hero-carousel-arrow prev" id="heroPrev" aria-label="Previous slide">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="hero-carousel-arrow next" id="heroNext" aria-label="Next slide">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <!-- Dots Indicator -->
+    <div class="hero-carousel-dots" id="heroDots"></div>
 
 </section>
 
