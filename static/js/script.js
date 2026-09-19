@@ -1,7 +1,7 @@
 // ==================================================
-// Zenith JavaScript v14.0
+// Zenith JavaScript v14.1
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
-// + HERO CAROUSEL (COMPLETE)
+// + HERO CAROUSEL (SWIPE FIXED ✅)
 // ==================================================
 
 "use strict";
@@ -1531,7 +1531,7 @@ function registerHeaderScroll() {
 
 
 // ==================================================
-// HERO CAROUSEL — COMPLETE ✅
+// HERO CAROUSEL — COMPLETE + SWIPE FIXED ✅
 // ==================================================
 
 function registerHeroCarousel() {
@@ -1650,7 +1650,7 @@ function registerHeroCarousel() {
     }
 
     // =====================================================
-    // 6. TOUCH SWIPE SUPPORT
+    // 6. TOUCH SWIPE SUPPORT — FIXED ✅
     // =====================================================
     let touchStartX = 0;
     let touchStartY = 0;
@@ -1661,6 +1661,8 @@ function registerHeroCarousel() {
     carousel.addEventListener('touchstart', function(e) {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
+        touchEndX = touchStartX;
+        touchEndY = touchStartY;
         isSwiping = false;
         stopAutoPlay();
     }, { passive: true });
@@ -1672,11 +1674,15 @@ function registerHeroCarousel() {
         const diffX = Math.abs(touchEndX - touchStartX);
         const diffY = Math.abs(touchEndY - touchStartY);
 
-        // Horizontal swipe detect
+        // Horizontal swipe detect (10px threshold)
         if (diffX > diffY && diffX > 10) {
             isSwiping = true;
+            // Prevent vertical scroll during horizontal swipe
+            if (e.cancelable) {
+                e.preventDefault();
+            }
         }
-    }, { passive: true });
+    }, { passive: false });
 
     carousel.addEventListener('touchend', function(e) {
         if (!isSwiping) {
@@ -1684,17 +1690,18 @@ function registerHeroCarousel() {
             return;
         }
 
-        const swipeThreshold = 50;
+        const swipeThreshold = 30;  // Lowered from 50 for better mobile response
         const diff = touchStartX - touchEndX;
 
         if (diff > swipeThreshold) {
-            // Swipe left → next
+            // Swipe left → next slide
             nextSlide();
         } else if (diff < -swipeThreshold) {
-            // Swipe right → prev
+            // Swipe right → prev slide
             prevSlide();
         }
 
+        isSwiping = false;
         startAutoPlay();
     }, { passive: true });
 
@@ -1746,7 +1753,7 @@ function registerHeroCarousel() {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v14.0 loaded");
+    console.log("🚀 Zenith JS v14.1 loaded — Swipe Fixed");
 
     // Load data
     loadCart();
