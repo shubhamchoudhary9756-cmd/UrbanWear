@@ -14205,3 +14205,673 @@ section {
         padding: 6px 14px;
     }
 }
+/* =====================================================
+   GLOBAL OFFER TIMER — NOBERO STYLE
+===================================================== */
+
+.offer-timer-nb {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    padding: 50px 8%;
+    position: relative;
+    overflow: hidden;
+}
+
+.offer-timer-nb::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(201, 169, 97, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.offer-timer-nb::after {
+    content: "";
+    position: absolute;
+    bottom: -50%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(201, 169, 97, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.offer-timer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== LEFT — Text ===== */
+.offer-timer-left {
+    text-align: left;
+}
+
+.offer-timer-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-bottom: 15px;
+    padding: 6px 14px;
+    background: rgba(201, 169, 97, 0.12);
+    border: 1px solid rgba(201, 169, 97, 0.3);
+}
+
+.offer-timer-tag i {
+    font-size: 11px;
+    animation: boltPulse 1.5s ease infinite;
+}
+
+@keyframes boltPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.offer-timer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 500;
+    color: #faf8f5;
+    margin-bottom: 10px;
+    line-height: 1.15;
+}
+
+.offer-timer-desc {
+    font-size: 14px;
+    color: rgba(250, 248, 245, 0.7);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    max-width: 350px;
+}
+
+/* ===== CENTER — Clock ===== */
+.offer-timer-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.offer-timer-clock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.timer-box-nb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    height: 90px;
+    background: rgba(201, 169, 97, 0.08);
+    border: 1.5px solid rgba(201, 169, 97, 0.3);
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.timer-box-nb:hover {
+    background: rgba(201, 169, 97, 0.15);
+    border-color: #c9a961;
+    transform: translateY(-3px);
+}
+
+.timer-box-nb span {
+    font-family: 'Inter', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #c9a961;
+    line-height: 1;
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.timer-box-nb small {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(250, 248, 245, 0.5);
+    margin-top: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.timer-sep {
+    font-size: 30px;
+    font-weight: 700;
+    color: #c9a961;
+    opacity: 0.6;
+    animation: blink 1s ease infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.2; }
+}
+
+/* ===== RIGHT — Button ===== */
+.offer-timer-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.offer-timer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 18px 40px;
+    background: #c9a961;
+    color: #1a1a1a;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #c9a961;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.offer-timer-btn:hover {
+    background: transparent;
+    color: #c9a961;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(201, 169, 97, 0.3);
+    gap: 18px;
+}
+
+.offer-timer-btn i {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.offer-timer-btn:hover i {
+    transform: translateX(4px);
+}
+
+
+/* =====================================================
+   OFFER TIMER — RESPONSIVE (992px)
+===================================================== */
+
+@media (max-width: 992px) {
+    .offer-timer-inner {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+    }
+
+    .offer-timer-left {
+        text-align: center;
+    }
+
+    .offer-timer-desc {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .offer-timer-right {
+        justify-content: center;
+    }
+
+    .offer-timer-title {
+        font-size: 34px;
+    }
+}
+
+
+/* =====================================================
+   OFFER TIMER — MOBILE (768px)
+===================================================== */
+
+@media (max-width: 768px) {
+    .offer-timer-nb {
+        padding: 40px 5%;
+    }
+
+    .offer-timer-inner {
+        gap: 22px;
+    }
+
+    .offer-timer-tag {
+        font-size: 9px;
+        letter-spacing: 2px;
+        padding: 5px 12px;
+    }
+
+    .offer-timer-title {
+        font-size: 26px;
+        margin-bottom: 8px;
+    }
+
+    .offer-timer-desc {
+        font-size: 13px;
+    }
+
+    .offer-timer-clock {
+        gap: 6px;
+    }
+
+    .timer-box-nb {
+        min-width: 70px;
+        height: 70px;
+        padding: 8px 10px;
+    }
+
+    .timer-box-nb span {
+        font-size: 26px;
+    }
+
+    .timer-box-nb small {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+    }
+
+    .timer-sep {
+        font-size: 22px;
+    }
+
+    .offer-timer-btn {
+        width: 100%;
+        padding: 14px 28px;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+    }
+}
+
+
+/* =====================================================
+   OFFER TIMER — SMALL MOBILE (480px)
+===================================================== */
+
+@media (max-width: 480px) {
+    .offer-timer-title {
+        font-size: 22px;
+    }
+
+    .timer-box-nb {
+        min-width: 60px;
+        height: 60px;
+    }
+
+    .timer-box-nb span {
+        font-size: 22px;
+    }
+
+    .timer-box-nb small {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+
+    .timer-sep {
+        font-size: 18px;
+    }
+}
+/* =====================================================
+   SEASON COLLECTION — NOBERO STYLE
+===================================================== */
+
+.season-collection-nb {
+    padding: 100px 8%;
+    background: #faf8f5;
+}
+
+.season-collection-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    min-height: 600px;
+}
+
+/* ===== LEFT — Large Image ===== */
+.season-large-nb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: #f5f1ea;
+    text-decoration: none;
+}
+
+.season-large-nb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.season-large-nb:hover img {
+    transform: scale(1.06);
+}
+
+.season-large-overlay-nb {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.75) 100%
+    );
+    transition: background 0.4s ease;
+}
+
+.season-large-nb:hover .season-large-overlay-nb {
+    background: linear-gradient(
+        180deg,
+        rgba(201, 169, 97, 0.1) 0%,
+        rgba(201, 169, 97, 0.3) 50%,
+        rgba(26, 26, 26, 0.85) 100%
+    );
+}
+
+.season-large-content-nb {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 50px;
+    z-index: 2;
+    color: #faf8f5;
+}
+
+.season-tag-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-bottom: 18px;
+    padding: 7px 16px;
+    background: rgba(201, 169, 97, 0.15);
+    border: 1px solid rgba(201, 169, 97, 0.4);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-family: 'Inter', sans-serif;
+}
+
+.season-tag-nb i {
+    font-size: 11px;
+}
+
+.season-title-nb {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 500;
+    line-height: 1.05;
+    color: #faf8f5;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+}
+
+.season-desc-nb {
+    font-size: 16px;
+    color: rgba(250, 248, 245, 0.85);
+    margin-bottom: 25px;
+    font-family: 'Inter', sans-serif;
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+.season-btn-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c9a961;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #c9a961;
+    padding-bottom: 4px;
+}
+
+.season-large-nb:hover .season-btn-nb {
+    gap: 16px;
+    color: #faf8f5;
+    border-bottom-color: #faf8f5;
+}
+
+.season-btn-nb i {
+    font-size: 11px;
+}
+
+/* ===== RIGHT — Two Small Images ===== */
+.season-small-grid-nb {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+}
+
+.season-small-nb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: #f5f1ea;
+    text-decoration: none;
+    min-height: 280px;
+}
+
+.season-small-nb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.season-small-nb:hover img {
+    transform: scale(1.08);
+}
+
+.season-small-overlay-nb {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+    transition: background 0.4s ease;
+}
+
+.season-small-nb:hover .season-small-overlay-nb {
+    background: linear-gradient(
+        180deg,
+        rgba(201, 169, 97, 0.1) 0%,
+        rgba(26, 26, 26, 0.85) 100%
+    );
+}
+
+.season-small-content-nb {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px 35px;
+    z-index: 2;
+    color: #faf8f5;
+}
+
+.season-small-content-nb h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #faf8f5;
+    margin-bottom: 10px;
+}
+
+.season-small-content-nb span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c9a961;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.season-small-nb:hover .season-small-content-nb span {
+    gap: 14px;
+    color: #faf8f5;
+}
+
+
+/* =====================================================
+   SEASON COLLECTION — RESPONSIVE (992px)
+===================================================== */
+
+@media (max-width: 992px) {
+    .season-collection-nb {
+        padding: 80px 6%;
+    }
+
+    .season-collection-inner {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        min-height: auto;
+    }
+
+    .season-large-nb {
+        min-height: 400px;
+    }
+
+    .season-title-nb {
+        font-size: 42px;
+    }
+
+    .season-small-grid-nb {
+        grid-template-rows: auto;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .season-small-nb {
+        min-height: 240px;
+    }
+}
+
+
+/* =====================================================
+   SEASON COLLECTION — MOBILE (768px)
+===================================================== */
+
+@media (max-width: 768px) {
+    .season-collection-nb {
+        padding: 50px 5%;
+    }
+
+    .season-collection-inner {
+        gap: 12px;
+    }
+
+    .season-large-nb {
+        min-height: 350px;
+    }
+
+    .season-large-content-nb {
+        padding: 30px 25px;
+    }
+
+    .season-tag-nb {
+        font-size: 9px;
+        padding: 5px 12px;
+        letter-spacing: 2px;
+        margin-bottom: 14px;
+    }
+
+    .season-title-nb {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .season-desc-nb {
+        font-size: 14px;
+        margin-bottom: 18px;
+    }
+
+    .season-btn-nb {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+    }
+
+    .season-small-grid-nb {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .season-small-nb {
+        min-height: 180px;
+    }
+
+    .season-small-content-nb {
+        padding: 20px 18px;
+    }
+
+    .season-small-content-nb h3 {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .season-small-content-nb span {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+}
+
+
+/* =====================================================
+   SEASON COLLECTION — SMALL MOBILE (480px)
+===================================================== */
+
+@media (max-width: 480px) {
+    .season-large-nb {
+        min-height: 300px;
+    }
+
+    .season-title-nb {
+        font-size: 26px;
+    }
+
+    .season-desc-nb {
+        font-size: 13px;
+    }
+
+    .season-small-nb {
+        min-height: 150px;
+    }
+
+    .season-small-content-nb {
+        padding: 15px;
+    }
+
+    .season-small-content-nb h3 {
+        font-size: 16px;
+    }
+
+    .season-small-content-nb span {
+        font-size: 9px;
+    }
+}

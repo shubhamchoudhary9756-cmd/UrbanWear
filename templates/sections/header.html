@@ -1,0 +1,233 @@
+<!-- ==================================================
+                    MAIN HEADER
+                    [☰]   [ZENITH]   [🔍] [🛍️]
+================================================== -->
+<header class="main-header">
+
+    <!-- Hamburger (Mobile only) -->
+    <button class="hamburger-menu" id="hamburger-btn" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- ZENITH HEADER LOGO -->
+    <a href="/" class="zenith-logo-header" aria-label="Zenith Home">
+
+        <!-- Mountain SVG -->
+        <svg class="zenith-header-mountain"
+             viewBox="0 0 800 240"
+             xmlns="http://www.w3.org/2000/svg"
+             preserveAspectRatio="xMidYMid meet"
+             aria-hidden="true">
+            <defs>
+                <linearGradient id="goldGradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#D4AF37"/>
+                    <stop offset="50%" stop-color="#F4E5A1"/>
+                    <stop offset="100%" stop-color="#B8945A"/>
+                </linearGradient>
+                <linearGradient id="goldGradHeaderDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#B8945A"/>
+                    <stop offset="50%" stop-color="#D4AF37"/>
+                    <stop offset="100%" stop-color="#8B6F3F"/>
+                </linearGradient>
+            </defs>
+            <path d="M290 155 L355 95 L380 130 L360 130 L330 160 Z"
+                  fill="url(#goldGradHeaderDark)" opacity="0.85"/>
+            <path d="M510 155 L445 95 L420 130 L440 130 L470 160 Z"
+                  fill="url(#goldGradHeaderDark)" opacity="0.85"/>
+            <path d="M400 55 L440 130 L400 110 Z"
+                  fill="url(#goldGradHeaderDark)"/>
+            <path d="M400 55 L440 130 L455 155 L400 110 L400 55 Z"
+                  fill="url(#goldGradHeader)"/>
+            <path d="M400 55 L400 110 L380 135 L370 155 L400 110 Z"
+                  fill="url(#goldGradHeader)" opacity="0.9"/>
+            <path d="M370 155 L400 110 L430 155 L400 155 Z"
+                  fill="url(#goldGradHeaderDark)" opacity="0.7"/>
+        </svg>
+
+        <span class="zenith-header-text">ZENITH</span>
+        <span class="zenith-header-tagline">WEAR YOUR HIGHER SELF</span>
+    </a>
+
+    <!-- MAIN NAVIGATION WITH MEGA MENU -->
+    <nav class="main-nav" aria-label="Main navigation">
+        <ul>
+
+            <!-- NEW IN -->
+            <li class="has-mega">
+                <a href="/#categories">New In <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Just Dropped</h4>
+                            <a href="/#products">New Arrivals</a>
+                            <a href="/#products">Trending Now</a>
+                            <a href="/#bestsellers">Best Sellers</a>
+                            <a href="/#products">Editor's Picks</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Shop By</h4>
+                            <a href="/#products">Under ₹999</a>
+                            <a href="/#products">Premium Edit</a>
+                            <a href="/#products">Limited Drop</a>
+                            <a href="/#products">Sale</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="New In">
+                            <span>Fresh Drops</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- WOMEN -->
+            <li class="has-mega">
+                <a href="/#products">Women <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Clothing</h4>
+                            <a href="/#products">Tops & Tees</a>
+                            <a href="/#products">Dresses</a>
+                            <a href="/#products">Jeans</a>
+                            <a href="/#products">Jackets</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Accessories</h4>
+                            <a href="/#products">Bags</a>
+                            <a href="/#products">Jewellery</a>
+                            <a href="/#products">Footwear</a>
+                            <a href="/#products">Watches</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/women.jpg') }}" alt="Women">
+                            <span>Women's Edit</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- MEN -->
+            <li class="has-mega">
+                <a href="/#products">Men <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Clothing</h4>
+                            <a href="/#products">Shirts</a>
+                            <a href="/#products">T-Shirts</a>
+                            <a href="/#products">Jeans</a>
+                            <a href="/#products">Jackets</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Accessories</h4>
+                            <a href="/#products">Watches</a>
+                            <a href="/#products">Wallets</a>
+                            <a href="/#products">Shoes</a>
+                            <a href="/#products">Caps</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/men.jpg') }}" alt="Men">
+                            <span>Men's Edit</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- ACCESSORIES -->
+            <li class="has-mega">
+                <a href="/#categories">Accessories <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Bags & Wallets</h4>
+                            <a href="/#products">Backpacks</a>
+                            <a href="/#products">Sling Bags</a>
+                            <a href="/#products">Wallets</a>
+                            <a href="/#products">Travel Bags</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Others</h4>
+                            <a href="/#products">Caps</a>
+                            <a href="/#products">Belts</a>
+                            <a href="/#products">Sunglasses</a>
+                            <a href="/#products">Socks</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="Accessories">
+                            <span>Accessories</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- COLLECTIONS -->
+            <li class="has-mega">
+                <a href="/#bestsellers">Collections <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <div class="mega-menu">
+                    <div class="mega-inner">
+                        <div class="mega-col">
+                            <h4>Shop By Season</h4>
+                            <a href="/#products">Spring / Summer</a>
+                            <a href="/#products">Autumn / Winter</a>
+                            <a href="/#products">Monsoon Edit</a>
+                            <a href="/#products">Holiday Edit</a>
+                        </div>
+                        <div class="mega-col">
+                            <h4>Curated</h4>
+                            <a href="/#products">Best Sellers</a>
+                            <a href="/#products">Sale</a>
+                            <a href="/#products">New In</a>
+                            <a href="/#products">Limited Edition</a>
+                        </div>
+                        <div class="mega-image">
+                            <img src="{{ url_for('static', filename='images/banners/sale-banner.jpg') }}" alt="Collections">
+                            <span>Collections</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                    <li><a href="/admin">Admin</a></li>
+                {% endif %}
+                <li><a href="/orders">Orders</a></li>
+            {% endif %}
+
+        </ul>
+    </nav>
+
+    <!-- HEADER ICONS -->
+    <div class="header-icons">
+
+        <!-- Search -->
+        <button class="icon-btn" id="search-btn" title="Search" aria-label="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+
+        {% if current_user.is_authenticated %}
+            <a href="/profile" class="icon-btn" title="Profile" aria-label="Profile">
+                <i class="fa-regular fa-user"></i>
+            </a>
+            <a href="/logout" class="icon-btn" title="Logout" aria-label="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        {% else %}
+            <a href="/login" class="icon-btn" title="Login" aria-label="Login">
+                <i class="fa-regular fa-user"></i>
+            </a>
+        {% endif %}
+
+        <a href="/wishlist" class="icon-btn wishlist-header-icon" title="Wishlist" aria-label="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span id="wishlist-count">0</span>
+        </a>
+
+        <a href="/cart" class="icon-btn cart-icon" title="Cart" aria-label="Cart">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </a>
+
+    </div>
+
+</header>

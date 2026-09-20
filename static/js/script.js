@@ -1,7 +1,8 @@
 // ==================================================
-// Zenith JavaScript v14.1
+// Zenith JavaScript v14.2
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
+// + GLOBAL OFFER TIMER ✅
 // ==================================================
 
 "use strict";
@@ -1674,10 +1675,8 @@ function registerHeroCarousel() {
         const diffX = Math.abs(touchEndX - touchStartX);
         const diffY = Math.abs(touchEndY - touchStartY);
 
-        // Horizontal swipe detect (10px threshold)
         if (diffX > diffY && diffX > 10) {
             isSwiping = true;
-            // Prevent vertical scroll during horizontal swipe
             if (e.cancelable) {
                 e.preventDefault();
             }
@@ -1690,14 +1689,12 @@ function registerHeroCarousel() {
             return;
         }
 
-        const swipeThreshold = 30;  // Lowered from 50 for better mobile response
+        const swipeThreshold = 30;
         const diff = touchStartX - touchEndX;
 
         if (diff > swipeThreshold) {
-            // Swipe left → next slide
             nextSlide();
         } else if (diff < -swipeThreshold) {
-            // Swipe right → prev slide
             prevSlide();
         }
 
@@ -1709,7 +1706,6 @@ function registerHeroCarousel() {
     // 7. KEYBOARD NAVIGATION
     // =====================================================
     document.addEventListener('keydown', function(e) {
-        // Only if carousel is in viewport-ish (basic check)
         const rect = carousel.getBoundingClientRect();
         if (rect.bottom < 0 || rect.top > window.innerHeight) return;
 
@@ -1748,12 +1744,65 @@ function registerHeroCarousel() {
 
 
 // ==================================================
+// GLOBAL OFFER TIMER ✅
+// ==================================================
+
+function registerOfferTimer() {
+
+    const hoursEl = document.getElementById('timer-hours');
+    const minsEl = document.getElementById('timer-mins');
+    const secsEl = document.getElementById('timer-secs');
+
+    // Agar timer elements nahi hain, exit
+    if (!hoursEl || !minsEl || !secsEl) return;
+
+    // Sale end time — localStorage se lo ya naya set karo
+    let saleEndTime = localStorage.getItem('zenith_sale_end');
+
+    if (!saleEndTime) {
+        // 6 hours from now
+        saleEndTime = new Date().getTime() + (6 * 60 * 60 * 1000);
+        localStorage.setItem('zenith_sale_end', saleEndTime);
+    } else {
+        saleEndTime = Number(saleEndTime);
+    }
+
+    function updateTimer() {
+
+        const now = new Date().getTime();
+        const diff = saleEndTime - now;
+
+        // Timer khatam ho gaya
+        if (diff <= 0) {
+            hoursEl.textContent = '00';
+            minsEl.textContent = '00';
+            secsEl.textContent = '00';
+
+            localStorage.removeItem('zenith_sale_end');
+            return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minsEl.textContent = String(mins).padStart(2, '0');
+        secsEl.textContent = String(secs).padStart(2, '0');
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+
+// ==================================================
 // INITIALIZATION
 // ==================================================
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v14.1 loaded — Swipe Fixed");
+    console.log("🚀 Zenith JS v14.2 loaded — Offer Timer Added");
 
     // Load data
     loadCart();
@@ -1769,8 +1818,11 @@ document.addEventListener("DOMContentLoaded", function() {
     registerColorButtons();
     registerBottomNav();
 
-    // ✅ HERO CAROUSEL — IMPORTANT!
+    // ✅ HERO CAROUSEL
     registerHeroCarousel();
+
+    // ✅ GLOBAL OFFER TIMER — NEW
+    registerOfferTimer();
 
     // Page-specific displays
     updateCartCount();

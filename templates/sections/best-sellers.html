@@ -1,0 +1,74 @@
+<!-- ==================================================
+                    BEST SELLERS
+================================================== -->
+
+<section class="products-nb best-sellers-nb" id="bestsellers">
+
+    <div class="section-header-nb">
+        <span class="section-tag-nb">Trending</span>
+        <h2>Best Sellers</h2>
+        <p>Most loved products by our customers</p>
+    </div>
+
+    <div class="product-grid-nb">
+
+        {% for product in best_sellers %}
+
+        <div class="product-card-nb">
+
+            <span class="sale-badge-nb">HOT</span>
+
+            <button type="button"
+                    class="wishlist-btn-nb wishlist-btn"
+                    data-id="{{ product.id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-old-price="{{ product.old_price }}"
+                    data-image="{{ product.image }}"
+                    data-rating="{{ product.rating }}"
+                    data-description="{{ product.description|e }}"
+                    aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+
+            <a href="/product/{{ product.id }}" class="product-img-wrap-nb">
+                <img src="{{ url_for('static', filename=product.image) }}"
+                     alt="{{ product.name }}">
+                <div class="product-quick-actions-nb">
+                    <button type="button"
+                            class="quick-add-cart-nb add-cart"
+                            data-id="{{ product.id }}"
+                            data-name="{{ product.name }}"
+                            data-price="{{ product.price }}"
+                            data-image="{{ product.image }}"
+                            aria-label="Add to cart">
+                        <i class="fa-solid fa-bag-shopping"></i> Quick Add
+                    </button>
+                </div>
+            </a>
+
+            <div class="product-info-nb">
+
+                <div class="product-rating-nb">
+                    <i class="fa-solid fa-star"></i>
+                    {{ product.rating }}
+                </div>
+
+                <h3 class="product-name-nb">
+                    <a href="/product/{{ product.id }}">{{ product.name }}</a>
+                </h3>
+
+                <p class="product-price-nb">
+                    ₹{{ product.price }}
+                    <span>₹{{ product.old_price }}</span>
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>

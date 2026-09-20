@@ -1,0 +1,93 @@
+<!-- ==================================================
+                    MOBILE DRAWER
+================================================== -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile menu">
+
+    <!-- DRAWER HEADER -->
+    <div class="drawer-header">
+
+        <span class="drawer-title">MENU</span>
+
+        <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+    </div>
+
+    <!-- DRAWER NAV -->
+    <nav class="drawer-nav" aria-label="Mobile navigation">
+
+        <a href="/">
+            <span><i class="fa-solid fa-house drawer-icon"></i> Home</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/#categories">
+            <span><i class="fa-solid fa-layer-group drawer-icon"></i> Categories</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/#products">
+            <span><i class="fa-solid fa-bag-shopping drawer-icon"></i> Shop</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/#bestsellers">
+            <span><i class="fa-solid fa-star drawer-icon"></i> Best Sellers</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/wishlist">
+            <span><i class="fa-regular fa-heart drawer-icon"></i> Wishlist</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="/cart">
+            <span><i class="fa-solid fa-shopping-bag drawer-icon"></i> Cart</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            <a href="/profile">
+                <span><i class="fa-regular fa-user drawer-icon"></i> My Profile</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+            <a href="/orders">
+                <span><i class="fa-solid fa-box drawer-icon"></i> My Orders</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+            {% if current_user.is_admin %}
+                <a href="/admin">
+                    <span><i class="fa-solid fa-gauge-high drawer-icon"></i> Admin Panel</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            {% endif %}
+
+            <a href="/logout">
+                <span><i class="fa-solid fa-right-from-bracket drawer-icon"></i> Logout</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+
+        {% endif %}
+
+    </nav>
+
+    <!-- DRAWER FOOTER -->
+    <div class="drawer-footer">
+        {% if current_user.is_authenticated %}
+            <a href="/logout" class="drawer-login-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        {% else %}
+            <a href="/login" class="drawer-login-btn">
+                <i class="fa-regular fa-user"></i> Log In or Sign Up
+            </a>
+        {% endif %}
+    </div>
+
+</aside>
