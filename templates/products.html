@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | Zenith{% endblock %}
+
+{% block content %}
+
+<section class="products-page-nb">
+
+    <div class="products-breadcrumb-nb">
+        <a href="/">Home</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span>{{ page_title }}</span>
+    </div>
+
+    <div class="products-header-nb">
+        <span class="products-tag-nb">Explore</span>
+        <h1>{{ page_title }}</h1>
+        <p>{{ products|length }} products found</p>
+    </div>
+
+    {% if products %}
+
+    <div class="product-grid-nb">
+
+        {% for product in products %}
+
+        <div class="product-card-nb">
+
+            {% if product.old_price and product.old_price > product.price %}
+                <span class="sale-badge-nb">SALE</span>
+            {% endif %}
+
+            <button type="button"
+                    class="wishlist-btn-nb wishlist-btn"
+                    data-id="{{ product.id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-old-price="{{ product.old_price }}"
+                    data-image="{{ product.image }}"
+                    data-rating="{{ product.rating }}"
+                    data-description="{{ product.description|e }}"
+                    aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+
+            <a href="/product/{{ product.id }}" class="product-img-wrap-nb">
+                <img src="{{ url_for('static', filename=product.image) }}"
+                     alt="{{ product.name }}">
+
+                <div class="product-quick-actions-nb">
+                    <button type="button"
+                            class="quick-add-cart-nb add-cart"
+                            data-id="{{ product.id }}"
+                            data-name="{{ product.name }}"
+                            data-price="{{ product.price }}"
+                            data-image="{{ product.image }}"
+                            aria-label="Add to cart">
+                        <i class="fa-solid fa-bag-shopping"></i> Quick Add
+                    </button>
+                </div>
+            </a>
+
+            <div class="product-info-nb">
+
+                <div class="product-rating-nb">
+                    <i class="fa-solid fa-star"></i>
+                    {{ product.rating }}
+                </div>
+
+                <h3 class="product-name-nb">
+                    <a href="/product/{{ product.id }}">{{ product.name }}</a>
+                </h3>
+
+                <p class="product-price-nb">
+                    ₹{{ product.price }}
+                    {% if product.old_price and product.old_price > product.price %}
+                        <span>₹{{ product.old_price }}</span>
+                    {% endif %}
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="products-empty-nb">
+        <div class="products-empty-icon-nb">
+            <i class="fa-solid fa-box-open"></i>
+        </div>
+        <h2>No Products Found</h2>
+        <p>Try a different category or search term.</p>
+        <a href="/" class="products-empty-btn-nb">
+            <i class="fa-solid fa-house"></i>
+            Back to Home
+        </a>
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -213,6 +213,109 @@ def home():
 
 
 # ==================================================
+# PRODUCTS LISTING PAGE (with Filters)
+# ==================================================
+
+@app.route("/products")
+def products():
+    
+    category = request.args.get("category", "").strip()
+    ptype = request.args.get("type", "").strip()
+    filter_by = request.args.get("filter", "").strip()
+    search_q = request.args.get("q", "").strip()
+    
+    query = Product.query.filter_by(is_active=True)
+    
+    if category:
+        if hasattr(Product, 'category'):
+            query = query.filter(
+                db.or_(
+                    Product.category.ilike(f'%{category}%'),
+                    Product.name.ilike(f'%{category}%'),
+                    Product.description.ilike(f'%{category}%')
+                )
+            )
+    
+    if ptype:
+        query = query.filter(
+            db.or_(
+                Product.name.ilike(f'%{ptype}%'),
+                Product.description.ilike(f'%{ptype}%')
+            )
+        )
+    
+    if search_q:
+        query = query.filter(
+            db.or_(
+                Product.name.ilike(f'%{search_q}%'),
+                Product.description.ilike(f'%{search_q}%'),
+                Product.category.ilike(f'%{search_q}%')
+            )
+        )
+    
+    if filter_by == "new":
+        query = query.order_by(Product.id.desc())
+    elif filter_by == "bestsellers":
+        query = query.order_by(Product.rating.desc())
+    elif filter_by == "sale":
+        query = query.filter(Product.old_price.isnot(None))
+        query = query.filter(Product.old_price > Product.price)
+    elif filter_by == "premium":
+        query = query.filter(Product.price >= 2000)
+    elif filter_by == "under999":
+        query = query.filter(Product.price <= 999)
+    elif filter_by == "spring":
+        query = query.filter(Product.name.ilike('%summer%'))
+    elif filter_by == "autumn":
+        query = query.filter(Product.name.ilike('%winter%'))
+    elif filter_by == "monsoon":
+        query = query.filter(Product.name.ilike('%jacket%'))
+    elif filter_by == "holiday":
+        query = query.filter(Product.name.ilike('%premium%'))
+    else:
+        query = query.order_by(Product.created_at.desc())
+    
+    all_products = query.all()
+    
+    if search_q:
+        page_title = f'Search: "{search_q}"'
+    elif filter_by == "new":
+        page_title = "New Arrivals"
+    elif filter_by == "bestsellers":
+        page_title = "Best Sellers"
+    elif filter_by == "sale":
+        page_title = "Sale"
+    elif filter_by == "premium":
+        page_title = "Premium Edit"
+    elif filter_by == "under999":
+        page_title = "Under ₹999"
+    elif filter_by == "spring":
+        page_title = "Spring / Summer"
+    elif filter_by == "autumn":
+        page_title = "Autumn / Winter"
+    elif filter_by == "monsoon":
+        page_title = "Monsoon Edit"
+    elif filter_by == "holiday":
+        page_title = "Holiday Edit"
+    elif category:
+        page_title = f"{category.title()}'s Collection"
+    elif ptype:
+        page_title = ptype.title()
+    else:
+        page_title = "All Products"
+    
+    return render_template(
+        "products.html",
+        products=[p.to_dict() for p in all_products],
+        page_title=page_title,
+        category=category,
+        ptype=ptype,
+        filter_by=filter_by,
+        search_q=search_q
+    )
+
+
+# ==================================================
 # PRODUCT DETAILS
 # ==================================================
 
@@ -394,7 +497,7 @@ def logout():
 
 
 # ==================================================
-# FORGOT PASSWORD
+# FORGOT PASSWORD (with Debug Logging)
 # ==================================================
 
 @app.route("/forgot-password", methods=["GET", "POST"])
@@ -417,6 +520,17 @@ def forgot_password():
 
             reset_link = url_for("reset_password", token=token, _external=True)
 
+            print("=" * 60)
+            print("📧 EMAIL DEBUG START")
+            print("=" * 60)
+            print(f"📧 Recipient:      {email}")
+            print(f"📧 MAIL_SERVER:    {app.config.get('MAIL_SERVER')}")
+            print(f"📧 MAIL_PORT:      {app.config.get('MAIL_PORT')}")
+            print(f"📧 MAIL_USE_TLS:   {app.config.get('MAIL_USE_TLS')}")
+            print(f"📧 MAIL_USERNAME:  {app.config.get('MAIL_USERNAME')}")
+            print(f"📧 Reset Link:     {reset_link}")
+            print("-" * 60)
+            
             try:
                 msg = Message(
                     subject="Zenith - Password Reset Link",
@@ -459,11 +573,19 @@ def forgot_password():
                     </div>
                     """
                 )
+                
+                print("📧 Sending email...")
                 mail.send(msg)
+                print(f"✅ EMAIL SENT SUCCESSFULLY to {email}")
+                print("=" * 60)
+                
             except Exception as e:
-                print(f"❌ Email Error: {e}")
+                print(f"❌ EMAIL ERROR: {e}")
+                print(f"❌ ERROR TYPE: {type(e).__name__}")
+                import traceback
+                traceback.print_exc()
+                print("=" * 60)
 
-        # ✅ SECURITY: Same message regardless of email existence
         flash("If this email is registered, a reset link has been sent.")
         return redirect(url_for("login"))
 
@@ -471,7 +593,7 @@ def forgot_password():
 
 
 # ==================================================
-# RESET PASSWORD
+# RESET PASSWORD (FIXED — Timezone-aware comparison)
 # ==================================================
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
@@ -487,7 +609,15 @@ def reset_password(token):
         flash("Invalid or expired reset link.")
         return redirect(url_for("forgot_password"))
 
-    if not user.reset_token_expiry or user.reset_token_expiry < utc_now():
+    # ✅ FIX: Handle timezone-naive vs timezone-aware comparison
+    now = utc_now()
+    expiry = user.reset_token_expiry
+
+    # Agar expiry timezone-naive hai, toh aware banao
+    if expiry is not None and expiry.tzinfo is None:
+        expiry = expiry.replace(tzinfo=timezone.utc)
+
+    if not expiry or expiry < now:
         flash("Reset link has expired. Please request a new one.")
         return redirect(url_for("forgot_password"))
 
@@ -526,7 +656,6 @@ def reset_password(token):
 @app.route("/profile")
 @login_required
 def profile():
-    # ✅ Safely count orders (works with both lazy='dynamic' and normal relationships)
     try:
         if hasattr(current_user.orders, 'count'):
             orders_count = current_user.orders.count()
@@ -596,7 +725,6 @@ def checkout():
             flash("Please enter a valid pincode.")
             return redirect(url_for("checkout"))
 
-        # Parse cart data
         try:
             cart_data = request.form.get("cart_data", "[]")
             cart_items = json.loads(cart_data)
@@ -608,7 +736,6 @@ def checkout():
             flash("Your cart is empty.")
             return redirect(url_for("cart"))
 
-        # ✅ SECURITY: Server-side price and stock validation
         validated_items = []
         total_amount = 0.0
 
@@ -630,7 +757,6 @@ def checkout():
                 flash(f"'{product.name}' sirf {product.stock} available hai.")
                 return redirect(url_for("cart"))
 
-            # ✅ Use DB price, not client price
             subtotal = product.price * quantity
             total_amount += subtotal
 
@@ -667,7 +793,6 @@ def checkout():
                     size=vi["size"],
                     color=vi["color"]
                 ))
-                # ✅ Decrement stock
                 p.stock -= vi["quantity"]
 
             db.session.commit()
@@ -737,7 +862,6 @@ def create_payment_order():
         if order.payment_status == "paid":
             return jsonify({"error": "Already paid"}), 400
 
-        # ✅ SECURITY: Use DB amount, not client amount
         amount_paise = int(round(order.total_amount * 100))
 
         if amount_paise <= 0:
@@ -750,7 +874,6 @@ def create_payment_order():
             "payment_capture": 1
         })
 
-        # ✅ Save razorpay_order_id for later verification
         order.razorpay_order_id = razorpay_order["id"]
         db.session.commit()
 
@@ -787,7 +910,6 @@ def verify_payment():
         if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature]):
             return jsonify({"error": "Missing payment data"}), 400
 
-        # ✅ Verify signature FIRST
         params_dict = {
             "razorpay_order_id": razorpay_order_id,
             "razorpay_payment_id": razorpay_payment_id,
@@ -795,7 +917,6 @@ def verify_payment():
         }
         razorpay_client.utility.verify_payment_signature(params_dict)
 
-        # ✅ Fetch order and validate ownership
         order = db.session.get(Order, order_id)
 
         if not order:
@@ -804,11 +925,9 @@ def verify_payment():
         if order.user_id != current_user.id:
             return jsonify({"error": "Unauthorized"}), 403
 
-        # ✅ Validate razorpay_order_id matches
         if order.razorpay_order_id != razorpay_order_id:
             return jsonify({"error": "Order mismatch"}), 400
 
-        # ✅ Idempotency — prevent double payment
         if order.payment_status == "paid":
             return jsonify({"status": "success", "already_paid": True})
 
@@ -838,10 +957,6 @@ def verify_payment():
 @csrf.exempt
 @limiter.limit("20 per minute")
 def payment_failed(order_id):
-    """
-    Called from frontend when Razorpay payment fails or popup is dismissed.
-    Auto-cancels the order and restores stock.
-    """
     try:
         order = db.session.get(Order, order_id)
 
@@ -851,21 +966,17 @@ def payment_failed(order_id):
         if order.user_id != current_user.id:
             return jsonify({"error": "Unauthorized"}), 403
 
-        # ✅ Already paid — nothing to do
         if order.payment_status == "paid":
             return jsonify({"status": "already_paid"}), 200
 
-        # ✅ Already cancelled — idempotent
         if order.status == "cancelled":
             return jsonify({"status": "already_cancelled"}), 200
 
-        # ✅ Restore stock
         for item in order.items:
             product = db.session.get(Product, item.product_id)
             if product:
                 product.stock += item.quantity
 
-        # ✅ Mark order cancelled
         order.status = "cancelled"
         order.payment_status = "failed"
         db.session.commit()
@@ -940,7 +1051,6 @@ def cancel_order(order_id):
         return redirect(url_for("orders"))
 
     try:
-        # ✅ Restore stock
         for item in order.items:
             product = db.session.get(Product, item.product_id)
             if product:
@@ -1151,7 +1261,6 @@ def admin_delete_product(product_id):
     product = Product.query.get_or_404(product_id)
 
     try:
-        # ✅ Soft delete (orders ka reference intact rahe)
         product.is_active = False
         db.session.commit()
         flash(f"Product '{product.name}' deleted successfully!")
@@ -1197,7 +1306,6 @@ def admin_update_order_status(order_id):
         return redirect(url_for("admin_orders_tab"))
 
     try:
-        # ✅ If cancelling, restore stock (once)
         if new_status == "cancelled" and order.status != "cancelled":
             for item in order.items:
                 product = db.session.get(Product, item.product_id)
@@ -1281,7 +1389,6 @@ if __name__ == "__main__":
         db.create_all()
         print("✅ Database tables ready!")
 
-        # ✅ Create admin from ENV (not hardcoded)
         admin_email = app.config["ADMIN_EMAIL"]
         admin_password = app.config["ADMIN_PASSWORD"]
         admin_user = User.query.filter_by(email=admin_email).first()
@@ -1300,7 +1407,6 @@ if __name__ == "__main__":
         else:
             print(f"✅ Admin exists: {admin_email}")
 
-        # Seed products
         if Product.query.count() == 0:
             seed_products = [
                 {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured"},
@@ -1318,6 +1424,5 @@ if __name__ == "__main__":
         else:
             print(f"✅ Products already exists: {Product.query.count()}")
 
-    # ✅ Production me host 0.0.0.0 aur PORT env variable use karein
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=app.config.get("FLASK_ENV") != "production")

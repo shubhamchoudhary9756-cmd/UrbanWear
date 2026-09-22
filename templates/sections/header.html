@@ -54,25 +54,25 @@
 
             <!-- NEW IN -->
             <li class="has-mega">
-                <a href="/#categories">New In <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <a href="/products?filter=new">New In <i class="fa-solid fa-chevron-down nav-caret"></i></a>
                 <div class="mega-menu">
                     <div class="mega-inner">
                         <div class="mega-col">
                             <h4>Just Dropped</h4>
-                            <a href="/#products">New Arrivals</a>
-                            <a href="/#products">Trending Now</a>
-                            <a href="/#bestsellers">Best Sellers</a>
-                            <a href="/#products">Editor's Picks</a>
+                            <a href="/products?filter=new">New Arrivals</a>
+                            <a href="/products?filter=bestsellers">Trending Now</a>
+                            <a href="/products?filter=bestsellers">Best Sellers</a>
+                            <a href="/products?filter=premium">Editor's Picks</a>
                         </div>
                         <div class="mega-col">
                             <h4>Shop By</h4>
-                            <a href="/#products">Under ₹999</a>
-                            <a href="/#products">Premium Edit</a>
-                            <a href="/#products">Limited Drop</a>
-                            <a href="/#products">Sale</a>
+                            <a href="/products?filter=under999">Under ₹999</a>
+                            <a href="/products?filter=premium">Premium Edit</a>
+                            <a href="/products?filter=new">Limited Drop</a>
+                            <a href="/products?filter=sale">Sale</a>
                         </div>
                         <div class="mega-image">
-                            <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="New In">
+                            <img src="{{ url_for('static', filename='images/categories/women.jpg') }}" alt="New In">
                             <span>Fresh Drops</span>
                         </div>
                     </div>
@@ -81,22 +81,22 @@
 
             <!-- WOMEN -->
             <li class="has-mega">
-                <a href="/#products">Women <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <a href="/products?category=women">Women <i class="fa-solid fa-chevron-down nav-caret"></i></a>
                 <div class="mega-menu">
                     <div class="mega-inner">
                         <div class="mega-col">
                             <h4>Clothing</h4>
-                            <a href="/#products">Tops & Tees</a>
-                            <a href="/#products">Dresses</a>
-                            <a href="/#products">Jeans</a>
-                            <a href="/#products">Jackets</a>
+                            <a href="/products?category=women&type=tops">Tops & Tees</a>
+                            <a href="/products?category=women&type=dress">Dresses</a>
+                            <a href="/products?category=women&type=jeans">Jeans</a>
+                            <a href="/products?category=women&type=jacket">Jackets</a>
                         </div>
                         <div class="mega-col">
-                            <h4>Accessories</h4>
-                            <a href="/#products">Bags</a>
-                            <a href="/#products">Jewellery</a>
-                            <a href="/#products">Footwear</a>
-                            <a href="/#products">Watches</a>
+                            <h4>More</h4>
+                            <a href="/products?category=women&type=footwear">Footwear</a>
+                            <a href="/products?category=women&type=co-ord">Co-ords</a>
+                            <a href="/products?category=women&type=kurti">Kurtis</a>
+                            <a href="/products?category=women&type=winter">Winter Wear</a>
                         </div>
                         <div class="mega-image">
                             <img src="{{ url_for('static', filename='images/categories/women.jpg') }}" alt="Women">
@@ -108,22 +108,22 @@
 
             <!-- MEN -->
             <li class="has-mega">
-                <a href="/#products">Men <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <a href="/products?category=men">Men <i class="fa-solid fa-chevron-down nav-caret"></i></a>
                 <div class="mega-menu">
                     <div class="mega-inner">
                         <div class="mega-col">
                             <h4>Clothing</h4>
-                            <a href="/#products">Shirts</a>
-                            <a href="/#products">T-Shirts</a>
-                            <a href="/#products">Jeans</a>
-                            <a href="/#products">Jackets</a>
+                            <a href="/products?category=men&type=shirt">Shirts</a>
+                            <a href="/products?category=men&type=tshirt">T-Shirts</a>
+                            <a href="/products?category=men&type=jeans">Jeans</a>
+                            <a href="/products?category=men&type=jacket">Jackets</a>
                         </div>
                         <div class="mega-col">
-                            <h4>Accessories</h4>
-                            <a href="/#products">Watches</a>
-                            <a href="/#products">Wallets</a>
-                            <a href="/#products">Shoes</a>
-                            <a href="/#products">Caps</a>
+                            <h4>More</h4>
+                            <a href="/products?category=men&type=shoes">Shoes</a>
+                            <a href="/products?category=men&type=trouser">Trousers</a>
+                            <a href="/products?category=men&type=winter">Winter Wear</a>
+                            <a href="/products?category=men&type=ethnic">Ethnic</a>
                         </div>
                         <div class="mega-image">
                             <img src="{{ url_for('static', filename='images/categories/men.jpg') }}" alt="Men">
@@ -133,24 +133,24 @@
                 </div>
             </li>
 
-            <!-- ACCESSORIES -->
+            <!-- ACCESSORIES — TEMPORARILY HIDDEN (Future use)
             <li class="has-mega">
-                <a href="/#categories">Accessories <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <a href="/products?category=accessories">Accessories <i class="fa-solid fa-chevron-down nav-caret"></i></a>
                 <div class="mega-menu">
                     <div class="mega-inner">
                         <div class="mega-col">
                             <h4>Bags & Wallets</h4>
-                            <a href="/#products">Backpacks</a>
-                            <a href="/#products">Sling Bags</a>
-                            <a href="/#products">Wallets</a>
-                            <a href="/#products">Travel Bags</a>
+                            <a href="/products?category=accessories&type=backpack">Backpacks</a>
+                            <a href="/products?category=accessories&type=sling">Sling Bags</a>
+                            <a href="/products?category=accessories&type=wallet">Wallets</a>
+                            <a href="/products?category=accessories&type=travel">Travel Bags</a>
                         </div>
                         <div class="mega-col">
                             <h4>Others</h4>
-                            <a href="/#products">Caps</a>
-                            <a href="/#products">Belts</a>
-                            <a href="/#products">Sunglasses</a>
-                            <a href="/#products">Socks</a>
+                            <a href="/products?category=accessories&type=cap">Caps</a>
+                            <a href="/products?category=accessories&type=belt">Belts</a>
+                            <a href="/products?category=accessories&type=sunglasses">Sunglasses</a>
+                            <a href="/products?category=accessories&type=socks">Socks</a>
                         </div>
                         <div class="mega-image">
                             <img src="{{ url_for('static', filename='images/categories/accessories.jpg') }}" alt="Accessories">
@@ -159,25 +159,26 @@
                     </div>
                 </div>
             </li>
+            -->
 
             <!-- COLLECTIONS -->
             <li class="has-mega">
-                <a href="/#bestsellers">Collections <i class="fa-solid fa-chevron-down nav-caret"></i></a>
+                <a href="/products?filter=bestsellers">Collections <i class="fa-solid fa-chevron-down nav-caret"></i></a>
                 <div class="mega-menu">
                     <div class="mega-inner">
                         <div class="mega-col">
                             <h4>Shop By Season</h4>
-                            <a href="/#products">Spring / Summer</a>
-                            <a href="/#products">Autumn / Winter</a>
-                            <a href="/#products">Monsoon Edit</a>
-                            <a href="/#products">Holiday Edit</a>
+                            <a href="/products?filter=spring">Spring / Summer</a>
+                            <a href="/products?filter=autumn">Autumn / Winter</a>
+                            <a href="/products?filter=monsoon">Monsoon Edit</a>
+                            <a href="/products?filter=holiday">Holiday Edit</a>
                         </div>
                         <div class="mega-col">
                             <h4>Curated</h4>
-                            <a href="/#products">Best Sellers</a>
-                            <a href="/#products">Sale</a>
-                            <a href="/#products">New In</a>
-                            <a href="/#products">Limited Edition</a>
+                            <a href="/products?filter=bestsellers">Best Sellers</a>
+                            <a href="/products?filter=sale">Sale</a>
+                            <a href="/products?filter=new">New In</a>
+                            <a href="/products?filter=premium">Limited Edition</a>
                         </div>
                         <div class="mega-image">
                             <img src="{{ url_for('static', filename='images/banners/sale-banner.jpg') }}" alt="Collections">

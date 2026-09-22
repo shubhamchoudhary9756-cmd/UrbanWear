@@ -46,7 +46,6 @@ class Config:
     _db_url = os.environ.get("DATABASE_URL", "")
 
     if _db_url:
-        # Render provides postgres:// but SQLAlchemy needs postgresql://
         if _db_url.startswith("postgres://"):
             _db_url = _db_url.replace("postgres://", "postgresql://", 1)
         SQLALCHEMY_DATABASE_URI = _db_url
@@ -93,11 +92,17 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
     # ==================================================
-    # CSRF
+    # CSRF — FIXED
     # ==================================================
     WTF_CSRF_ENABLED = True
-    WTF_CSRF_TIME_LIMIT = 3600
+    WTF_CSRF_TIME_LIMIT = None
+    # ✅ Time limit removed — token never expires (until session ends)
+    # Isse "session expired" error nahi aayega
     WTF_CSRF_SSL_STRICT = IS_PRODUCTION
+    WTF_CSRF_CHECK_DEFAULT = True
+    WTF_CSRF_METHODS = ["POST", "PUT", "PATCH", "DELETE"]
+    WTF_CSRF_HEADERS = ["X-CSRFToken", "X-CSRF-Token"]
+    WTF_CSRF_ERROR_MESSAGE = "Your form expired. Please refresh the page and try again."
 
     # ==================================================
     # RATE LIMITING

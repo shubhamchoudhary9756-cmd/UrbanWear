@@ -7051,7 +7051,7 @@ section {
     margin: 0 auto;
     padding: 0 8%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);    /* ← 3 columns */
     gap: 20px;
 }
 
@@ -14873,5 +14873,682 @@ section {
 
     .season-small-content-nb span {
         font-size: 9px;
+    }
+}
+/* =====================================================
+   SEASON COLLECTION — NOBERO STYLE (FIXED)
+===================================================== */
+
+.season-collection-nb {
+    padding: 80px 8%;
+    background: #faf8f5;
+}
+
+.season-collection-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    height: 600px;                /* ✅ FIXED HEIGHT */
+}
+
+/* ===== LEFT — Large Image ===== */
+.season-large-nb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: #f5f1ea;
+    text-decoration: none;
+    height: 100%;                 /* ✅ 100% of parent */
+}
+
+.season-large-nb img {
+    position: absolute;            /* ✅ Absolute positioning */
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.season-large-nb:hover img {
+    transform: scale(1.06);
+}
+
+.season-large-overlay-nb {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.75) 100%
+    );
+    transition: background 0.4s ease;
+    z-index: 1;
+}
+
+.season-large-nb:hover .season-large-overlay-nb {
+    background: linear-gradient(
+        180deg,
+        rgba(201, 169, 97, 0.1) 0%,
+        rgba(201, 169, 97, 0.3) 50%,
+        rgba(26, 26, 26, 0.85) 100%
+    );
+}
+
+.season-large-content-nb {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 50px;
+    z-index: 2;
+    color: #faf8f5;
+}
+
+.season-tag-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-bottom: 18px;
+    padding: 7px 16px;
+    background: rgba(201, 169, 97, 0.15);
+    border: 1px solid rgba(201, 169, 97, 0.4);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-family: 'Inter', sans-serif;
+}
+
+.season-title-nb {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 500;
+    line-height: 1.05;
+    color: #faf8f5;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+}
+
+.season-desc-nb {
+    font-size: 16px;
+    color: rgba(250, 248, 245, 0.85);
+    margin-bottom: 25px;
+    font-family: 'Inter', sans-serif;
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+.season-btn-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c9a961;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #c9a961;
+    padding-bottom: 4px;
+}
+
+.season-large-nb:hover .season-btn-nb {
+    gap: 16px;
+    color: #faf8f5;
+    border-bottom-color: #faf8f5;
+}
+
+/* ===== RIGHT — Two Small Images ===== */
+.season-small-grid-nb {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+    height: 100%;                 /* ✅ Full height */
+}
+
+.season-small-nb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: #f5f1ea;
+    text-decoration: none;
+    height: 100%;                 /* ✅ Full height */
+}
+
+.season-small-nb img {
+    position: absolute;            /* ✅ Absolute */
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.season-small-nb:hover img {
+    transform: scale(1.08);
+}
+
+.season-small-overlay-nb {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+    transition: background 0.4s ease;
+    z-index: 1;
+}
+
+.season-small-nb:hover .season-small-overlay-nb {
+    background: linear-gradient(
+        180deg,
+        rgba(201, 169, 97, 0.1) 0%,
+        rgba(26, 26, 26, 0.85) 100%
+    );
+}
+
+.season-small-content-nb {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px 35px;
+    z-index: 2;
+    color: #faf8f5;
+}
+
+.season-small-content-nb h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #faf8f5;
+    margin-bottom: 10px;
+}
+
+.season-small-content-nb span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c9a961;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.season-small-nb:hover .season-small-content-nb span {
+    gap: 14px;
+    color: #faf8f5;
+}
+
+
+/* =====================================================
+   SEASON COLLECTION — RESPONSIVE (992px)
+===================================================== */
+
+@media (max-width: 992px) {
+    .season-collection-nb {
+        padding: 60px 6%;
+    }
+
+    .season-collection-inner {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        height: auto;
+    }
+
+    .season-large-nb {
+        height: 450px;
+    }
+
+    .season-title-nb {
+        font-size: 42px;
+    }
+
+    .season-small-grid-nb {
+        grid-template-rows: auto;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        height: auto;
+    }
+
+    .season-small-nb {
+        height: 280px;
+    }
+}
+
+
+/* =====================================================
+   SEASON COLLECTION — MOBILE (768px)
+===================================================== */
+
+@media (max-width: 768px) {
+    .season-collection-nb {
+        padding: 50px 5%;
+    }
+
+    .season-collection-inner {
+        gap: 12px;
+    }
+
+    .season-large-nb {
+        height: 400px;
+    }
+
+    .season-large-content-nb {
+        padding: 30px 25px;
+    }
+
+    .season-tag-nb {
+        font-size: 9px;
+        padding: 5px 12px;
+        letter-spacing: 2px;
+        margin-bottom: 14px;
+    }
+
+    .season-title-nb {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .season-desc-nb {
+        font-size: 14px;
+        margin-bottom: 18px;
+    }
+
+    .season-btn-nb {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+    }
+
+    .season-small-grid-nb {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .season-small-nb {
+        height: 200px;
+    }
+
+    .season-small-content-nb {
+        padding: 20px 18px;
+    }
+
+    .season-small-content-nb h3 {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .season-small-content-nb span {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+}
+
+
+/* =====================================================
+   SEASON COLLECTION — SMALL MOBILE (480px)
+===================================================== */
+
+@media (max-width: 480px) {
+    .season-large-nb {
+        height: 350px;
+    }
+
+    .season-title-nb {
+        font-size: 26px;
+    }
+
+    .season-desc-nb {
+        font-size: 13px;
+    }
+
+    .season-small-nb {
+        height: 160px;
+    }
+
+    .season-small-content-nb {
+        padding: 15px;
+    }
+
+    .season-small-content-nb h3 {
+        font-size: 16px;
+    }
+
+    .season-small-content-nb span {
+        font-size: 9px;
+    }
+}
+/* =====================================================
+   PRODUCTS PAGE — NOBERO STYLE
+===================================================== */
+
+.products-page-nb {
+    padding: 40px 8% 100px;
+    background: #faf8f5;
+    min-height: 70vh;
+}
+
+/* ===== BREADCRUMB ===== */
+.products-breadcrumb-nb {
+    max-width: 1400px;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #777;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+    flex-wrap: wrap;
+}
+
+.products-breadcrumb-nb a {
+    color: #777;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.products-breadcrumb-nb a:hover {
+    color: #c9a961;
+}
+
+.products-breadcrumb-nb i {
+    font-size: 9px;
+    color: #c9a961;
+}
+
+.products-breadcrumb-nb span {
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+/* ===== HEADER ===== */
+.products-header-nb {
+    max-width: 1400px;
+    margin: 0 auto 45px;
+    text-align: center;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e8e2d9;
+}
+
+.products-tag-nb {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-bottom: 15px;
+    font-family: 'Inter', sans-serif;
+}
+
+.products-header-nb h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    line-height: 1.15;
+}
+
+.products-header-nb p {
+    font-size: 14px;
+    color: #777;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ===== EMPTY STATE ===== */
+.products-empty-nb {
+    max-width: 500px;
+    margin: 60px auto;
+    text-align: center;
+    padding: 60px 40px;
+    background: #ffffff;
+    border: 1px solid #e8e2d9;
+}
+
+.products-empty-icon-nb {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #faf8f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    font-size: 40px;
+    color: #c9a961;
+    border: 2px dashed #e8e2d9;
+}
+
+.products-empty-nb h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.products-empty-nb p {
+    font-size: 14px;
+    color: #777;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 30px;
+}
+
+.products-empty-btn-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 35px;
+    background: #1a1a1a;
+    color: #faf8f5;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.products-empty-btn-nb:hover {
+    background: #c9a961;
+    color: #1a1a1a;
+    gap: 15px;
+}
+
+
+/* =====================================================
+   PRODUCTS PAGE — MOBILE (768px)
+===================================================== */
+
+@media (max-width: 768px) {
+    .products-page-nb {
+        padding: 25px 5% 100px;
+    }
+
+    .products-breadcrumb-nb {
+        margin-bottom: 20px;
+        font-size: 11px;
+        gap: 8px;
+    }
+
+    .products-header-nb {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+    }
+
+    .products-tag-nb {
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+
+    .products-header-nb h1 {
+        font-size: 26px;
+    }
+
+    .products-header-nb p {
+        font-size: 13px;
+    }
+
+    .products-empty-nb {
+        padding: 40px 25px;
+        margin: 40px auto;
+    }
+
+    .products-empty-icon-nb {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+
+    .products-empty-nb h2 {
+        font-size: 22px;
+    }
+
+    .products-empty-nb p {
+        font-size: 13px;
+    }
+
+    .products-empty-btn-nb {
+        padding: 13px 25px;
+        font-size: 11px;
+    }
+}
+
+
+/* =====================================================
+   PRODUCTS PAGE — SMALL MOBILE (480px)
+===================================================== */
+
+@media (max-width: 480px) {
+    .products-header-nb h1 {
+        font-size: 22px;
+    }
+}
+/* =====================================================
+   RESET PASSWORD — LEFT IMAGE
+===================================================== */
+
+.auth-image-reset-nb {
+    background: url('../images/categories/women.jpg') center center;
+    background-size: cover;
+}
+
+.auth-image-reset-nb .auth-image-content-nb h2 {
+    font-size: 52px;
+    line-height: 1.1;
+}
+/* =====================================================
+   RESET PASSWORD — LEFT IMAGE
+===================================================== */
+
+.auth-image-reset-nb {
+    background: url('../images/categories/women.jpg') center center;
+    background-size: cover;
+}
+
+.auth-image-reset-nb .auth-image-content-nb h2 {
+    font-size: 52px;
+    line-height: 1.1;
+}
+/* =====================================================
+   RESET PASSWORD PAGE — FIXES
+===================================================== */
+
+/* Form width constrained */
+.reset-password-page-nb .auth-form-nb {
+    max-width: 440px;
+    width: 100%;
+}
+
+/* Logo — mountain + ZENITH */
+.reset-password-page-nb .auth-logo-nb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 35px;
+}
+
+.reset-password-page-nb .auth-logo-svg-nb {
+    width: 90px;
+    height: 45px;
+}
+
+/* Left image darker overlay */
+.reset-password-page-nb .auth-image-overlay-nb {
+    background: linear-gradient(
+        180deg,
+        rgba(26, 26, 26, 0.5) 0%,
+        rgba(26, 26, 26, 0.75) 50%,
+        rgba(26, 26, 26, 0.95) 100%
+    );
+}
+
+/* Left content — better spacing */
+.reset-password-page-nb .auth-image-content-nb h2 {
+    font-size: 58px;
+    line-height: 1.05;
+    margin-bottom: 22px;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.reset-password-page-nb .auth-image-content-nb p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(250, 248, 245, 0.9);
+    max-width: 380px;
+}
+
+/* Trust badges — better spacing */
+.reset-password-page-nb .auth-trust-nb {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #e8e2d9;
+}
+
+/* Input fields — better height */
+.reset-password-page-nb .auth-input-wrap-nb input {
+    padding: 16px 50px 16px 50px;
+    font-size: 15px;
+}
+
+/* Submit button — better height */
+.reset-password-page-nb .auth-submit-nb {
+    padding: 18px;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .reset-password-page-nb .auth-image-content-nb h2 {
+        font-size: 38px;
+    }
+
+    .reset-password-page-nb .auth-image-content-nb p {
+        font-size: 14px;
+    }
+
+    .reset-password-page-nb .auth-input-wrap-nb input {
+        padding: 14px 45px 14px 45px;
+        font-size: 14px;
     }
 }
