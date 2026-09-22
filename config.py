@@ -75,7 +75,12 @@ class Config:
     MAIL_USE_SSL = False
     MAIL_USERNAME = _get_required_env("MAIL_USERNAME")
     MAIL_PASSWORD = _get_required_env("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
+
+    # ✅ Sender: "ZENITH" <email@gmail.com>
+    MAIL_DEFAULT_SENDER = (
+        os.environ.get("MAIL_SENDER_NAME", "ZENITH"),
+        os.environ.get("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
+    )
 
     # ==================================================
     # ADMIN
