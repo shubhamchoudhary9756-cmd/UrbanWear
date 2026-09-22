@@ -3,7 +3,6 @@ Zenith - Flask E-Commerce Application
 """
 import warnings
 
-# Suppress harmless requests dependency warning
 warnings.filterwarnings(
     "ignore",
     message=".*Unable to find acceptable character detection.*"
@@ -36,6 +35,8 @@ from werkzeug.security import (
     check_password_hash
 )
 
+from werkzeug.utils import secure_filename
+
 from sqlalchemy.orm import joinedload
 
 from functools import wraps
@@ -43,6 +44,7 @@ import re
 import secrets
 import json
 import os
+import uuid
 import razorpay
 from datetime import datetime, timedelta, timezone
 
@@ -52,7 +54,6 @@ from datetime import datetime, timedelta, timezone
 # ==================================================
 
 app = Flask(__name__)
-
 app.config.from_object(Config)
 
 
@@ -71,7 +72,7 @@ mail = Mail(app)
 
 
 # ==================================================
-# CSRF PROTECTION
+# CSRF
 # ==================================================
 
 csrf = CSRFProtect(app)
@@ -102,6 +103,24 @@ razorpay_client = razorpay.Client(
 
 
 # ==================================================
+# FILE UPLOAD CONFIG
+# ==================================================
+
+UPLOAD_FOLDER = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "static",
+    "images",
+    "uploads"
+)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5MB max
+
+
+# ==================================================
 # FLASK LOGIN
 # ==================================================
 
@@ -129,14 +148,12 @@ PHONE_REGEX = re.compile(r'^\+?[1-9]\d{9,14}$')
 
 
 def is_valid_email(email):
-    """Strict email validation"""
     if not email or len(email) > 120:
         return False
     return EMAIL_REGEX.match(email) is not None
 
 
 def is_valid_phone(phone):
-    """Strict phone validation (10-15 digits, optional +)"""
     if not phone:
         return False
     clean_phone = re.sub(r'[\s\-]', '', phone)
@@ -144,7 +161,6 @@ def is_valid_phone(phone):
 
 
 def is_strong_password(password):
-    """Check password strength"""
     if not password or len(password) < 8:
         return False, "Password must be at least 8 characters long."
     if len(password) > 128:
@@ -159,7 +175,6 @@ def is_strong_password(password):
 
 
 def safe_int(value, default=0):
-    """Safely convert to int"""
     try:
         return int(value)
     except (ValueError, TypeError):
@@ -167,7 +182,6 @@ def safe_int(value, default=0):
 
 
 def safe_float(value, default=0.0):
-    """Safely convert to float"""
     try:
         return float(value)
     except (ValueError, TypeError):
@@ -175,7 +189,37 @@ def safe_float(value, default=0.0):
 
 
 # ==================================================
-# ADMIN REQUIRED DECORATOR
+# FILE UPLOAD HELPERS
+# ==================================================
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return "." in filename and \
+           filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def save_uploaded_file(file):
+    """Save uploaded file and return relative path"""
+    if not file or not file.filename:
+        return None
+
+    if not allowed_file(file.filename):
+        return None
+
+    # Generate unique filename
+    ext = file.filename.rsplit(".", 1)[1].lower()
+    unique_name = f"{uuid.uuid4().hex}.{ext}"
+
+    # Save to uploads folder
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_name)
+    file.save(filepath)
+
+    # Return path relative to static/
+    return f"images/uploads/{unique_name}"
+
+
+# ==================================================
+# ADMIN REQUIRED
 # ==================================================
 
 def admin_required(f):
@@ -213,46 +257,47 @@ def home():
 
 
 # ==================================================
-# PRODUCTS LISTING PAGE (with Filters)
+# PRODUCTS LISTING PAGE (with Subcategory Support)
 # ==================================================
 
 @app.route("/products")
 def products():
-    
-    category = request.args.get("category", "").strip()
-    ptype = request.args.get("type", "").strip()
-    filter_by = request.args.get("filter", "").strip()
+
+    category = request.args.get("category", "").strip().lower()
+    ptype = request.args.get("type", "").strip().lower()
+    filter_by = request.args.get("filter", "").strip().lower()
     search_q = request.args.get("q", "").strip()
-    
+
     query = Product.query.filter_by(is_active=True)
-    
+
     if category:
-        if hasattr(Product, 'category'):
-            query = query.filter(
-                db.or_(
-                    Product.category.ilike(f'%{category}%'),
-                    Product.name.ilike(f'%{category}%'),
-                    Product.description.ilike(f'%{category}%')
-                )
+        query = query.filter(
+            db.or_(
+                Product.subcategory.ilike(f'%{category}%'),
+                Product.name.ilike(f'%{category}%'),
+                Product.description.ilike(f'%{category}%')
             )
-    
+        )
+
     if ptype:
         query = query.filter(
             db.or_(
+                Product.subcategory.ilike(f'%{ptype}%'),
                 Product.name.ilike(f'%{ptype}%'),
                 Product.description.ilike(f'%{ptype}%')
             )
         )
-    
+
     if search_q:
         query = query.filter(
             db.or_(
                 Product.name.ilike(f'%{search_q}%'),
                 Product.description.ilike(f'%{search_q}%'),
+                Product.subcategory.ilike(f'%{search_q}%'),
                 Product.category.ilike(f'%{search_q}%')
             )
         )
-    
+
     if filter_by == "new":
         query = query.order_by(Product.id.desc())
     elif filter_by == "bestsellers":
@@ -274,9 +319,9 @@ def products():
         query = query.filter(Product.name.ilike('%premium%'))
     else:
         query = query.order_by(Product.created_at.desc())
-    
+
     all_products = query.all()
-    
+
     if search_q:
         page_title = f'Search: "{search_q}"'
     elif filter_by == "new":
@@ -303,7 +348,7 @@ def products():
         page_title = ptype.title()
     else:
         page_title = "All Products"
-    
+
     return render_template(
         "products.html",
         products=[p.to_dict() for p in all_products],
@@ -330,7 +375,7 @@ def product(product_id):
 
 
 # ==================================================
-# CART PAGE
+# CART
 # ==================================================
 
 @app.route("/cart")
@@ -339,7 +384,7 @@ def cart():
 
 
 # ==================================================
-# WISHLIST PAGE
+# WISHLIST
 # ==================================================
 
 @app.route("/wishlist")
@@ -414,7 +459,7 @@ def signup():
 
 
 # ==================================================
-# USER LOGIN
+# LOGIN
 # ==================================================
 
 @app.route("/login", methods=["GET", "POST"])
@@ -497,7 +542,7 @@ def logout():
 
 
 # ==================================================
-# FORGOT PASSWORD (with Debug Logging)
+# FORGOT PASSWORD
 # ==================================================
 
 @app.route("/forgot-password", methods=["GET", "POST"])
@@ -520,17 +565,6 @@ def forgot_password():
 
             reset_link = url_for("reset_password", token=token, _external=True)
 
-            print("=" * 60)
-            print("📧 EMAIL DEBUG START")
-            print("=" * 60)
-            print(f"📧 Recipient:      {email}")
-            print(f"📧 MAIL_SERVER:    {app.config.get('MAIL_SERVER')}")
-            print(f"📧 MAIL_PORT:      {app.config.get('MAIL_PORT')}")
-            print(f"📧 MAIL_USE_TLS:   {app.config.get('MAIL_USE_TLS')}")
-            print(f"📧 MAIL_USERNAME:  {app.config.get('MAIL_USERNAME')}")
-            print(f"📧 Reset Link:     {reset_link}")
-            print("-" * 60)
-            
             try:
                 msg = Message(
                     subject="Zenith - Password Reset Link",
@@ -573,18 +607,9 @@ def forgot_password():
                     </div>
                     """
                 )
-                
-                print("📧 Sending email...")
                 mail.send(msg)
-                print(f"✅ EMAIL SENT SUCCESSFULLY to {email}")
-                print("=" * 60)
-                
             except Exception as e:
-                print(f"❌ EMAIL ERROR: {e}")
-                print(f"❌ ERROR TYPE: {type(e).__name__}")
-                import traceback
-                traceback.print_exc()
-                print("=" * 60)
+                print(f"❌ Email Error: {e}")
 
         flash("If this email is registered, a reset link has been sent.")
         return redirect(url_for("login"))
@@ -593,7 +618,7 @@ def forgot_password():
 
 
 # ==================================================
-# RESET PASSWORD (FIXED — Timezone-aware comparison)
+# RESET PASSWORD
 # ==================================================
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
@@ -609,11 +634,9 @@ def reset_password(token):
         flash("Invalid or expired reset link.")
         return redirect(url_for("forgot_password"))
 
-    # ✅ FIX: Handle timezone-naive vs timezone-aware comparison
     now = utc_now()
     expiry = user.reset_token_expiry
 
-    # Agar expiry timezone-naive hai, toh aware banao
     if expiry is not None and expiry.tzinfo is None:
         expiry = expiry.replace(tzinfo=timezone.utc)
 
@@ -699,7 +722,7 @@ def update_profile():
 
 
 # ==================================================
-# CHECKOUT (SECURED — SERVER-SIDE PRICE)
+# CHECKOUT
 # ==================================================
 
 @app.route("/checkout", methods=["GET", "POST"])
@@ -836,7 +859,7 @@ def payment_page(order_id):
 
 
 # ==================================================
-# CREATE RAZORPAY ORDER (SECURED)
+# CREATE RAZORPAY ORDER
 # ==================================================
 
 @app.route("/payment/create-order", methods=["POST"])
@@ -891,7 +914,7 @@ def create_payment_order():
 
 
 # ==================================================
-# VERIFY PAYMENT (SECURED)
+# VERIFY PAYMENT
 # ==================================================
 
 @app.route("/payment/verify", methods=["POST"])
@@ -949,7 +972,7 @@ def verify_payment():
 
 
 # ==================================================
-# PAYMENT FAILED — AUTO CANCEL + STOCK RESTORE
+# PAYMENT FAILED
 # ==================================================
 
 @app.route("/payment/failed/<int:order_id>", methods=["POST"])
@@ -1035,7 +1058,7 @@ def orders():
 
 
 # ==================================================
-# CANCEL ORDER (With Stock Restore)
+# CANCEL ORDER
 # ==================================================
 
 @app.route("/order/<int:order_id>/cancel", methods=["POST"])
@@ -1148,7 +1171,7 @@ def admin_products_tab():
 
 
 # ==================================================
-# ADMIN — ADD PRODUCT
+# ADMIN — ADD PRODUCT (with File Upload)
 # ==================================================
 
 @app.route("/admin/products/add", methods=["GET", "POST"])
@@ -1159,14 +1182,24 @@ def admin_add_product():
         name = request.form.get("name", "").strip()
         price = safe_float(request.form.get("price"))
         old_price = safe_float(request.form.get("old_price"))
-        image = request.form.get("image", "").strip()
-        image2 = request.form.get("image2", "").strip()
-        image3 = request.form.get("image3", "").strip()
-        image4 = request.form.get("image4", "").strip()
         rating = safe_float(request.form.get("rating"), 4.5)
         description = request.form.get("description", "").strip()
         category = request.form.get("category", "featured").strip()
+        subcategory = request.form.get("subcategory", "").strip().lower()
         stock = safe_int(request.form.get("stock"), 10)
+
+        # ✅ Handle file upload OR text input for images
+        image_file = request.files.get("image_file")
+        image = save_uploaded_file(image_file) or request.form.get("image", "").strip()
+
+        image2_file = request.files.get("image2_file")
+        image2 = save_uploaded_file(image2_file) or request.form.get("image2", "").strip()
+
+        image3_file = request.files.get("image3_file")
+        image3 = save_uploaded_file(image3_file) or request.form.get("image3", "").strip()
+
+        image4_file = request.files.get("image4_file")
+        image4 = save_uploaded_file(image4_file) or request.form.get("image4", "").strip()
 
         if not name or price <= 0 or not image:
             flash("Name, Price (> 0), and Image are required.")
@@ -1188,6 +1221,7 @@ def admin_add_product():
                 rating=rating if 0 <= rating <= 5 else 4.5,
                 description=description,
                 category=category,
+                subcategory=subcategory,
                 stock=max(0, stock),
                 is_active=True
             )
@@ -1206,7 +1240,7 @@ def admin_add_product():
 
 
 # ==================================================
-# ADMIN — EDIT PRODUCT
+# ADMIN — EDIT PRODUCT (with File Upload)
 # ==================================================
 
 @app.route("/admin/products/edit/<int:product_id>", methods=["GET", "POST"])
@@ -1228,14 +1262,49 @@ def admin_edit_product(product_id):
             product.name = name
             product.price = price
             product.old_price = old_price if old_price > 0 else None
-            product.image = request.form.get("image", "").strip() or product.image
-            product.image2 = request.form.get("image2", "").strip() or None
-            product.image3 = request.form.get("image3", "").strip() or None
-            product.image4 = request.form.get("image4", "").strip() or None
             product.rating = safe_float(request.form.get("rating"), 4.5)
             product.description = request.form.get("description", "").strip()
             product.category = request.form.get("category", "featured").strip()
+            product.subcategory = request.form.get("subcategory", "").strip().lower()
             product.stock = max(0, safe_int(request.form.get("stock"), 10))
+
+            # ✅ Image upload handling (only update if new file uploaded)
+            image_file = request.files.get("image_file")
+            new_image = save_uploaded_file(image_file)
+            if new_image:
+                product.image = new_image
+            else:
+                # Fallback to text input if no file uploaded
+                text_image = request.form.get("image", "").strip()
+                if text_image:
+                    product.image = text_image
+
+            image2_file = request.files.get("image2_file")
+            new_image2 = save_uploaded_file(image2_file)
+            if new_image2:
+                product.image2 = new_image2
+            else:
+                text_image2 = request.form.get("image2", "").strip()
+                if text_image2:
+                    product.image2 = text_image2
+
+            image3_file = request.files.get("image3_file")
+            new_image3 = save_uploaded_file(image3_file)
+            if new_image3:
+                product.image3 = new_image3
+            else:
+                text_image3 = request.form.get("image3", "").strip()
+                if text_image3:
+                    product.image3 = text_image3
+
+            image4_file = request.files.get("image4_file")
+            new_image4 = save_uploaded_file(image4_file)
+            if new_image4:
+                product.image4 = new_image4
+            else:
+                text_image4 = request.form.get("image4", "").strip()
+                if text_image4:
+                    product.image4 = text_image4
 
             db.session.commit()
             flash(f"Product '{product.name}' updated successfully!")
@@ -1409,13 +1478,13 @@ if __name__ == "__main__":
 
         if Product.query.count() == 0:
             seed_products = [
-                {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured"},
-                {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured"},
-                {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured"},
-                {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller"},
-                {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller"},
-                {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller"},
-                {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller"},
+                {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured", "subcategory": "men,tshirt"},
+                {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured", "subcategory": "men,jeans"},
+                {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured", "subcategory": "men,shoes"},
+                {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller", "subcategory": "men,jacket"},
+                {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller", "subcategory": "men,shoes"},
+                {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller", "subcategory": "men,cap"},
+                {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller", "subcategory": "men,backpack"},
             ]
             for p in seed_products:
                 db.session.add(Product(**p))

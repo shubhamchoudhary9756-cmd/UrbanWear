@@ -15552,3 +15552,727 @@ section {
         font-size: 14px;
     }
 }
+/* =====================================================
+   SHOP THE FULL LOOK — NOBERO STYLE
+===================================================== */
+
+.shop-look-nb {
+    padding: 100px 8%;
+    background: #faf8f5;
+}
+
+.shop-look-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: start;
+}
+
+/* ===== LEFT — MODEL IMAGE ===== */
+.shop-look-image-nb {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    background: #f5f1ea;
+}
+
+.shop-look-image-nb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.shop-look-image-nb:hover img {
+    transform: scale(1.05);
+}
+
+.shop-look-overlay-nb {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.1) 50%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+}
+
+.shop-look-badge-nb {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #c9a961;
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+.shop-look-badge-nb i {
+    font-size: 12px;
+}
+
+/* ===== RIGHT — PRODUCTS ===== */
+.shop-look-products-nb {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.shop-look-heading-nb {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8e2d9;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.shop-look-heading-nb i {
+    color: #c9a961;
+    font-size: 20px;
+}
+
+/* ===== PRODUCT ITEM ===== */
+.shop-look-item-nb {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e8e2d9;
+    transition: all 0.3s ease;
+}
+
+.shop-look-item-nb:hover {
+    border-color: #c9a961;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.shop-look-item-img-nb {
+    display: block;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    background: #f5f1ea;
+    overflow: hidden;
+}
+
+.shop-look-item-img-nb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 8px;
+    transition: transform 0.5s ease;
+}
+
+.shop-look-item-nb:hover .shop-look-item-img-nb img {
+    transform: scale(1.08);
+}
+
+.shop-look-item-info-nb {
+    flex: 1;
+    min-width: 0;
+}
+
+.shop-look-item-info-nb h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shop-look-item-info-nb p {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.shop-look-item-info-nb p strong {
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.shop-look-item-info-nb p del {
+    font-size: 12px;
+    color: #aaaaaa;
+    font-weight: 400;
+}
+
+/* ===== ADD BUTTON ===== */
+.shop-look-add-nb {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #faf8f5;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.shop-look-add-nb:hover {
+    background: #c9a961;
+    color: #1a1a1a;
+    transform: scale(1.1);
+}
+
+.shop-look-add-nb.added {
+    background: #28a745;
+    color: #ffffff;
+}
+
+/* ===== TOTAL ===== */
+.shop-look-total-nb {
+    margin-top: 20px;
+    padding: 25px;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.shop-look-total-price-nb {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.shop-look-total-price-nb span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c9a961;
+    font-family: 'Inter', sans-serif;
+}
+
+.shop-look-total-price-nb strong {
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #faf8f5;
+    line-height: 1;
+}
+
+.shop-look-add-all-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: #c9a961;
+    color: #1a1a1a;
+    border: 2px solid #c9a961;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.shop-look-add-all-nb:hover {
+    background: #faf8f5;
+    border-color: #faf8f5;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(201, 169, 97, 0.3);
+}
+
+.shop-look-add-all-nb i {
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   SHOP LOOK — RESPONSIVE (992px)
+===================================================== */
+
+@media (max-width: 992px) {
+    .shop-look-nb {
+        padding: 80px 6%;
+    }
+
+    .shop-look-inner {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .shop-look-image-nb {
+        height: 450px;
+    }
+}
+
+
+/* =====================================================
+   SHOP LOOK — MOBILE (768px)
+===================================================== */
+
+@media (max-width: 768px) {
+    .shop-look-nb {
+        padding: 50px 5%;
+    }
+
+    .shop-look-inner {
+        gap: 25px;
+    }
+
+    .shop-look-image-nb {
+        height: 400px;
+    }
+
+    .shop-look-badge-nb {
+        bottom: 20px;
+        left: 20px;
+        padding: 8px 14px;
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+
+    .shop-look-heading-nb {
+        font-size: 18px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+
+    .shop-look-heading-nb i {
+        font-size: 16px;
+    }
+
+    .shop-look-item-nb {
+        padding: 10px;
+        gap: 12px;
+    }
+
+    .shop-look-item-img-nb {
+        width: 65px;
+        height: 65px;
+    }
+
+    .shop-look-item-info-nb h4 {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .shop-look-item-info-nb p {
+        font-size: 13px;
+        gap: 6px;
+    }
+
+    .shop-look-item-info-nb p del {
+        font-size: 11px;
+    }
+
+    .shop-look-add-nb {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
+
+    .shop-look-total-nb {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 20px;
+    }
+
+    .shop-look-total-price-nb {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .shop-look-total-price-nb strong {
+        font-size: 22px;
+    }
+
+    .shop-look-add-all-nb {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 11px;
+    }
+}
+
+
+/* =====================================================
+   SHOP LOOK — SMALL MOBILE (480px)
+===================================================== */
+
+@media (max-width: 480px) {
+    .shop-look-image-nb {
+        height: 350px;
+    }
+
+    .shop-look-item-img-nb {
+        width: 55px;
+        height: 55px;
+    }
+
+    .shop-look-item-info-nb h4 {
+        font-size: 12px;
+    }
+
+    .shop-look-item-info-nb p {
+        font-size: 12px;
+    }
+}
+/* =====================================================
+   BRAND STORY — NOBERO STYLE
+===================================================== */
+
+.brand-story-nb {
+    padding: 100px 8%;
+    background: #1a1a1a;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative gradient */
+.brand-story-nb::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(201, 169, 97, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.brand-story-nb::after {
+    content: "";
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(201, 169, 97, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.brand-story-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 70px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== LEFT — IMAGE ===== */
+.brand-story-image-nb {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    background: #2a2a2a;
+}
+
+.brand-story-image-nb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+    filter: brightness(0.95);
+}
+
+.brand-story-image-nb:hover img {
+    transform: scale(1.05);
+}
+
+/* EST. 2020 Badge */
+.brand-story-badge-nb {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90px;
+    height: 90px;
+    background: #c9a961;
+    color: #1a1a1a;
+    border-radius: 50%;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 10px 30px rgba(201, 169, 97, 0.3);
+}
+
+.brand-story-badge-nb span {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.brand-story-badge-nb strong {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    font-family: 'Playfair Display', serif;
+}
+
+/* ===== RIGHT — CONTENT ===== */
+.brand-story-content-nb {
+    color: #faf8f5;
+}
+
+.brand-story-tag-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-bottom: 25px;
+    font-family: 'Inter', sans-serif;
+}
+
+.brand-story-tag-nb i {
+    font-size: 14px;
+}
+
+.brand-story-title-nb {
+    font-family: 'Playfair Display', serif;
+    font-size: 58px;
+    font-weight: 500;
+    line-height: 1.05;
+    color: #faf8f5;
+    margin-bottom: 30px;
+    letter-spacing: -1px;
+}
+
+.brand-story-desc-nb {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(250, 248, 245, 0.75);
+    margin-bottom: 20px;
+    font-family: 'Inter', sans-serif;
+    max-width: 550px;
+}
+
+.brand-story-desc-nb:last-of-type {
+    margin-bottom: 40px;
+}
+
+/* ===== STATS ===== */
+.brand-story-stats-nb {
+    display: flex;
+    gap: 40px;
+    padding: 30px 0;
+    margin-bottom: 40px;
+    border-top: 1px solid rgba(201, 169, 97, 0.2);
+    border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+    flex-wrap: wrap;
+}
+
+.brand-stat-nb {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.brand-stat-nb strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: #c9a961;
+    line-height: 1;
+}
+
+.brand-stat-nb span {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(250, 248, 245, 0.5);
+    font-family: 'Inter', sans-serif;
+}
+
+/* ===== CTA BUTTON ===== */
+.brand-story-btn-nb {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 40px;
+    background: #c9a961;
+    color: #1a1a1a;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #c9a961;
+    transition: all 0.3s ease;
+}
+
+.brand-story-btn-nb:hover {
+    background: transparent;
+    color: #c9a961;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(201, 169, 97, 0.3);
+    gap: 18px;
+}
+
+.brand-story-btn-nb i {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+
+/* =====================================================
+   BRAND STORY — RESPONSIVE (992px)
+===================================================== */
+
+@media (max-width: 992px) {
+    .brand-story-nb {
+        padding: 80px 6%;
+    }
+
+    .brand-story-inner {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .brand-story-image-nb {
+        height: 500px;
+    }
+
+    .brand-story-title-nb {
+        font-size: 42px;
+    }
+}
+
+
+/* =====================================================
+   BRAND STORY — MOBILE (768px)
+===================================================== */
+
+@media (max-width: 768px) {
+    .brand-story-nb {
+        padding: 60px 5%;
+    }
+
+    .brand-story-inner {
+        gap: 35px;
+    }
+
+    .brand-story-image-nb {
+        height: 400px;
+    }
+
+    .brand-story-badge-nb {
+        width: 75px;
+        height: 75px;
+        top: 20px;
+        left: 20px;
+    }
+
+    .brand-story-badge-nb span {
+        font-size: 8px;
+    }
+
+    .brand-story-badge-nb strong {
+        font-size: 16px;
+    }
+
+    .brand-story-tag-nb {
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+    }
+
+    .brand-story-title-nb {
+        font-size: 34px;
+        margin-bottom: 22px;
+    }
+
+    .brand-story-desc-nb {
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 15px;
+    }
+
+    .brand-story-desc-nb:last-of-type {
+        margin-bottom: 30px;
+    }
+
+    .brand-story-stats-nb {
+        gap: 25px;
+        padding: 22px 0;
+        margin-bottom: 30px;
+    }
+
+    .brand-stat-nb strong {
+        font-size: 24px;
+    }
+
+    .brand-stat-nb span {
+        font-size: 9px;
+        letter-spacing: 1px;
+    }
+
+    .brand-story-btn-nb {
+        width: 100%;
+        justify-content: center;
+        padding: 16px 24px;
+        font-size: 11px;
+    }
+}
+
+
+/* =====================================================
+   BRAND STORY — SMALL MOBILE (480px)
+===================================================== */
+
+@media (max-width: 480px) {
+    .brand-story-image-nb {
+        height: 350px;
+    }
+
+    .brand-story-title-nb {
+        font-size: 28px;
+    }
+
+    .brand-story-stats-nb {
+        gap: 18px;
+    }
+
+    .brand-stat-nb strong {
+        font-size: 20px;
+    }
+}

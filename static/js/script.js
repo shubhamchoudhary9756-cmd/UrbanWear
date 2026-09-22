@@ -1845,3 +1845,53 @@ document.addEventListener("DOMContentLoaded", function() {
         clearBtn.addEventListener("click", clearWishlist);
     }
 });
+// ==================================================
+// SHOP THE FULL LOOK — ADD ALL ITEMS
+// ==================================================
+
+function addAllLookItems() {
+
+    const lookSection = document.querySelector(".shop-look-nb");
+
+    if (!lookSection) return;
+
+    const buttons = lookSection.querySelectorAll(".shop-look-add-nb");
+
+    if (buttons.length === 0) return;
+
+    let addedCount = 0;
+
+    buttons.forEach(button => {
+        const id = Number(button.dataset.id);
+        const name = button.dataset.name || "Product";
+        const price = Number(button.dataset.price) || 0;
+        const image = button.dataset.image || "";
+
+        if (!id) return;
+
+        const existing = findProduct(id, null, null);
+
+        if (existing) {
+            existing.quantity = Number(existing.quantity) + 1;
+            if (existing.quantity > 10) existing.quantity = 10;
+        } else {
+            cart.push({
+                id: id,
+                name: name,
+                price: price,
+                image: image,
+                quantity: 1,
+                size: null,
+                color: null
+            });
+        }
+
+        addedCount++;
+    });
+
+    if (addedCount > 0) {
+        saveCart();
+        updateCartCount();
+        showToast(`${addedCount} items added to cart! 🛒`);
+    }
+}

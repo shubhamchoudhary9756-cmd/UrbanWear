@@ -1,0 +1,155 @@
+<!-- ==================================================
+                    SHOP THE FULL LOOK
+================================================== -->
+
+<section class="shop-look-nb">
+
+    <div class="section-header-nb">
+        <span class="section-tag-nb">Complete The Look</span>
+        <h2>Shop the Full Look</h2>
+        <p>Everything you need for the perfect outfit</p>
+    </div>
+
+    <div class="shop-look-inner">
+
+        <!-- ============================================
+                    LEFT — MODEL IMAGE
+        ============================================ -->
+        <div class="shop-look-image-nb">
+
+            <img src="{{ url_for('static', filename='images/categories/men.jpg') }}"
+                 alt="Complete Look">
+
+            <div class="shop-look-overlay-nb"></div>
+
+            <div class="shop-look-badge-nb">
+                <i class="fa-solid fa-sparkles"></i>
+                Total Look
+            </div>
+
+        </div>
+
+        <!-- ============================================
+                    RIGHT — PRODUCTS LIST
+        ============================================ -->
+        <div class="shop-look-products-nb">
+
+            <h3 class="shop-look-heading-nb">
+                <i class="fa-solid fa-bag-shopping"></i>
+                Get This Look
+            </h3>
+
+            <!-- Product 1 -->
+            <div class="shop-look-item-nb">
+                <a href="/product/4" class="shop-look-item-img-nb">
+                    <img src="{{ url_for('static', filename='images/bestsellers/jacket.jpg') }}"
+                         alt="Black Bomber Jacket">
+                </a>
+                <div class="shop-look-item-info-nb">
+                    <h4>Black Bomber Jacket</h4>
+                    <p>
+                        <strong>₹2,499</strong>
+                        <del>₹2,999</del>
+                    </p>
+                </div>
+                <button type="button"
+                        class="shop-look-add-nb add-cart"
+                        data-id="4"
+                        data-name="Black Bomber Jacket"
+                        data-price="2499"
+                        data-image="images/bestsellers/jacket.jpg">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="shop-look-item-nb">
+                <a href="/product/5" class="shop-look-item-img-nb">
+                    <img src="{{ url_for('static', filename='images/bestsellers/sneakers.jpg') }}"
+                         alt="White Premium Sneakers">
+                </a>
+                <div class="shop-look-item-info-nb">
+                    <h4>White Premium Sneakers</h4>
+                    <p>
+                        <strong>₹3,999</strong>
+                        <del>₹4,499</del>
+                    </p>
+                </div>
+                <button type="button"
+                        class="shop-look-add-nb add-cart"
+                        data-id="5"
+                        data-name="White Premium Sneakers"
+                        data-price="3999"
+                        data-image="images/bestsellers/sneakers.jpg">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="shop-look-item-nb">
+                <a href="/product/6" class="shop-look-item-img-nb">
+                    <img src="{{ url_for('static', filename='images/bestsellers/cap.jpg') }}"
+                         alt="Black Urban Cap">
+                </a>
+                <div class="shop-look-item-info-nb">
+                    <h4>Black Urban Cap</h4>
+                    <p>
+                        <strong>₹699</strong>
+                        <del>₹899</del>
+                    </p>
+                </div>
+                <button type="button"
+                        class="shop-look-add-nb add-cart"
+                        data-id="6"
+                        data-name="Black Urban Cap"
+                        data-price="699"
+                        data-image="images/bestsellers/cap.jpg">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="shop-look-item-nb">
+                <a href="/product/7" class="shop-look-item-img-nb">
+                    <img src="{{ url_for('static', filename='images/bestsellers/backpack.jpg') }}"
+                         alt="Premium Backpack">
+                </a>
+                <div class="shop-look-item-info-nb">
+                    <h4>Premium Backpack</h4>
+                    <p>
+                        <strong>₹1,899</strong>
+                        <del>₹2,299</del>
+                    </p>
+                </div>
+                <button type="button"
+                        class="shop-look-add-nb add-cart"
+                        data-id="7"
+                        data-name="Premium Backpack"
+                        data-price="1899"
+                        data-image="images/bestsellers/backpack.jpg">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- TOTAL -->
+            <div class="shop-look-total-nb">
+
+                <div class="shop-look-total-price-nb">
+                    <span>Total Look</span>
+                    <strong>₹9,096</strong>
+                </div>
+
+                <button type="button"
+                        class="shop-look-add-all-nb"
+                        onclick="addAllLookItems()">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    Add All to Cart
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

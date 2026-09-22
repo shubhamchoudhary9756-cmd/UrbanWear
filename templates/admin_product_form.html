@@ -9,56 +9,38 @@
 
 <div class="admin-content">
 
-
     <!-- HEADER -->
-
     <div class="admin-content-header"
          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
 
         <div>
-
             <h1>
                 <i class="fa-solid {% if mode == 'edit' %}fa-pen{% else %}fa-plus{% endif %}"></i>
-                {% if mode == 'edit' %}
-                    Edit Product
-                {% else %}
-                    Add New Product
-                {% endif %}
+                {% if mode == 'edit' %}Edit Product{% else %}Add New Product{% endif %}
             </h1>
-
             <p>
-                {% if mode == 'edit' %}
-                    Update product details
-                {% else %}
-                    Add a new product to your store
-                {% endif %}
+                {% if mode == 'edit' %}Update product details{% else %}Add a new product to your store{% endif %}
             </p>
-
         </div>
 
         <a href="{{ url_for('admin_products_tab') }}" class="back-btn">
-
             <i class="fa-solid fa-arrow-left"></i>
             Back to Products
-
         </a>
 
     </div>
 
 
-
     <!-- FORM -->
-
     <form method="POST"
+          enctype="multipart/form-data"
           action="{% if mode == 'edit' %}{{ url_for('admin_edit_product', product_id=product.id) }}{% else %}{{ url_for('admin_add_product') }}{% endif %}"
           class="product-form">
 
-        <!-- CSRF TOKEN -->
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 
         <!-- BASIC INFO -->
-
         <div class="form-section">
 
             <h2>
@@ -66,120 +48,70 @@
                 Basic Information
             </h2>
 
-
             <div class="form-group">
-
                 <label for="name">Product Name *</label>
-
-                <input type="text"
-                       id="name"
-                       name="name"
+                <input type="text" id="name" name="name"
                        value="{{ product.name if product else '' }}"
-                       placeholder="e.g. Premium White T-Shirt"
-                       required>
-
+                       placeholder="e.g. Premium White T-Shirt" required>
             </div>
 
-
             <div class="form-row">
-
                 <div class="form-group half">
-
                     <label for="price">Price (₹) *</label>
-
-                    <input type="number"
-                           id="price"
-                           name="price"
-                           step="0.01"
-                           min="0"
+                    <input type="number" id="price" name="price" step="0.01" min="0"
                            value="{{ product.price if product else '' }}"
-                           placeholder="799"
-                           required>
-
+                           placeholder="799" required>
                 </div>
-
                 <div class="form-group half">
-
                     <label for="old_price">Old Price (₹)</label>
-
-                    <input type="number"
-                           id="old_price"
-                           name="old_price"
-                           step="0.01"
-                           min="0"
+                    <input type="number" id="old_price" name="old_price" step="0.01" min="0"
                            value="{{ product.old_price if product and product.old_price else '' }}"
                            placeholder="999">
-
                 </div>
-
             </div>
-
 
             <div class="form-row">
-
                 <div class="form-group half">
-
                     <label for="category">Category *</label>
-
-                    <select id="category"
-                            name="category"
-                            required>
-
-                        <option value="featured"
-                            {% if product and product.category == 'featured' %}selected{% endif %}>
-                            Featured
-                        </option>
-
-                        <option value="bestseller"
-                            {% if product and product.category == 'bestseller' %}selected{% endif %}>
-                            Best Seller
-                        </option>
-
+                    <select id="category" name="category" required>
+                        <option value="featured" {% if product and product.category == 'featured' %}selected{% endif %}>Featured</option>
+                        <option value="bestseller" {% if product and product.category == 'bestseller' %}selected{% endif %}>Best Seller</option>
                     </select>
-
                 </div>
-
                 <div class="form-group half">
-
                     <label for="stock">Stock Quantity</label>
-
-                    <input type="number"
-                           id="stock"
-                           name="stock"
-                           min="0"
+                    <input type="number" id="stock" name="stock" min="0"
                            value="{{ product.stock if product and product.stock else 10 }}"
                            placeholder="10">
-
                 </div>
-
             </div>
 
+            <!-- SUBCATEGORY -->
+            <div class="form-group">
+                <label for="subcategory">
+                    Subcategory
+                    <span class="optional-badge">For Filtering</span>
+                </label>
+                <input type="text" id="subcategory" name="subcategory"
+                       value="{{ product.subcategory if product and product.subcategory else '' }}"
+                       placeholder="e.g. men,tshirt (comma separated)">
+                <p class="form-hint-small">
+                    <i class="fa-solid fa-info-circle"></i>
+                    Comma-separated: <code>men,tshirt</code> · <code>women,dress</code>
+                </p>
+            </div>
 
             <div class="form-group">
-
                 <label for="rating">Rating (0-5)</label>
-
-                <input type="number"
-                       id="rating"
-                       name="rating"
-                       step="0.1"
-                       min="0"
-                       max="5"
+                <input type="number" id="rating" name="rating" step="0.1" min="0" max="5"
                        value="{{ product.rating if product and product.rating else 4.5 }}"
                        placeholder="4.5">
-
             </div>
 
-
             <div class="form-group">
-
                 <label for="description">Description</label>
-
-                <textarea id="description"
-                          name="description"
-                          rows="4"
-                          placeholder="Premium cotton t-shirt made from soft breathable fabric...">{{ product.description if product else '' }}</textarea>
-
+                <textarea id="description" name="description" rows="4"
+                          placeholder="Premium cotton t-shirt...">{{ product.description if product else '' }}</textarea>
             </div>
 
         </div>
@@ -187,7 +119,6 @@
 
 
         <!-- IMAGES -->
-
         <div class="form-section">
 
             <h2>
@@ -196,71 +127,133 @@
             </h2>
 
             <p class="form-hint">
-                Enter image paths relative to <code>static/</code> folder.
-                Example: <code>images/products/tshirt.jpg</code>
+                <i class="fa-solid fa-info-circle"></i>
+                Click <strong>Choose File</strong> to upload an image from your computer.
+                Or paste an existing path in the text field below.
             </p>
 
-
+            <!-- MAIN IMAGE -->
             <div class="form-group">
+                <label for="image_file">Main Image *</label>
 
-                <label for="image">Main Image * <span class="required-badge">Required</span></label>
+                <div class="image-upload-wrapper">
+                    <label for="image_file" class="file-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        Choose File
+                    </label>
 
-                <input type="text"
-                       id="image"
-                       name="image"
-                       value="{{ product.image if product else '' }}"
-                       placeholder="images/products/tshirt.jpg"
-                       required>
+                    <input type="file"
+                           id="image_file"
+                           name="image_file"
+                           accept="image/*"
+                           class="file-input"
+                           onchange="previewImage(this, 'preview-main', 'file-name-main')">
 
-                {% if product and product.image %}
-                    <div class="image-preview">
-                        <img src="{{ url_for('static', filename=product.image) }}"
-                             alt="{{ product.name }}">
-                    </div>
-                {% endif %}
-
-            </div>
-
-
-            <div class="form-row">
-
-                <div class="form-group half">
-
-                    <label for="image2">Image 2</label>
-
-                    <input type="text"
-                           id="image2"
-                           name="image2"
-                           value="{{ product.image2 if product and product.image2 else '' }}"
-                           placeholder="images/products/tshirt-2.jpg">
-
+                    <span class="file-name" id="file-name-main">No file chosen</span>
                 </div>
 
-                <div class="form-group half">
-
-                    <label for="image3">Image 3</label>
-
-                    <input type="text"
-                           id="image3"
-                           name="image3"
-                           value="{{ product.image3 if product and product.image3 else '' }}"
-                           placeholder="images/products/tshirt-3.jpg">
-
+                <div class="image-preview-box" id="preview-main">
+                    {% if product and product.image %}
+                        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
+                    {% endif %}
                 </div>
 
+                <div class="manual-path">
+                    <label for="image" class="small-label">Or enter existing path:</label>
+                    <input type="text" id="image" name="image"
+                           value="{{ product.image if product else '' }}"
+                           placeholder="images/products/tshirt.jpg">
+                </div>
             </div>
 
-
+            <!-- IMAGE 2 -->
             <div class="form-group">
+                <label for="image2_file">Image 2 (Optional)</label>
 
-                <label for="image4">Image 4</label>
+                <div class="image-upload-wrapper">
+                    <label for="image2_file" class="file-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        Choose File
+                    </label>
 
-                <input type="text"
-                       id="image4"
-                       name="image4"
-                       value="{{ product.image4 if product and product.image4 else '' }}"
-                       placeholder="images/products/tshirt-4.jpg">
+                    <input type="file"
+                           id="image2_file"
+                           name="image2_file"
+                           accept="image/*"
+                           class="file-input"
+                           onchange="previewImage(this, 'preview-2', 'file-name-2')">
 
+                    <span class="file-name" id="file-name-2">No file chosen</span>
+                </div>
+
+                <div class="image-preview-box" id="preview-2">
+                    {% if product and product.image2 %}
+                        <img src="{{ url_for('static', filename=product.image2) }}" alt="Image 2">
+                    {% endif %}
+                </div>
+
+                <input type="text" name="image2" value="{{ product.image2 if product and product.image2 else '' }}"
+                       placeholder="Or paste path..." class="manual-path-input">
+            </div>
+
+            <!-- IMAGE 3 -->
+            <div class="form-group">
+                <label for="image3_file">Image 3 (Optional)</label>
+
+                <div class="image-upload-wrapper">
+                    <label for="image3_file" class="file-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        Choose File
+                    </label>
+
+                    <input type="file"
+                           id="image3_file"
+                           name="image3_file"
+                           accept="image/*"
+                           class="file-input"
+                           onchange="previewImage(this, 'preview-3', 'file-name-3')">
+
+                    <span class="file-name" id="file-name-3">No file chosen</span>
+                </div>
+
+                <div class="image-preview-box" id="preview-3">
+                    {% if product and product.image3 %}
+                        <img src="{{ url_for('static', filename=product.image3) }}" alt="Image 3">
+                    {% endif %}
+                </div>
+
+                <input type="text" name="image3" value="{{ product.image3 if product and product.image3 else '' }}"
+                       placeholder="Or paste path..." class="manual-path-input">
+            </div>
+
+            <!-- IMAGE 4 -->
+            <div class="form-group">
+                <label for="image4_file">Image 4 (Optional)</label>
+
+                <div class="image-upload-wrapper">
+                    <label for="image4_file" class="file-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        Choose File
+                    </label>
+
+                    <input type="file"
+                           id="image4_file"
+                           name="image4_file"
+                           accept="image/*"
+                           class="file-input"
+                           onchange="previewImage(this, 'preview-4', 'file-name-4')">
+
+                    <span class="file-name" id="file-name-4">No file chosen</span>
+                </div>
+
+                <div class="image-preview-box" id="preview-4">
+                    {% if product and product.image4 %}
+                        <img src="{{ url_for('static', filename=product.image4) }}" alt="Image 4">
+                    {% endif %}
+                </div>
+
+                <input type="text" name="image4" value="{{ product.image4 if product and product.image4 else '' }}"
+                       placeholder="Or paste path..." class="manual-path-input">
             </div>
 
         </div>
@@ -268,29 +261,15 @@
 
 
         <!-- ACTIONS -->
-
         <div class="form-actions">
-
             <a href="{{ url_for('admin_products_tab') }}" class="cancel-btn">
-
-                <i class="fa-solid fa-times"></i>
-                Cancel
-
+                <i class="fa-solid fa-times"></i> Cancel
             </a>
-
             <button type="submit" class="submit-btn">
-
                 <i class="fa-solid {% if mode == 'edit' %}fa-save{% else %}fa-plus{% endif %}"></i>
-                {% if mode == 'edit' %}
-                    Update Product
-                {% else %}
-                    Add Product
-                {% endif %}
-
+                {% if mode == 'edit' %}Update Product{% else %}Add Product{% endif %}
             </button>
-
         </div>
-
 
     </form>
 
@@ -303,7 +282,6 @@
 {% block extra_scripts %}
 
 <style>
-
     /* Product Form */
     .product-form {
         background: #fff;
@@ -353,7 +331,7 @@
         text-transform: uppercase;
     }
 
-    .form-group input,
+    .form-group input:not([type="file"]),
     .form-group textarea,
     .form-group select {
         width: 100%;
@@ -367,7 +345,7 @@
         outline: none;
     }
 
-    .form-group input:focus,
+    .form-group input:not([type="file"]):focus,
     .form-group textarea:focus,
     .form-group select:focus {
         border-color: #c9a961;
@@ -409,6 +387,31 @@
         border-radius: 3px;
     }
 
+    .form-hint-small {
+        font-size: 12px;
+        color: #888;
+        margin-top: 8px;
+        line-height: 1.6;
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .form-hint-small i {
+        color: #c9a961;
+        margin-top: 3px;
+        flex-shrink: 0;
+    }
+
+    .form-hint-small code {
+        background: #faf8f5;
+        color: #1a1a1a;
+        padding: 2px 6px;
+        font-size: 11px;
+        border-radius: 3px;
+        border: 1px solid #e8e2d9;
+    }
+
     .required-badge {
         display: inline-block;
         background: #dc3545;
@@ -421,20 +424,159 @@
         vertical-align: middle;
     }
 
-    .image-preview {
-        margin-top: 12px;
+    .optional-badge {
+        display: inline-block;
+        background: #c9a961;
+        color: #fff;
+        font-size: 9px;
+        padding: 2px 8px;
+        margin-left: 8px;
+        letter-spacing: 1px;
+        border-radius: 3px;
+        vertical-align: middle;
+    }
+
+    /* ✅ FIXED: File Upload Styles */
+    .image-upload-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 18px 20px;
+        background: #faf8f5;
+        border: 2px dashed #e8e2d9;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+        flex-wrap: wrap;
+    }
+
+    .image-upload-wrapper:hover {
+        border-color: #c9a961;
+        background: #fff;
+    }
+
+    /* ✅ Completely hide the native file input */
+    .file-input {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* ✅ Custom button styled label */
+    .file-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        padding: 14px 28px !important;
+        background: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 2px solid #1a1a1a !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        font-family: 'Inter', sans-serif !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        min-width: 180px !important;
+        text-align: center !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+    }
+
+    .file-btn:hover {
+        background: #c9a961 !important;
+        border-color: #c9a961 !important;
+        color: #1a1a1a !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .file-btn i {
+        font-size: 14px !important;
+    }
+
+    /* ✅ File name display */
+    .file-name {
+        font-size: 13px !important;
+        color: #666 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-style: italic !important;
+        padding: 10px 14px !important;
+        background: #ffffff !important;
+        border: 1px solid #e8e2d9 !important;
+        border-radius: 3px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Preview Box */
+    .image-preview-box {
+        margin-bottom: 12px;
         padding: 12px;
         background: #faf8f5;
         border: 1px solid #e8e2d9;
-        display: inline-block;
+        display: none;
+        text-align: center;
     }
 
-    .image-preview img {
+    .image-preview-box:not(:empty) {
+        display: block;
+    }
+
+    .image-preview-box img {
         max-width: 150px;
         max-height: 150px;
         object-fit: contain;
+        border-radius: 4px;
     }
 
+    .manual-path {
+        margin-top: 10px;
+    }
+
+    .small-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 500;
+        color: #888;
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .manual-path-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e8e2d9;
+        background: #fff;
+        font-size: 12px;
+        color: #888;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: all 0.3s ease;
+        margin-top: 8px;
+    }
+
+    .manual-path-input:focus {
+        border-color: #c9a961;
+        color: #1a1a1a;
+    }
+
+    /* Form Actions */
     .form-actions {
         display: flex;
         gap: 15px;
@@ -490,7 +632,6 @@
         transform: translateY(-2px);
     }
 
-    /* Back button */
     .back-btn {
         display: inline-flex;
         align-items: center;
@@ -532,8 +673,43 @@
             width: 100%;
             justify-content: center;
         }
+
+        .image-upload-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .file-btn {
+            justify-content: center;
+            width: 100%;
+        }
     }
 
 </style>
+
+
+<script>
+    function previewImage(input, previewId, fileNameId) {
+        const preview = document.getElementById(previewId);
+        const fileNameSpan = document.getElementById(fileNameId);
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+
+            if (fileNameSpan) {
+                fileNameSpan.textContent = file.name;
+                fileNameSpan.style.color = '#1a1a1a';
+                fileNameSpan.style.fontStyle = 'normal';
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
 
 {% endblock %}
