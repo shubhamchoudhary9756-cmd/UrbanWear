@@ -6,25 +6,1243 @@
 
 <section class="customize-page-nb">
 
+    <!-- ============ HEADER ============ -->
     <div class="customize-header-nb">
+
         <a href="/product/{{ product.id }}" class="customize-back-btn">
             <i class="fa-solid fa-arrow-left"></i>
             Back to Product
         </a>
 
-        <h1>Customize Your Product</h1>
-        <p>{{ product.name }}</p>
+        <div class="customize-header-content">
+            <span class="customize-tag-nb">Design Studio</span>
+            <h1>Customize Your Product</h1>
+            <p>{{ product.name }}</p>
+        </div>
+
     </div>
 
-    <div style="text-align: center; padding: 100px 20px;">
-        <h2 style="font-family: 'Playfair Display', serif; font-size: 32px; color: #1a1a1a;">
-            🎨 Design Studio Coming Soon
-        </h2>
-        <p style="color: #777; margin-top: 15px;">
-            Customization features will be added step by step.
-        </p>
+    <!-- ============ MAIN GRID ============ -->
+    <div class="customize-grid-nb">
+
+        <div class="customize-preview-col-nb">
+
+            <div class="side-selector-nb">
+                <button type="button" class="side-tab-nb active" data-side="front" onclick="switchSide('front')">
+                    <i class="fa-solid fa-shirt"></i>
+                    Front
+                </button>
+
+                <button type="button" class="side-tab-nb" data-side="back" onclick="switchSide('back')">
+                    <i class="fa-solid fa-rotate"></i>
+                    Back
+                </button>
+            </div>
+
+            <div class="preview-container-nb">
+                <div class="tshirt-preview-nb" id="tshirtPreview">
+
+                    <img id="tshirtImage"
+                         src="{{ url_for('static', filename='images/tshirts/tshirt-front.png') }}"
+                         alt="T-Shirt Preview"
+                         class="tshirt-image-nb">
+
+                    <div class="tshirt-logo-overlay-nb" id="logoOverlay"></div>
+
+                    <div class="tshirt-text-overlay-nb" id="textOverlay"></div>
+
+                </div>
+
+                <div class="side-indicator-nb">
+                    <span id="sideLabel">Front View</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="customize-controls-col-nb">
+
+            <!-- COLOR SELECTOR -->
+            <div class="control-section-nb">
+                <h3 class="control-title-nb">
+                    <i class="fa-solid fa-palette"></i>
+                    Color: <span id="selectedColorLabel">White</span>
+                </h3>
+
+                <div class="color-swatches-nb">
+                    <button type="button" class="color-swatch-nb active" data-color="white" data-image="tshirt-front.png" title="White" onclick="selectCustomColor(this)">
+                        <span style="background: #ffffff;"></span>
+                    </button>
+                    <button type="button" class="color-swatch-nb" data-color="red" data-image="tshirt-red.png" title="Red" onclick="selectCustomColor(this)">
+                        <span style="background: #c0392b;"></span>
+                    </button>
+                    <button type="button" class="color-swatch-nb" data-color="green" data-image="tshirt-green.png" title="Green" onclick="selectCustomColor(this)">
+                        <span style="background: #27ae60;"></span>
+                    </button>
+                    <button type="button" class="color-swatch-nb" data-color="cream" data-image="tshirt-cream.png" title="Cream" onclick="selectCustomColor(this)">
+                        <span style="background: #f4e5a1;"></span>
+                    </button>
+                    <button type="button" class="color-swatch-nb" data-color="pista" data-image="tshirt-pista.png" title="Pista" onclick="selectCustomColor(this)">
+                        <span style="background: #b8d8a8;"></span>
+                    </button>
+                    <button type="button" class="color-swatch-nb" data-color="pink" data-image="tshirt-pink.png" title="Pink" onclick="selectCustomColor(this)">
+                        <span style="background: #e91e8c;"></span>
+                    </button>
+                </div>
+
+                <p class="color-note-nb">
+                    <i class="fa-solid fa-info-circle"></i>
+                    T-shirt image will change with color
+                </p>
+            </div>
+
+            <!-- LOGO SELECTOR -->
+            <div class="control-section-nb">
+                <h3 class="control-title-nb">
+                    <i class="fa-solid fa-mountain"></i>
+                    Logo
+                </h3>
+
+                <div class="logo-grid-nb">
+                    <button type="button" class="logo-option-nb" data-logo="mountain-1" title="Mountain 1" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-1.svg" alt="Mountain 1">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-2" title="Mountain 2" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-2.svg" alt="Mountain 2">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-3" title="Mountain 3" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-3.svg" alt="Mountain 3">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-4" title="Mountain 4" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-4.svg" alt="Mountain 4">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-5" title="Mountain 5" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-5.svg" alt="Mountain 5">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-6" title="Mountain 6" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-6.svg" alt="Mountain 6">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-7" title="Mountain 7" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-7.svg" alt="Mountain 7">
+                    </button>
+                    <button type="button" class="logo-option-nb" data-logo="mountain-8" title="Mountain 8" onclick="selectCustomLogo(this)">
+                        <img src="/static/images/logos/mountain-8.svg" alt="Mountain 8">
+                    </button>
+                </div>
+
+                <div class="logo-info-nb">
+                    <span id="selectedLogoLabel">Selected: None</span>
+                    <button type="button" class="logo-remove-nb" id="removeLogoBtn" onclick="removeCustomLogo()" style="display: none;">
+                        <i class="fa-solid fa-times"></i>
+                        Remove
+                    </button>
+                </div>
+
+                <!-- LOGO SIZE SLIDER -->
+                <div class="logo-size-nb" id="logoSizeControls" style="display: none;">
+                    <label class="logo-control-label-nb">
+                        <span>
+                            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                            Logo Size:
+                        </span>
+                        <span id="logoSizeValue" class="logo-size-value-nb">60px</span>
+                    </label>
+                    <input type="range" id="logoSizeSlider" class="logo-size-slider-nb" min="20" max="300" value="60" step="5" oninput="changeLogoSizeSlider(this)">
+                    <div class="logo-slider-labels-nb">
+                        <span>Small</span>
+                        <span>Large</span>
+                    </div>
+                </div>
+
+                <!-- LOGO POSITION -->
+                <div class="logo-position-nb" id="logoPositionControls" style="display: none;">
+                    <label class="logo-control-label-nb">
+                        <span>
+                            <i class="fa-solid fa-crosshairs"></i>
+                            Logo Position:
+                        </span>
+                        <span class="logo-position-hint-nb">Drag logo to move</span>
+                    </label>
+                    <button type="button" class="logo-reset-pos-btn-nb" onclick="resetLogoPosition()">
+                        <i class="fa-solid fa-arrows-to-circle"></i>
+                        Reset to Center
+                    </button>
+                </div>
+            </div>
+
+            <!-- TEXT SELECTOR -->
+            <div class="control-section-nb">
+                <h3 class="control-title-nb">
+                    <i class="fa-solid fa-font"></i>
+                    Text
+                </h3>
+
+                <!-- TEXT OPTIONS -->
+                <div class="text-options-nb">
+                    <button type="button" class="text-option-nb" data-text="WEAR YOUR HIGHER SELF" onclick="selectCustomText(this)">
+                        WEAR YOUR HIGHER SELF
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="OWN THE MOMENT" onclick="selectCustomText(this)">
+                        OWN THE MOMENT
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="RISE ABOVE" onclick="selectCustomText(this)">
+                        RISE ABOVE
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="PEAK PERFORMANCE" onclick="selectCustomText(this)">
+                        PEAK PERFORMANCE
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="LIMITLESS" onclick="selectCustomText(this)">
+                        LIMITLESS
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="MOUNTAINS ARE CALLING" onclick="selectCustomText(this)">
+                        MOUNTAINS ARE CALLING
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="DREAM BIGGER" onclick="selectCustomText(this)">
+                        DREAM BIGGER
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="BE UNSTOPPABLE" onclick="selectCustomText(this)">
+                        BE UNSTOPPABLE
+                    </button>
+                    <button type="button" class="text-option-nb" data-text="CONQUER EVERYTHING" onclick="selectCustomText(this)">
+                        CONQUER EVERYTHING
+                    </button>
+                </div>
+
+                <!-- CUSTOM TEXT INPUT -->
+                <div class="custom-text-input-nb">
+                    <label for="customTextInput" class="custom-text-label-nb">
+                        <i class="fa-solid fa-pen"></i>
+                        Custom Text:
+                    </label>
+                    <input type="text"
+                           id="customTextInput"
+                           class="custom-text-field-nb"
+                           placeholder="Enter your text (max 30 chars)"
+                           maxlength="30"
+                           oninput="handleCustomTextInput(this)">
+                </div>
+
+                <!-- TEXT INFO -->
+                <div class="text-info-nb">
+                    <span id="selectedTextLabel">Selected: None</span>
+                    <button type="button"
+                            class="text-remove-nb"
+                            id="removeTextBtn"
+                            onclick="removeCustomText()"
+                            style="display: none;">
+                        <i class="fa-solid fa-times"></i>
+                        Remove
+                    </button>
+                </div>
+
+                <!-- TEXT SIZE SLIDER -->
+                <div class="text-size-nb" id="textSizeControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <span>
+                            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                            Text Size:
+                        </span>
+                        <span id="textSizeValue" class="text-size-value-nb">16px</span>
+                    </label>
+                    <input type="range"
+                           id="textSizeSlider"
+                           class="text-size-slider-nb"
+                           min="10"
+                           max="60"
+                           value="16"
+                           step="1"
+                           oninput="changeTextSizeSlider(this)">
+                    <div class="text-slider-labels-nb">
+                        <span>Small</span>
+                        <span>Large</span>
+                    </div>
+                </div>
+
+                <!-- TEXT COLOR -->
+                <div class="text-color-nb" id="textColorControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <i class="fa-solid fa-palette"></i>
+                        Text Color:
+                    </label>
+                    <div class="text-color-options-nb">
+                        <button type="button" class="text-color-btn-nb active" data-color="#1a1a1a" onclick="changeTextColor(this)">
+                            <span style="background: #1a1a1a;"></span>
+                        </button>
+                        <button type="button" class="text-color-btn-nb" data-color="#ffffff" onclick="changeTextColor(this)">
+                            <span style="background: #ffffff; border: 1px solid #ccc;"></span>
+                        </button>
+                        <button type="button" class="text-color-btn-nb" data-color="#c9a961" onclick="changeTextColor(this)">
+                            <span style="background: #c9a961;"></span>
+                        </button>
+                        <button type="button" class="text-color-btn-nb" data-color="#c0392b" onclick="changeTextColor(this)">
+                            <span style="background: #c0392b;"></span>
+                        </button>
+                        <button type="button" class="text-color-btn-nb" data-color="#1e88e5" onclick="changeTextColor(this)">
+                            <span style="background: #1e88e5;"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ✅ FONT FAMILY -->
+                <div class="text-font-nb" id="textFontControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <i class="fa-solid fa-font"></i>
+                        Font Family:
+                    </label>
+                    <div class="font-options-nb">
+                        <button type="button" class="font-btn-nb active" data-font="'Inter', sans-serif" style="font-family: 'Inter', sans-serif;" onclick="changeFont(this)">Inter</button>
+                        <button type="button" class="font-btn-nb" data-font="'Playfair Display', serif" style="font-family: 'Playfair Display', serif;" onclick="changeFont(this)">Playfair</button>
+                        <button type="button" class="font-btn-nb" data-font="'Cinzel', serif" style="font-family: 'Cinzel', serif;" onclick="changeFont(this)">Cinzel</button>
+                        <button type="button" class="font-btn-nb" data-font="'Montserrat', sans-serif" style="font-family: 'Montserrat', sans-serif;" onclick="changeFont(this)">Montserrat</button>
+                        <button type="button" class="font-btn-nb" data-font="'Bebas Neue', sans-serif" style="font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px;" onclick="changeFont(this)">Bebas</button>
+                        <button type="button" class="font-btn-nb" data-font="'Great Vibes', cursive" style="font-family: 'Great Vibes', cursive; font-size: 15px;" onclick="changeFont(this)">Great Vibes</button>
+                    </div>
+                </div>
+
+                <!-- ✅ FONT WEIGHT -->
+                <div class="text-weight-nb" id="textWeightControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <i class="fa-solid fa-bold"></i>
+                        Font Weight:
+                    </label>
+                    <div class="weight-options-nb">
+                        <button type="button" class="weight-btn-nb" data-weight="300" onclick="changeFontWeight(this)">Light</button>
+                        <button type="button" class="weight-btn-nb" data-weight="500" onclick="changeFontWeight(this)">Regular</button>
+                        <button type="button" class="weight-btn-nb active" data-weight="700" onclick="changeFontWeight(this)">Bold</button>
+                    </div>
+                </div>
+
+                <!-- ✅ FONT STYLE -->
+                <div class="text-style-nb" id="textStyleControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <i class="fa-solid fa-italic"></i>
+                        Font Style:
+                    </label>
+                    <div class="style-options-nb">
+                        <button type="button" class="style-btn-nb active" data-style="normal" onclick="changeFontStyle(this)">Normal</button>
+                        <button type="button" class="style-btn-nb" data-style="italic" onclick="changeFontStyle(this)">Italic</button>
+                    </div>
+                </div>
+
+                <!-- ✅ LETTER SPACING -->
+                <div class="text-spacing-nb" id="textSpacingControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <i class="fa-solid fa-text-width"></i>
+                        Letter Spacing:
+                    </label>
+                    <div class="spacing-options-nb">
+                        <button type="button" class="spacing-btn-nb" data-spacing="0" onclick="changeLetterSpacing(this)">Tight</button>
+                        <button type="button" class="spacing-btn-nb active" data-spacing="1" onclick="changeLetterSpacing(this)">Normal</button>
+                        <button type="button" class="spacing-btn-nb" data-spacing="3" onclick="changeLetterSpacing(this)">Wide</button>
+                    </div>
+                </div>
+
+                <!-- TEXT POSITION -->
+                <div class="text-position-nb" id="textPositionControls" style="display: none;">
+                    <label class="text-control-label-nb">
+                        <span>
+                            <i class="fa-solid fa-crosshairs"></i>
+                            Text Position:
+                        </span>
+                        <span class="text-position-hint-nb">Drag text to move</span>
+                    </label>
+                    <button type="button"
+                            class="text-reset-pos-btn-nb"
+                            onclick="resetTextPosition()">
+                        <i class="fa-solid fa-arrows-to-circle"></i>
+                        Reset to Center
+                    </button>
+                </div>
+            </div>
+
+            <!-- SIZE SELECTOR -->
+            <div class="control-section-nb">
+                <h3 class="control-title-nb">
+                    <i class="fa-solid fa-ruler"></i>
+                    Size
+                </h3>
+                <div class="size-options-custom-nb">
+                    <button type="button" class="size-btn-custom-nb" data-size="S" onclick="selectCustomSize(this)">S</button>
+                    <button type="button" class="size-btn-custom-nb active" data-size="M" onclick="selectCustomSize(this)">M</button>
+                    <button type="button" class="size-btn-custom-nb" data-size="L" onclick="selectCustomSize(this)">L</button>
+                    <button type="button" class="size-btn-custom-nb" data-size="XL" onclick="selectCustomSize(this)">XL</button>
+                    <button type="button" class="size-btn-custom-nb" data-size="XXL" onclick="selectCustomSize(this)">XXL</button>
+                </div>
+            </div>
+
+            <!-- PRICE + ADD TO CART -->
+            <div class="customize-footer-nb">
+
+                <div class="price-breakdown-nb">
+                    <div class="price-row-nb">
+                        <span>Base Price</span>
+                        <strong id="basePriceDisplay">₹{{ product.price }}</strong>
+                    </div>
+                    <div class="price-row-nb">
+                        <span>Customization</span>
+                        <strong id="customizationPrice">₹0</strong>
+                    </div>
+                    <div class="price-total-nb">
+                        <span>Total</span>
+                        <strong id="totalPrice">₹{{ product.price }}</strong>
+                    </div>
+                </div>
+
+                <button type="button" class="add-to-cart-custom-nb" onclick="addCustomToCart()">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    Add to Cart
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 
 </section>
+
+<!-- ✅ Product data for JS -->
+<div id="customizeProductData"
+     data-id="{{ product.id }}"
+     data-name="{{ product.name }}"
+     data-price="{{ product.price }}"
+     data-image="{{ product.image }}"
+     style="display: none;"></div>
+
+
+<script>
+    /* ============ GLOBAL DATA ============ */
+    let selectedFrontLogo = null;
+    let selectedBackLogo = null;
+    let selectedFrontText = null;
+    let selectedBackText = null;
+
+    let frontLogoSize = 60;
+    let backLogoSize = 60;
+    let frontLogoPos = { top: 38, left: 50 };
+    let backLogoPos = { top: 38, left: 50 };
+
+    /* ✅ TEXT DATA */
+    let frontTextSize = 16;
+    let backTextSize = 16;
+    let frontTextColor = '#1a1a1a';
+    let backTextColor = '#1a1a1a';
+    let frontTextPos = { top: 55, left: 50 };
+    let backTextPos = { top: 55, left: 50 };
+
+    /* ✅ FONT DATA */
+    let frontTextFont = "'Inter', sans-serif";
+    let backTextFont = "'Inter', sans-serif";
+    let frontTextWeight = "700";
+    let backTextWeight = "700";
+    let frontTextStyle = "normal";
+    let backTextStyle = "normal";
+    let frontTextSpacing = 1;
+    let backTextSpacing = 1;
+
+    /* ============ HELPER — Get Base Price ============ */
+    function getBasePrice() {
+        const el = document.getElementById('customizeProductData');
+        return el ? Number(el.dataset.price) || 0 : 0;
+    }
+
+    /* ============ HELPER — Get Active Side ============ */
+    function getActiveSide() {
+        const tab = document.querySelector('.side-tab-nb.active');
+        return tab ? tab.dataset.side : 'front';
+    }
+
+    /* ============ SIDE SWITCHER ============ */
+    function switchSide(side) {
+        const tabs = document.querySelectorAll('.side-tab-nb');
+        tabs.forEach(t => t.classList.remove('active'));
+
+        const activeTab = document.querySelector('.side-tab-nb[data-side="' + side + '"]');
+        if (activeTab) activeTab.classList.add('active');
+
+        const image = document.getElementById('tshirtImage');
+        const label = document.getElementById('sideLabel');
+
+        if (side === 'front') {
+            const activeColorBtn = document.querySelector('.color-swatch-nb.active');
+            const imageFile = activeColorBtn ? activeColorBtn.dataset.image : 'tshirt-front.png';
+            image.src = "/static/images/tshirts/" + imageFile;
+            label.textContent = "Front View";
+
+            document.querySelectorAll('.logo-option-nb').forEach(b => b.classList.remove('active'));
+            if (selectedFrontLogo) {
+                const btn = document.querySelector('.logo-option-nb[data-logo="' + selectedFrontLogo + '"]');
+                if (btn) btn.classList.add('active');
+                const logoNum = selectedFrontLogo.replace('mountain-', '');
+                document.getElementById('selectedLogoLabel').textContent = 'Selected: Mountain ' + logoNum;
+                document.getElementById('removeLogoBtn').style.display = 'inline-flex';
+                document.getElementById('logoSizeControls').style.display = 'block';
+                document.getElementById('logoPositionControls').style.display = 'block';
+
+                const slider = document.getElementById('logoSizeSlider');
+                if (slider) {
+                    slider.value = frontLogoSize;
+                    document.getElementById('logoSizeValue').textContent = frontLogoSize + 'px';
+                }
+            } else {
+                document.getElementById('selectedLogoLabel').textContent = 'Selected: None';
+                document.getElementById('removeLogoBtn').style.display = 'none';
+                document.getElementById('logoSizeControls').style.display = 'none';
+                document.getElementById('logoPositionControls').style.display = 'none';
+            }
+        } else {
+            image.src = "/static/images/tshirts/tshirt-back.png";
+            label.textContent = "Back View";
+
+            document.querySelectorAll('.logo-option-nb').forEach(b => b.classList.remove('active'));
+            if (selectedBackLogo) {
+                const btn = document.querySelector('.logo-option-nb[data-logo="' + selectedBackLogo + '"]');
+                if (btn) btn.classList.add('active');
+                const logoNum = selectedBackLogo.replace('mountain-', '');
+                document.getElementById('selectedLogoLabel').textContent = 'Selected: Mountain ' + logoNum;
+                document.getElementById('removeLogoBtn').style.display = 'inline-flex';
+                document.getElementById('logoSizeControls').style.display = 'block';
+                document.getElementById('logoPositionControls').style.display = 'block';
+
+                const slider = document.getElementById('logoSizeSlider');
+                if (slider) {
+                    slider.value = backLogoSize;
+                    document.getElementById('logoSizeValue').textContent = backLogoSize + 'px';
+                }
+            } else {
+                document.getElementById('selectedLogoLabel').textContent = 'Selected: None';
+                document.getElementById('removeLogoBtn').style.display = 'none';
+                document.getElementById('logoSizeControls').style.display = 'none';
+                document.getElementById('logoPositionControls').style.display = 'none';
+            }
+        }
+
+        updateLogoOverlay();
+        updateTextControls();
+    }
+
+    /* ============ COLOR SELECTOR ============ */
+    function selectCustomColor(btn) {
+        document.querySelectorAll('.color-swatch-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const color = btn.dataset.color;
+        const imageFile = btn.dataset.image;
+
+        document.getElementById('selectedColorLabel').textContent =
+            color.charAt(0).toUpperCase() + color.slice(1);
+
+        const currentSide = getActiveSide();
+        const tshirtImage = document.getElementById('tshirtImage');
+
+        if (currentSide === 'front') {
+            tshirtImage.src = "/static/images/tshirts/" + imageFile;
+        }
+    }
+
+    /* ============ LOGO SELECTOR ============ */
+    function selectCustomLogo(btn) {
+        const logoName = btn.dataset.logo;
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.logo-option-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentSide === 'front') {
+            selectedFrontLogo = logoName;
+        } else {
+            selectedBackLogo = logoName;
+        }
+
+        const logoNum = logoName.replace('mountain-', '');
+        document.getElementById('selectedLogoLabel').textContent = 'Selected: Mountain ' + logoNum;
+        document.getElementById('removeLogoBtn').style.display = 'inline-flex';
+
+        document.getElementById('logoSizeControls').style.display = 'block';
+        document.getElementById('logoPositionControls').style.display = 'block';
+
+        const currentSize = currentSide === 'front' ? frontLogoSize : backLogoSize;
+        const slider = document.getElementById('logoSizeSlider');
+        if (slider) {
+            slider.value = currentSize;
+            document.getElementById('logoSizeValue').textContent = currentSize + 'px';
+        }
+
+        updateLogoOverlay();
+        updateCustomPrice();
+    }
+
+    function removeCustomLogo() {
+        const currentSide = getActiveSide();
+
+        if (currentSide === 'front') {
+            selectedFrontLogo = null;
+            frontLogoSize = 60;
+            frontLogoPos = { top: 38, left: 50 };
+        } else {
+            selectedBackLogo = null;
+            backLogoSize = 60;
+            backLogoPos = { top: 38, left: 50 };
+        }
+
+        document.querySelectorAll('.logo-option-nb').forEach(b => b.classList.remove('active'));
+
+        document.getElementById('selectedLogoLabel').textContent = 'Selected: None';
+        document.getElementById('removeLogoBtn').style.display = 'none';
+        document.getElementById('logoSizeControls').style.display = 'none';
+        document.getElementById('logoPositionControls').style.display = 'none';
+
+        updateLogoOverlay();
+        updateCustomPrice();
+    }
+
+    function updateLogoOverlay() {
+        const overlay = document.getElementById('logoOverlay');
+        const currentSide = getActiveSide();
+
+        const activeLogo = currentSide === 'front' ? selectedFrontLogo : selectedBackLogo;
+        const activeSize = currentSide === 'front' ? frontLogoSize : backLogoSize;
+        const activePos = currentSide === 'front' ? frontLogoPos : backLogoPos;
+
+        if (activeLogo) {
+            overlay.style.top = activePos.top + '%';
+            overlay.style.left = activePos.left + '%';
+            overlay.style.maxWidth = 'none';
+
+            overlay.innerHTML =
+                '<div class="logo-drag-wrapper-nb" id="logoDragWrapper">' +
+                    '<img src="/static/images/logos/' + activeLogo + '.svg" ' +
+                         'alt="Logo" ' +
+                         'class="logo-preview-img-nb" ' +
+                         'style="width: ' + activeSize + 'px; height: auto; pointer-events: none;">' +
+                '</div>';
+
+            makeDraggable();
+        } else {
+            overlay.innerHTML = '';
+        }
+    }
+
+    /* ============ LOGO SIZE SLIDER ============ */
+    function changeLogoSizeSlider(slider) {
+        const newSize = Number(slider.value);
+        const currentSide = getActiveSide();
+
+        document.getElementById('logoSizeValue').textContent = newSize + 'px';
+
+        if (currentSide === 'front') {
+            frontLogoSize = newSize;
+        } else {
+            backLogoSize = newSize;
+        }
+
+        const img = document.querySelector('.logo-preview-img-nb');
+        if (img) {
+            img.style.width = newSize + 'px';
+        }
+    }
+
+    /* ============ LOGO DRAG & DROP ============ */
+    function makeDraggable() {
+        const wrapper = document.getElementById('logoDragWrapper');
+        const tshirtPreview = document.getElementById('tshirtPreview');
+
+        if (!wrapper || !tshirtPreview) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        wrapper.addEventListener('mousedown', startDrag);
+        wrapper.addEventListener('touchstart', startDrag, { passive: false });
+
+        function startDrag(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = true;
+            wrapper.style.cursor = 'grabbing';
+
+            const touch = e.touches ? e.touches[0] : e;
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('touchmove', onDrag, { passive: false });
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            if (e.cancelable) e.preventDefault();
+
+            const touch = e.touches ? e.touches[0] : e;
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+
+            const previewRect = tshirtPreview.getBoundingClientRect();
+
+            const percentX = (deltaX / previewRect.width) * 100;
+            const percentY = (deltaY / previewRect.height) * 100;
+
+            const currentSide = getActiveSide();
+            const currentPos = currentSide === 'front' ? frontLogoPos : backLogoPos;
+
+            let newLeft = currentPos.left + percentX;
+            let newTop = currentPos.top + percentY;
+
+            newLeft = Math.max(5, Math.min(95, newLeft));
+            newTop = Math.max(5, Math.min(95, newTop));
+
+            const overlay = document.getElementById('logoOverlay');
+            overlay.style.left = newLeft + '%';
+            overlay.style.top = newTop + '%';
+
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            if (currentSide === 'front') {
+                frontLogoPos = { top: newTop, left: newLeft };
+            } else {
+                backLogoPos = { top: newTop, left: newLeft };
+            }
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            if (wrapper) wrapper.style.cursor = 'grab';
+
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+    }
+
+    /* ============ RESET LOGO POSITION ============ */
+    function resetLogoPosition() {
+        const currentSide = getActiveSide();
+
+        if (currentSide === 'front') {
+            frontLogoPos = { top: 38, left: 50 };
+        } else {
+            backLogoPos = { top: 38, left: 50 };
+        }
+
+        updateLogoOverlay();
+    }
+
+    /* ============ TEXT SELECTOR ============ */
+    function selectCustomText(btn) {
+        const textValue = btn.dataset.text;
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.text-option-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        document.getElementById('customTextInput').value = '';
+
+        if (currentSide === 'front') {
+            selectedFrontText = textValue;
+        } else {
+            selectedBackText = textValue;
+        }
+
+        document.getElementById('selectedTextLabel').textContent = 'Selected: ' + textValue;
+        document.getElementById('removeTextBtn').style.display = 'inline-flex';
+        document.getElementById('textSizeControls').style.display = 'block';
+        document.getElementById('textColorControls').style.display = 'block';
+        document.getElementById('textFontControls').style.display = 'block';
+        document.getElementById('textWeightControls').style.display = 'block';
+        document.getElementById('textStyleControls').style.display = 'block';
+        document.getElementById('textSpacingControls').style.display = 'block';
+        document.getElementById('textPositionControls').style.display = 'block';
+
+        syncTextControlsUI(currentSide);
+
+        updateTextOverlay();
+        updateCustomPrice();
+    }
+
+    function handleCustomTextInput(input) {
+        const textValue = input.value.trim();
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.text-option-nb').forEach(b => b.classList.remove('active'));
+
+        if (textValue) {
+            if (currentSide === 'front') {
+                selectedFrontText = textValue;
+            } else {
+                selectedBackText = textValue;
+            }
+
+            document.getElementById('selectedTextLabel').textContent = 'Selected: ' + textValue;
+            document.getElementById('removeTextBtn').style.display = 'inline-flex';
+            document.getElementById('textSizeControls').style.display = 'block';
+            document.getElementById('textColorControls').style.display = 'block';
+            document.getElementById('textFontControls').style.display = 'block';
+            document.getElementById('textWeightControls').style.display = 'block';
+            document.getElementById('textStyleControls').style.display = 'block';
+            document.getElementById('textSpacingControls').style.display = 'block';
+            document.getElementById('textPositionControls').style.display = 'block';
+
+            syncTextControlsUI(currentSide);
+        } else {
+            if (currentSide === 'front') {
+                selectedFrontText = null;
+            } else {
+                selectedBackText = null;
+            }
+
+            document.getElementById('selectedTextLabel').textContent = 'Selected: None';
+            document.getElementById('removeTextBtn').style.display = 'none';
+            document.getElementById('textSizeControls').style.display = 'none';
+            document.getElementById('textColorControls').style.display = 'none';
+            document.getElementById('textFontControls').style.display = 'none';
+            document.getElementById('textWeightControls').style.display = 'none';
+            document.getElementById('textStyleControls').style.display = 'none';
+            document.getElementById('textSpacingControls').style.display = 'none';
+            document.getElementById('textPositionControls').style.display = 'none';
+        }
+
+        updateTextOverlay();
+        updateCustomPrice();
+    }
+
+    /* ============ SYNC TEXT CONTROL UI WITH ACTIVE SIDE ============ */
+    function syncTextControlsUI(side) {
+        const size = side === 'front' ? frontTextSize : backTextSize;
+        const color = side === 'front' ? frontTextColor : backTextColor;
+        const font = side === 'front' ? frontTextFont : backTextFont;
+        const weight = side === 'front' ? frontTextWeight : backTextWeight;
+        const style = side === 'front' ? frontTextStyle : backTextStyle;
+        const spacing = side === 'front' ? frontTextSpacing : backTextSpacing;
+
+        const sizeSlider = document.getElementById('textSizeSlider');
+        if (sizeSlider) {
+            sizeSlider.value = size;
+            document.getElementById('textSizeValue').textContent = size + 'px';
+        }
+
+        document.querySelectorAll('.text-color-btn-nb').forEach(b => {
+            b.classList.toggle('active', b.dataset.color === color);
+        });
+
+        document.querySelectorAll('.font-btn-nb').forEach(b => {
+            b.classList.toggle('active', b.dataset.font === font);
+        });
+
+        document.querySelectorAll('.weight-btn-nb').forEach(b => {
+            b.classList.toggle('active', b.dataset.weight === weight);
+        });
+
+        document.querySelectorAll('.style-btn-nb').forEach(b => {
+            b.classList.toggle('active', b.dataset.style === style);
+        });
+
+        document.querySelectorAll('.spacing-btn-nb').forEach(b => {
+            b.classList.toggle('active', Number(b.dataset.spacing) === spacing);
+        });
+    }
+
+    function removeCustomText() {
+        const currentSide = getActiveSide();
+
+        if (currentSide === 'front') {
+            selectedFrontText = null;
+            frontTextSize = 16;
+            frontTextColor = '#1a1a1a';
+            frontTextPos = { top: 55, left: 50 };
+            frontTextFont = "'Inter', sans-serif";
+            frontTextWeight = "700";
+            frontTextStyle = "normal";
+            frontTextSpacing = 1;
+        } else {
+            selectedBackText = null;
+            backTextSize = 16;
+            backTextColor = '#1a1a1a';
+            backTextPos = { top: 55, left: 50 };
+            backTextFont = "'Inter', sans-serif";
+            backTextWeight = "700";
+            backTextStyle = "normal";
+            backTextSpacing = 1;
+        }
+
+        document.querySelectorAll('.text-option-nb').forEach(b => b.classList.remove('active'));
+        document.getElementById('customTextInput').value = '';
+
+        document.getElementById('selectedTextLabel').textContent = 'Selected: None';
+        document.getElementById('removeTextBtn').style.display = 'none';
+        document.getElementById('textSizeControls').style.display = 'none';
+        document.getElementById('textColorControls').style.display = 'none';
+        document.getElementById('textFontControls').style.display = 'none';
+        document.getElementById('textWeightControls').style.display = 'none';
+        document.getElementById('textStyleControls').style.display = 'none';
+        document.getElementById('textSpacingControls').style.display = 'none';
+        document.getElementById('textPositionControls').style.display = 'none';
+
+        updateTextOverlay();
+        updateCustomPrice();
+    }
+
+    function updateTextControls() {
+        const currentSide = getActiveSide();
+        const activeText = currentSide === 'front' ? selectedFrontText : selectedBackText;
+
+        if (activeText) {
+            document.getElementById('selectedTextLabel').textContent = 'Selected: ' + activeText;
+            document.getElementById('removeTextBtn').style.display = 'inline-flex';
+            document.getElementById('textSizeControls').style.display = 'block';
+            document.getElementById('textColorControls').style.display = 'block';
+            document.getElementById('textFontControls').style.display = 'block';
+            document.getElementById('textWeightControls').style.display = 'block';
+            document.getElementById('textStyleControls').style.display = 'block';
+            document.getElementById('textSpacingControls').style.display = 'block';
+            document.getElementById('textPositionControls').style.display = 'block';
+
+            syncTextControlsUI(currentSide);
+
+            const isPreset = Array.from(document.querySelectorAll('.text-option-nb'))
+                .some(b => b.dataset.text === activeText);
+
+            document.querySelectorAll('.text-option-nb').forEach(b => {
+                b.classList.toggle('active', b.dataset.text === activeText);
+            });
+
+            if (!isPreset) {
+                document.getElementById('customTextInput').value = activeText;
+            } else {
+                document.getElementById('customTextInput').value = '';
+            }
+        } else {
+            document.getElementById('selectedTextLabel').textContent = 'Selected: None';
+            document.getElementById('removeTextBtn').style.display = 'none';
+            document.getElementById('textSizeControls').style.display = 'none';
+            document.getElementById('textColorControls').style.display = 'none';
+            document.getElementById('textFontControls').style.display = 'none';
+            document.getElementById('textWeightControls').style.display = 'none';
+            document.getElementById('textStyleControls').style.display = 'none';
+            document.getElementById('textSpacingControls').style.display = 'none';
+            document.getElementById('textPositionControls').style.display = 'none';
+            document.querySelectorAll('.text-option-nb').forEach(b => b.classList.remove('active'));
+            document.getElementById('customTextInput').value = '';
+        }
+
+        updateTextOverlay();
+    }
+
+    function changeTextSizeSlider(slider) {
+        const newSize = Number(slider.value);
+        const currentSide = getActiveSide();
+
+        document.getElementById('textSizeValue').textContent = newSize + 'px';
+
+        if (currentSide === 'front') {
+            frontTextSize = newSize;
+        } else {
+            backTextSize = newSize;
+        }
+
+        updateTextOverlay();
+    }
+
+    function changeTextColor(btn) {
+        const newColor = btn.dataset.color;
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.text-color-btn-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentSide === 'front') {
+            frontTextColor = newColor;
+        } else {
+            backTextColor = newColor;
+        }
+
+        updateTextOverlay();
+    }
+
+    /* ============ FONT FAMILY ============ */
+    function changeFont(btn) {
+        const newFont = btn.dataset.font;
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.font-btn-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentSide === 'front') {
+            frontTextFont = newFont;
+        } else {
+            backTextFont = newFont;
+        }
+
+        updateTextOverlay();
+    }
+
+    /* ============ FONT WEIGHT ============ */
+    function changeFontWeight(btn) {
+        const newWeight = btn.dataset.weight;
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.weight-btn-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentSide === 'front') {
+            frontTextWeight = newWeight;
+        } else {
+            backTextWeight = newWeight;
+        }
+
+        updateTextOverlay();
+    }
+
+    /* ============ FONT STYLE ============ */
+    function changeFontStyle(btn) {
+        const newStyle = btn.dataset.style;
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.style-btn-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentSide === 'front') {
+            frontTextStyle = newStyle;
+        } else {
+            backTextStyle = newStyle;
+        }
+
+        updateTextOverlay();
+    }
+
+    /* ============ LETTER SPACING ============ */
+    function changeLetterSpacing(btn) {
+        const newSpacing = Number(btn.dataset.spacing);
+        const currentSide = getActiveSide();
+
+        document.querySelectorAll('.spacing-btn-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (currentSide === 'front') {
+            frontTextSpacing = newSpacing;
+        } else {
+            backTextSpacing = newSpacing;
+        }
+
+        updateTextOverlay();
+    }
+
+    /* ============ UPDATE TEXT OVERLAY ============ */
+    function updateTextOverlay() {
+        const overlay = document.getElementById('textOverlay');
+        const currentSide = getActiveSide();
+
+        const activeText = currentSide === 'front' ? selectedFrontText : selectedBackText;
+        const activeSize = currentSide === 'front' ? frontTextSize : backTextSize;
+        const activeColor = currentSide === 'front' ? frontTextColor : backTextColor;
+        const activePos = currentSide === 'front' ? frontTextPos : backTextPos;
+        const activeFont = currentSide === 'front' ? frontTextFont : backTextFont;
+        const activeWeight = currentSide === 'front' ? frontTextWeight : backTextWeight;
+        const activeStyle = currentSide === 'front' ? frontTextStyle : backTextStyle;
+        const activeSpacing = currentSide === 'front' ? frontTextSpacing : backTextSpacing;
+
+        if (activeText) {
+            overlay.style.top = activePos.top + '%';
+            overlay.style.left = activePos.left + '%';
+            overlay.style.maxWidth = 'none';
+
+            /* ✅ Script fonts (Great Vibes) ke liye uppercase off */
+            const isScriptFont = activeFont.indexOf('Great Vibes') !== -1;
+            const textTransform = isScriptFont ? 'none' : 'uppercase';
+
+            overlay.innerHTML =
+                '<div class="text-drag-wrapper-nb" id="textDragWrapper" ' +
+                     'style="font-size: ' + activeSize + 'px; ' +
+                     'color: ' + activeColor + '; ' +
+                     'font-family: ' + activeFont + '; ' +
+                     'font-weight: ' + activeWeight + '; ' +
+                     'font-style: ' + activeStyle + '; ' +
+                     'letter-spacing: ' + activeSpacing + 'px; ' +
+                     'text-align: center; line-height: 1.2; ' +
+                     'text-transform: ' + textTransform + '; ' +
+                     'white-space: nowrap;">' +
+                    activeText +
+                '</div>';
+
+            makeTextDraggable();
+        } else {
+            overlay.innerHTML = '';
+        }
+    }
+
+    /* ============ TEXT DRAG & DROP ============ */
+    function makeTextDraggable() {
+        const wrapper = document.getElementById('textDragWrapper');
+        const tshirtPreview = document.getElementById('tshirtPreview');
+
+        if (!wrapper || !tshirtPreview) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        wrapper.style.pointerEvents = 'auto';
+        wrapper.style.cursor = 'grab';
+
+        wrapper.addEventListener('mousedown', startDrag);
+        wrapper.addEventListener('touchstart', startDrag, { passive: false });
+
+        function startDrag(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = true;
+            wrapper.style.cursor = 'grabbing';
+
+            const touch = e.touches ? e.touches[0] : e;
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('touchmove', onDrag, { passive: false });
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            if (e.cancelable) e.preventDefault();
+
+            const touch = e.touches ? e.touches[0] : e;
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+
+            const previewRect = tshirtPreview.getBoundingClientRect();
+
+            const percentX = (deltaX / previewRect.width) * 100;
+            const percentY = (deltaY / previewRect.height) * 100;
+
+            const currentSide = getActiveSide();
+            const currentPos = currentSide === 'front' ? frontTextPos : backTextPos;
+
+            let newLeft = currentPos.left + percentX;
+            let newTop = currentPos.top + percentY;
+
+            newLeft = Math.max(5, Math.min(95, newLeft));
+            newTop = Math.max(5, Math.min(95, newTop));
+
+            const overlay = document.getElementById('textOverlay');
+            overlay.style.left = newLeft + '%';
+            overlay.style.top = newTop + '%';
+
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            if (currentSide === 'front') {
+                frontTextPos = { top: newTop, left: newLeft };
+            } else {
+                backTextPos = { top: newTop, left: newLeft };
+            }
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            if (wrapper) wrapper.style.cursor = 'grab';
+
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+    }
+
+    function resetTextPosition() {
+        const currentSide = getActiveSide();
+
+        if (currentSide === 'front') {
+            frontTextPos = { top: 55, left: 50 };
+        } else {
+            backTextPos = { top: 55, left: 50 };
+        }
+
+        updateTextOverlay();
+    }
+
+    /* ============ PRICE ============ */
+    function updateCustomPrice() {
+        let price = 0;
+
+        if (selectedFrontLogo) price += 50;
+        if (selectedFrontText) price += 50;
+        if (selectedBackLogo) price += 50;
+        if (selectedBackText) price += 50;
+
+        const customizationPriceEl = document.getElementById('customizationPrice');
+        const totalPriceEl = document.getElementById('totalPrice');
+
+        if (customizationPriceEl) {
+            customizationPriceEl.textContent = '₹' + price;
+        }
+
+        if (totalPriceEl) {
+            const basePrice = getBasePrice();
+            totalPriceEl.textContent = '₹' + (basePrice + price);
+        }
+    }
+
+    /* ============ SIZE SELECTOR ============ */
+    function selectCustomSize(btn) {
+        document.querySelectorAll('.size-btn-custom-nb').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    /* ============ ADD TO CART ============ */
+    function addCustomToCart() {
+        const productDataEl = document.getElementById('customizeProductData');
+
+        if (!productDataEl) {
+            if (typeof showToast === 'function') showToast('Product data not found.', 'error');
+            return;
+        }
+
+        window.customizeProductData = {
+            id: Number(productDataEl.dataset.id),
+            name: productDataEl.dataset.name,
+            price: Number(productDataEl.dataset.price),
+            image: productDataEl.dataset.image
+        };
+
+        window.selectedFrontLogo = selectedFrontLogo;
+        window.selectedFrontText = selectedFrontText;
+        window.selectedBackLogo = selectedBackLogo;
+        window.selectedBackText = selectedBackText;
+
+        window.selectedFrontLogoSize = frontLogoSize;
+        window.selectedBackLogoSize = backLogoSize;
+        window.selectedFrontLogoPos = frontLogoPos;
+        window.selectedBackLogoPos = backLogoPos;
+
+        window.selectedFrontTextSize = frontTextSize;
+        window.selectedBackTextSize = backTextSize;
+        window.selectedFrontTextColor = frontTextColor;
+        window.selectedBackTextColor = backTextColor;
+        window.selectedFrontTextPos = frontTextPos;
+        window.selectedBackTextPos = backTextPos;
+
+        /* ✅ FONT DATA */
+        window.selectedFrontTextFont = frontTextFont;
+        window.selectedBackTextFont = backTextFont;
+        window.selectedFrontTextWeight = frontTextWeight;
+        window.selectedBackTextWeight = backTextWeight;
+        window.selectedFrontTextStyle = frontTextStyle;
+        window.selectedBackTextStyle = backTextStyle;
+        window.selectedFrontTextSpacing = frontTextSpacing;
+        window.selectedBackTextSpacing = backTextSpacing;
+
+        if (typeof addCustomizedToCart === 'function') {
+            addCustomizedToCart();
+        } else {
+            console.error('addCustomizedToCart function not found in script.js');
+        }
+    }
+</script>
 
 {% endblock %}

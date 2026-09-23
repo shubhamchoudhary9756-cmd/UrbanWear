@@ -1,8 +1,10 @@
 // ==================================================
-// Zenith JavaScript v14.2
+// Zenith JavaScript v15.4
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
 // + GLOBAL OFFER TIMER ✅
+// + SHOP THE LOOK ✅
+// + CUSTOMIZATION STUDIO ✅ (COLOR + LOGO + TEXT + FONT)
 // ==================================================
 
 "use strict";
@@ -173,7 +175,11 @@ function normalizeCart() {
 
                 size: item.size || null,
 
-                color: item.color || null
+                color: item.color || null,
+
+                customization: item.customization || null,
+
+                is_customized: item.is_customized || false
             };
         });
 
@@ -197,9 +203,17 @@ function saveCart() {
 }
 
 
-function findProduct(id, size = null, color = null) {
+function findProduct(id, size = null, color = null, isCustomized = false) {
 
     return cart.find(item => {
+
+        if (isCustomized) {
+            return false;
+        }
+
+        if (item.is_customized) {
+            return false;
+        }
 
         return (
 
@@ -229,7 +243,6 @@ function updateCartCount() {
 
     counter.textContent = total;
 
-    // Also update bottom nav badge
     updateBottomNavBadges();
 }
 
@@ -237,7 +250,7 @@ function updateCartCount() {
 function getSelectedSize() {
 
     const activeSize = document.querySelector(
-        ".size-options button.active, .size-btn-nb.active"
+        ".size-options button.active, .size-btn-nb.active, .size-btn-custom-nb.active"
     );
 
     if (!activeSize) {
@@ -298,7 +311,6 @@ function addToCart(button) {
         return;
     }
 
-    // Quantity
     const quantityInput = document.getElementById("quantity");
 
     let quantity = quantityInput
@@ -313,13 +325,9 @@ function addToCart(button) {
         quantity = 10;
     }
 
-    // Size
     const size = getSelectedSize();
-
-    // Color
     const color = getSelectedColor();
 
-    // Existing product
     const existing = findProduct(id, size, color);
 
     if (existing) {
@@ -339,7 +347,9 @@ function addToCart(button) {
             image: image,
             quantity: quantity,
             size: size,
-            color: color
+            color: color,
+            customization: null,
+            is_customized: false
         });
     }
 
@@ -388,7 +398,6 @@ function displayCart() {
 
     cartContainer.innerHTML = "";
 
-    // Empty cart
     if (cart.length === 0) {
 
         cartContainer.innerHTML = `
@@ -456,6 +465,71 @@ function displayCart() {
             `;
         }
 
+        // ✅ CUSTOMIZATION DETAILS
+        let customizationHTML = "";
+
+        if (item.is_customized && item.customization) {
+
+            const cust = item.customization;
+            const front = cust.front || {};
+            const back = cust.back || {};
+
+            // ✅ FONT SUMMARY HELPER
+            const fontSummary = (side) => {
+                if (!side.text) return "";
+                const parts = [];
+                if (side.text_font) {
+                    const fontName = side.text_font.split(",")[0].replace(/['"]/g, "").trim();
+                    parts.push(fontName);
+                }
+                if (side.text_weight && side.text_weight !== "700") {
+                    const weightMap = { "300": "Light", "500": "Regular", "700": "Bold" };
+                    parts.push(weightMap[side.text_weight] || side.text_weight);
+                }
+                if (side.text_style === "italic") {
+                    parts.push("Italic");
+                }
+                if (side.text_spacing !== undefined && Number(side.text_spacing) !== 1) {
+                    const spacingMap = { 0: "Tight", 1: "Normal", 3: "Wide" };
+                    parts.push(spacingMap[Number(side.text_spacing)] || "Normal");
+                }
+                return parts.length ? `<span class="cart-custom-font-nb"><i class="fa-solid fa-font"></i> ${escapeHTML(parts.join(" · "))}</span>` : "";
+            };
+
+            customizationHTML = `
+                <div class="cart-customization-nb">
+                    <div class="cart-custom-badge-nb">
+                        <i class="fa-solid fa-palette"></i>
+                        Customized
+                    </div>
+                    ${
+                        front.logo || front.text
+                            ? `
+                                <div class="cart-custom-side-nb">
+                                    <span class="cart-custom-label-nb">Front:</span>
+                                    ${front.logo ? `<span class="cart-custom-tag-nb"><i class="fa-solid fa-mountain"></i> ${escapeHTML(front.logo.replace('mountain-', 'Mountain '))}</span>` : ""}
+                                    ${front.text ? `<span class="cart-custom-tag-nb"><i class="fa-solid fa-font"></i> ${escapeHTML(front.text)}</span>` : ""}
+                                    ${fontSummary(front)}
+                                </div>
+                              `
+                            : ""
+                    }
+                    ${
+                        back.logo || back.text
+                            ? `
+                                <div class="cart-custom-side-nb">
+                                    <span class="cart-custom-label-nb">Back:</span>
+                                    ${back.logo ? `<span class="cart-custom-tag-nb"><i class="fa-solid fa-mountain"></i> ${escapeHTML(back.logo.replace('mountain-', 'Mountain '))}</span>` : ""}
+                                    ${back.text ? `<span class="cart-custom-tag-nb"><i class="fa-solid fa-font"></i> ${escapeHTML(back.text)}</span>` : ""}
+                                    ${fontSummary(back)}
+                                </div>
+                              `
+                            : ""
+                    }
+                </div>
+            `;
+        }
+
         const cartItem = document.createElement("div");
 
         cartItem.className = "cart-item";
@@ -474,6 +548,7 @@ function displayCart() {
 
                     <h3>
                         ${escapeHTML(item.name)}
+                        ${item.is_customized ? `<span class="customized-badge-inline"><i class="fa-solid fa-palette"></i></span>` : ""}
                     </h3>
 
                     <p class="cart-price">
@@ -489,6 +564,8 @@ function displayCart() {
                               `
                             : ""
                     }
+
+                    ${customizationHTML}
 
                 </div>
 
@@ -655,6 +732,154 @@ function removeItemByIndex(index) {
     saveCart();
     updateCartCount();
     displayCart();
+}
+
+
+// ==================================================
+// CUSTOMIZATION — ADD TO CART ✅
+// ==================================================
+
+function addCustomizedToCart() {
+
+    const customizePage = document.querySelector(".customize-page-nb");
+
+    if (!customizePage) {
+        return;
+    }
+
+    const urlParts = window.location.pathname.split("/");
+    const productId = Number(urlParts[urlParts.length - 1]);
+
+    if (!productId) {
+        showToast("Product not found.", "error");
+        return;
+    }
+
+    const productData = window.customizeProductData || null;
+
+    if (!productData) {
+        showToast("Product data missing.", "error");
+        return;
+    }
+
+    // Get selected color
+    const activeColor = document.querySelector(".color-swatch-nb.active");
+    const selectedColor = activeColor ? activeColor.dataset.color : "white";
+
+    // Get selected size
+    const activeSize = document.querySelector(".size-btn-custom-nb.active");
+    const selectedSize = activeSize ? activeSize.dataset.size : "M";
+
+    // ✅ FRONT design
+    const frontLogo = window.selectedFrontLogo || null;
+    const frontText = window.selectedFrontText || "";
+    const frontLogoSize = window.selectedFrontLogoSize || 60;
+    const frontLogoPos = window.selectedFrontLogoPos || { top: 38, left: 50 };
+    const frontTextSize = window.selectedFrontTextSize || 16;
+    const frontTextColor = window.selectedFrontTextColor || "#1a1a1a";
+    const frontTextPos = window.selectedFrontTextPos || { top: 55, left: 50 };
+
+    // ✅ FRONT font data
+    const frontTextFont = window.selectedFrontTextFont || "'Inter', sans-serif";
+    const frontTextWeight = window.selectedFrontTextWeight || "700";
+    const frontTextStyle = window.selectedFrontTextStyle || "normal";
+    const frontTextSpacing = window.selectedFrontTextSpacing !== undefined
+        ? window.selectedFrontTextSpacing
+        : 1;
+
+    // ✅ BACK design
+    const backLogo = window.selectedBackLogo || null;
+    const backText = window.selectedBackText || "";
+    const backLogoSize = window.selectedBackLogoSize || 60;
+    const backLogoPos = window.selectedBackLogoPos || { top: 38, left: 50 };
+    const backTextSize = window.selectedBackTextSize || 16;
+    const backTextColor = window.selectedBackTextColor || "#1a1a1a";
+    const backTextPos = window.selectedBackTextPos || { top: 55, left: 50 };
+
+    // ✅ BACK font data
+    const backTextFont = window.selectedBackTextFont || "'Inter', sans-serif";
+    const backTextWeight = window.selectedBackTextWeight || "700";
+    const backTextStyle = window.selectedBackTextStyle || "normal";
+    const backTextSpacing = window.selectedBackTextSpacing !== undefined
+        ? window.selectedBackTextSpacing
+        : 1;
+
+    // Calculate customization price
+    let customizationPrice = 0;
+    if (frontLogo) customizationPrice += 50;
+    if (frontText) customizationPrice += 50;
+    if (backLogo) customizationPrice += 50;
+    if (backText) customizationPrice += 50;
+
+    const basePrice = Number(productData.price) || 0;
+    const totalPrice = basePrice + customizationPrice;
+
+    // Build customization object
+    const customization = {
+        front: {
+            logo: frontLogo,
+            text: frontText,
+            logo_size: frontLogoSize,
+            logo_position: frontLogoPos,
+            text_size: frontTextSize,
+            text_color: frontTextColor,
+            text_position: frontTextPos,
+            text_font: frontTextFont,
+            text_weight: frontTextWeight,
+            text_style: frontTextStyle,
+            text_spacing: frontTextSpacing
+        },
+        back: {
+            logo: backLogo,
+            text: backText,
+            logo_size: backLogoSize,
+            logo_position: backLogoPos,
+            text_size: backTextSize,
+            text_color: backTextColor,
+            text_position: backTextPos,
+            text_font: backTextFont,
+            text_weight: backTextWeight,
+            text_style: backTextStyle,
+            text_spacing: backTextSpacing
+        }
+    };
+
+    // ✅ Check if identical customization already exists
+    const existingIndex = cart.findIndex(item =>
+        item.is_customized &&
+        Number(item.id) === productId &&
+        JSON.stringify(item.customization) === JSON.stringify(customization) &&
+        item.size === selectedSize &&
+        item.color === selectedColor
+    );
+
+    if (existingIndex !== -1) {
+        cart[existingIndex].quantity = Number(cart[existingIndex].quantity) + 1;
+        if (cart[existingIndex].quantity > 10) {
+            cart[existingIndex].quantity = 10;
+        }
+        showToast("Customized item quantity updated!");
+    } else {
+        cart.push({
+            id: productId,
+            name: productData.name + " (Custom)",
+            price: totalPrice,
+            image: productData.image || "images/tshirts/tshirt-front.png",
+            quantity: 1,
+            size: selectedSize,
+            color: selectedColor,
+            customization: customization,
+            is_customized: true
+        });
+        showToast("Customized product added to cart! 🎨");
+    }
+
+    saveCart();
+    updateCartCount();
+
+    setTimeout(() => {
+        window.location.href = "/cart";
+    }, 500);
 }
 
 
@@ -851,7 +1076,6 @@ function updateWishlistCount() {
         counter.textContent = wishlist.length;
     });
 
-    // Also update bottom nav badge
     updateBottomNavBadges();
 }
 
@@ -1104,7 +1328,9 @@ function addWishlistItemToCart(id) {
             image: product.image,
             quantity: 1,
             size: null,
-            color: null
+            color: null,
+            customization: null,
+            is_customized: false
         });
     }
 
@@ -1116,7 +1342,7 @@ function addWishlistItemToCart(id) {
 
 
 // ==================================================
-// WISHLIST PAGE (NOBERO STYLE)
+// WISHLIST PAGE
 // ==================================================
 
 function displayWishlist() {
@@ -1365,7 +1591,6 @@ function registerDrawer() {
         drawerOverlay.addEventListener("click", closeDrawer);
     }
 
-    // Close drawer on link click
     const drawerLinks = document.querySelectorAll(".drawer-nav a");
     drawerLinks.forEach(link => {
         link.addEventListener("click", function() {
@@ -1373,7 +1598,6 @@ function registerDrawer() {
         });
     });
 
-    // Close on Escape key
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") {
             closeDrawer();
@@ -1383,7 +1607,7 @@ function registerDrawer() {
 
 
 // ==================================================
-// BOTTOM NAV — ACTIVE STATE + BADGES
+// BOTTOM NAV
 // ==================================================
 
 function registerBottomNav() {
@@ -1423,7 +1647,7 @@ function registerBottomNav() {
 
 
 // ==================================================
-// BOTTOM NAV BADGES — Sync with Cart/Wishlist
+// BOTTOM NAV BADGES
 // ==================================================
 
 function updateBottomNavBadges() {
@@ -1532,7 +1756,7 @@ function registerHeaderScroll() {
 
 
 // ==================================================
-// HERO CAROUSEL — COMPLETE + SWIPE FIXED ✅
+// HERO CAROUSEL
 // ==================================================
 
 function registerHeroCarousel() {
@@ -1543,16 +1767,12 @@ function registerHeroCarousel() {
     const nextBtn = document.getElementById('heroNext');
     const dotsContainer = document.getElementById('heroDots');
 
-    // If no carousel, exit
     if (!carousel || slides.length === 0) return;
 
     let currentIndex = 0;
     let autoPlayTimer = null;
-    const AUTO_PLAY_INTERVAL = 5000; // 5 seconds
+    const AUTO_PLAY_INTERVAL = 5000;
 
-    // =====================================================
-    // 1. CREATE DOTS
-    // =====================================================
     function createDots() {
         if (!dotsContainer) return;
 
@@ -1573,25 +1793,18 @@ function registerHeroCarousel() {
         });
     }
 
-    // =====================================================
-    // 2. GO TO SLIDE
-    // =====================================================
     function goToSlide(index) {
-        // Wrap around
         if (index < 0) index = slides.length - 1;
         if (index >= slides.length) index = 0;
 
-        // Remove active from all
         slides.forEach(slide => slide.classList.remove('active'));
 
-        // Remove active from all dots
         if (dotsContainer) {
             dotsContainer.querySelectorAll('.hero-dot').forEach(dot => {
                 dot.classList.remove('active');
             });
         }
 
-        // Add active to current
         slides[index].classList.add('active');
 
         if (dotsContainer) {
@@ -1602,9 +1815,6 @@ function registerHeroCarousel() {
         currentIndex = index;
     }
 
-    // =====================================================
-    // 3. NEXT / PREV
-    // =====================================================
     function nextSlide() {
         goToSlide(currentIndex + 1);
     }
@@ -1613,9 +1823,6 @@ function registerHeroCarousel() {
         goToSlide(currentIndex - 1);
     }
 
-    // =====================================================
-    // 4. AUTO PLAY
-    // =====================================================
     function startAutoPlay() {
         stopAutoPlay();
         autoPlayTimer = setInterval(nextSlide, AUTO_PLAY_INTERVAL);
@@ -1633,9 +1840,6 @@ function registerHeroCarousel() {
         startAutoPlay();
     }
 
-    // =====================================================
-    // 5. EVENT LISTENERS — Arrows
-    // =====================================================
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
             prevSlide();
@@ -1650,9 +1854,6 @@ function registerHeroCarousel() {
         });
     }
 
-    // =====================================================
-    // 6. TOUCH SWIPE SUPPORT — FIXED ✅
-    // =====================================================
     let touchStartX = 0;
     let touchStartY = 0;
     let touchEndX = 0;
@@ -1702,9 +1903,6 @@ function registerHeroCarousel() {
         startAutoPlay();
     }, { passive: true });
 
-    // =====================================================
-    // 7. KEYBOARD NAVIGATION
-    // =====================================================
     document.addEventListener('keydown', function(e) {
         const rect = carousel.getBoundingClientRect();
         if (rect.bottom < 0 || rect.top > window.innerHeight) return;
@@ -1718,15 +1916,9 @@ function registerHeroCarousel() {
         }
     });
 
-    // =====================================================
-    // 8. PAUSE ON HOVER (Desktop)
-    // =====================================================
     carousel.addEventListener('mouseenter', stopAutoPlay);
     carousel.addEventListener('mouseleave', startAutoPlay);
 
-    // =====================================================
-    // 9. PAUSE WHEN TAB HIDDEN
-    // =====================================================
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
             stopAutoPlay();
@@ -1735,16 +1927,13 @@ function registerHeroCarousel() {
         }
     });
 
-    // =====================================================
-    // 10. INIT
-    // =====================================================
     createDots();
     startAutoPlay();
 }
 
 
 // ==================================================
-// GLOBAL OFFER TIMER ✅
+// GLOBAL OFFER TIMER
 // ==================================================
 
 function registerOfferTimer() {
@@ -1753,14 +1942,11 @@ function registerOfferTimer() {
     const minsEl = document.getElementById('timer-mins');
     const secsEl = document.getElementById('timer-secs');
 
-    // Agar timer elements nahi hain, exit
     if (!hoursEl || !minsEl || !secsEl) return;
 
-    // Sale end time — localStorage se lo ya naya set karo
     let saleEndTime = localStorage.getItem('zenith_sale_end');
 
     if (!saleEndTime) {
-        // 6 hours from now
         saleEndTime = new Date().getTime() + (6 * 60 * 60 * 1000);
         localStorage.setItem('zenith_sale_end', saleEndTime);
     } else {
@@ -1772,7 +1958,6 @@ function registerOfferTimer() {
         const now = new Date().getTime();
         const diff = saleEndTime - now;
 
-        // Timer khatam ho gaya
         if (diff <= 0) {
             hoursEl.textContent = '00';
             minsEl.textContent = '00';
@@ -1797,56 +1982,7 @@ function registerOfferTimer() {
 
 
 // ==================================================
-// INITIALIZATION
-// ==================================================
-
-document.addEventListener("DOMContentLoaded", function() {
-
-    console.log("🚀 Zenith JS v14.2 loaded — Offer Timer Added");
-
-    // Load data
-    loadCart();
-    loadWishlist();
-
-    // Setup systems
-    registerCartButtons();
-    registerWishlistButtons();
-    registerDrawer();
-    registerSearch();
-    registerHeaderScroll();
-    registerSizeButtons();
-    registerColorButtons();
-    registerBottomNav();
-
-    // ✅ HERO CAROUSEL
-    registerHeroCarousel();
-
-    // ✅ GLOBAL OFFER TIMER — NEW
-    registerOfferTimer();
-
-    // Page-specific displays
-    updateCartCount();
-    updateWishlistCount();
-    updateBottomNavBadges();
-
-    // Cart page
-    if (document.getElementById("cart-items")) {
-        displayCart();
-    }
-
-    // Wishlist page
-    if (document.getElementById("wishlist-items")) {
-        displayWishlist();
-    }
-
-    // Clear wishlist button
-    const clearBtn = document.getElementById("clear-wishlist");
-    if (clearBtn) {
-        clearBtn.addEventListener("click", clearWishlist);
-    }
-});
-// ==================================================
-// SHOP THE FULL LOOK — ADD ALL ITEMS
+// SHOP THE FULL LOOK
 // ==================================================
 
 function addAllLookItems() {
@@ -1882,7 +2018,9 @@ function addAllLookItems() {
                 image: image,
                 quantity: 1,
                 size: null,
-                color: null
+                color: null,
+                customization: null,
+                is_customized: false
             });
         }
 
@@ -1895,3 +2033,45 @@ function addAllLookItems() {
         showToast(`${addedCount} items added to cart! 🛒`);
     }
 }
+
+
+// ==================================================
+// INITIALIZATION
+// ==================================================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    console.log("🚀 Zenith JS v15.4 loaded — Font Feature Added");
+
+    loadCart();
+    loadWishlist();
+
+    registerCartButtons();
+    registerWishlistButtons();
+    registerDrawer();
+    registerSearch();
+    registerHeaderScroll();
+    registerSizeButtons();
+    registerColorButtons();
+    registerBottomNav();
+
+    registerHeroCarousel();
+    registerOfferTimer();
+
+    updateCartCount();
+    updateWishlistCount();
+    updateBottomNavBadges();
+
+    if (document.getElementById("cart-items")) {
+        displayCart();
+    }
+
+    if (document.getElementById("wishlist-items")) {
+        displayWishlist();
+    }
+
+    const clearBtn = document.getElementById("clear-wishlist");
+    if (clearBtn) {
+        clearBtn.addEventListener("click", clearWishlist);
+    }
+});
