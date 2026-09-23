@@ -1,0 +1,20 @@
+<svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="zenith1a" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#F4E5A1"/>
+      <stop offset="100%" stop-color="#B8945A"/>
+    </linearGradient>
+    <linearGradient id="zenith1b" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B8945A"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#8B6F3F"/>
+    </linearGradient>
+  </defs>
+  <path d="M290 155 L355 95 L380 130 L360 130 L330 160 Z" fill="url(#zenith1b)" opacity="0.85"/>
+  <path d="M510 155 L445 95 L420 130 L440 130 L470 160 Z" fill="url(#zenith1b)" opacity="0.85"/>
+  <path d="M400 55 L440 130 L400 110 Z" fill="url(#zenith1b)"/>
+  <path d="M400 55 L440 130 L455 155 L400 110 L400 55 Z" fill="url(#zenith1a)"/>
+  <path d="M400 55 L400 110 L380 135 L370 155 L400 110 Z" fill="url(#zenith1a)" opacity="0.9"/>
+  <path d="M370 155 L400 110 L430 155 L400 155 Z" fill="url(#zenith1b)" opacity="0.7"/>
+</svg>

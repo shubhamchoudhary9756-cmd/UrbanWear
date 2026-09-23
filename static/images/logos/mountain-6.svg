@@ -1,0 +1,21 @@
+<svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="zenith6a" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#F4E5A1"/>
+      <stop offset="30%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#8B6F3F"/>
+    </linearGradient>
+    <linearGradient id="zenith6b" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#B8945A"/>
+      <stop offset="100%" stop-color="#5A4A2A"/>
+    </linearGradient>
+  </defs>
+  <!-- Back layer -->
+  <path d="M400 50 L540 200 L260 200 Z" fill="url(#zenith6b)" opacity="0.4"/>
+  <!-- Main peak -->
+  <path d="M400 30 L520 200 L280 200 Z" fill="url(#zenith6a)"/>
+  <!-- Snow cap - detailed -->
+  <path d="M400 30 L445 100 L425 90 L410 105 L400 95 L390 105 L375 90 L355 100 Z" fill="#FFFFFF" opacity="0.95"/>
+  <!-- Shading -->
+  <path d="M400 30 L520 200 L400 200 Z" fill="#8B6F3F" opacity="0.15"/>
+</svg>

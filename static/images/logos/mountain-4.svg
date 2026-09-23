@@ -1,0 +1,22 @@
+<svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="zenith4a" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F4E5A1"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#B8945A"/>
+    </linearGradient>
+    <linearGradient id="zenith4b" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#8B6F3F"/>
+    </linearGradient>
+  </defs>
+  <!-- Far background peaks -->
+  <path d="M200 180 L260 100 L320 180 Z" fill="url(#zenith4b)" opacity="0.5"/>
+  <path d="M480 180 L540 100 L600 180 Z" fill="url(#zenith4b)" opacity="0.5"/>
+  <!-- Mid peaks -->
+  <path d="M260 180 L330 70 L400 180 Z" fill="url(#zenith4a)" opacity="0.75"/>
+  <path d="M400 180 L470 70 L540 180 Z" fill="url(#zenith4a)" opacity="0.75"/>
+  <!-- Main center peak -->
+  <path d="M400 40 L490 180 L310 180 Z" fill="url(#zenith4a)"/>
+  <path d="M400 40 L440 100 L420 90 L400 110 L380 90 L360 100 Z" fill="#FFFFFF" opacity="0.95"/>
+</svg>

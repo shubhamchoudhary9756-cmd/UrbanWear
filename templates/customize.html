@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Customize {{ product.name }} | Zenith{% endblock %}
+
+{% block content %}
+
+<section class="customize-page-nb">
+
+    <div class="customize-header-nb">
+        <a href="/product/{{ product.id }}" class="customize-back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Product
+        </a>
+
+        <h1>Customize Your Product</h1>
+        <p>{{ product.name }}</p>
+    </div>
+
+    <div style="text-align: center; padding: 100px 20px;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 32px; color: #1a1a1a;">
+            🎨 Design Studio Coming Soon
+        </h2>
+        <p style="color: #777; margin-top: 15px;">
+            Customization features will be added step by step.
+        </p>
+    </div>
+
+</section>
+
+{% endblock %}

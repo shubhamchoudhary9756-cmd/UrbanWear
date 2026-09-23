@@ -1,0 +1,16 @@
+<svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="zenith7a" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#F4E5A1"/>
+      <stop offset="100%" stop-color="#B8945A"/>
+    </linearGradient>
+  </defs>
+  <!-- Minimal 3-line mountain -->
+  <path d="M280 180 L400 60 L400 180 Z" fill="url(#zenith7a)"/>
+  <path d="M400 60 L520 180 L400 180 Z" fill="url(#zenith7a)" opacity="0.7"/>
+  <!-- Center line -->
+  <line x1="400" y1="60" x2="400" y2="180" stroke="#8B6F3F" stroke-width="3"/>
+  <!-- Snow accent -->
+  <path d="M400 60 L420 100 L400 90 L380 100 Z" fill="#FFFFFF" opacity="0.9"/>
+</svg>

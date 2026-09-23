@@ -206,15 +206,12 @@ def save_uploaded_file(file):
     if not allowed_file(file.filename):
         return None
 
-    # Generate unique filename
     ext = file.filename.rsplit(".", 1)[1].lower()
     unique_name = f"{uuid.uuid4().hex}.{ext}"
 
-    # Save to uploads folder
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_name)
     file.save(filepath)
 
-    # Return path relative to static/
     return f"images/uploads/{unique_name}"
 
 
@@ -257,7 +254,7 @@ def home():
 
 
 # ==================================================
-# PRODUCTS LISTING PAGE (with Subcategory Support)
+# PRODUCTS LISTING PAGE
 # ==================================================
 
 @app.route("/products")
@@ -372,6 +369,23 @@ def product(product_id):
         abort(404)
 
     return render_template("product.html", product=product_db.to_dict())
+
+
+# ==================================================
+# CUSTOMIZE PRODUCT PAGE ✅ NEW
+# ==================================================
+
+@app.route("/customize/<int:product_id>")
+def customize(product_id):
+    product_db = db.session.get(Product, product_id)
+
+    if product_db is None or not product_db.is_active:
+        abort(404)
+
+    return render_template(
+        "customize.html",
+        product=product_db.to_dict()
+    )
 
 
 # ==================================================
@@ -1188,7 +1202,6 @@ def admin_add_product():
         subcategory = request.form.get("subcategory", "").strip().lower()
         stock = safe_int(request.form.get("stock"), 10)
 
-        # ✅ Handle file upload OR text input for images
         image_file = request.files.get("image_file")
         image = save_uploaded_file(image_file) or request.form.get("image", "").strip()
 
@@ -1268,13 +1281,11 @@ def admin_edit_product(product_id):
             product.subcategory = request.form.get("subcategory", "").strip().lower()
             product.stock = max(0, safe_int(request.form.get("stock"), 10))
 
-            # ✅ Image upload handling (only update if new file uploaded)
             image_file = request.files.get("image_file")
             new_image = save_uploaded_file(image_file)
             if new_image:
                 product.image = new_image
             else:
-                # Fallback to text input if no file uploaded
                 text_image = request.form.get("image", "").strip()
                 if text_image:
                     product.image = text_image
