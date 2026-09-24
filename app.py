@@ -1506,3 +1506,51 @@ if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=app.config.get("FLASK_ENV") != "production")
+
+    # ============================================
+# TEMPORARY MIGRATION ROUTE — DELETE LATER
+# ============================================
+@app.route("/run-migration-xyz123")
+def run_migration_xyz123():
+    from sqlalchemy import text, inspect
+    
+    try:
+        # Check existing columns
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('products')]
+        
+        added = []
+        
+        # Add subcategory if missing
+        if 'subcategory' not in columns:
+            db.session.execute(text("ALTER TABLE products ADD COLUMN subcategory VARCHAR(100);"))
+            added.append('subcategory')
+        
+        # Add other missing columns if any
+        if 'image4' not in columns:
+            db.session.execute(text("ALTER TABLE products ADD COLUMN image4 VARCHAR(500);"))
+            added.append('image4')
+        
+        if 'stock' not in columns:
+            db.session.execute(text("ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 0;"))
+            added.append('stock')
+        
+        if 'is_active' not in columns:
+            db.session.execute(text("ALTER TABLE products ADD COLUMN is_active BOOLEAN DEFAULT TRUE;"))
+            added.append('is_active')
+        
+        if 'created_at' not in columns:
+            db.session.execute(text("ALTER TABLE products ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"))
+            added.append('created_at')
+        
+        db.session.commit()
+        
+        return f"""
+        <h1>✅ Migration Complete</h1>
+        <p><strong>Columns added:</strong> {', '.join(added) if added else 'None — all already exist'}</p>
+        <p><strong>All columns:</strong> {', '.join(columns + added)}</p>
+        <p><a href='/'>Go to Homepage</a></p>
+        """
+    
+    except Exception as e:
+        return f"<h1>❌ Error</h1><pre>{str(e)}</pre>"
