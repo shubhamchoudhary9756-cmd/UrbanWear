@@ -395,25 +395,35 @@
                 </div>
             </div>
 
-            <!-- ✅ DOWNLOAD DESIGN BUTTON -->
+            <!-- ✅ SAVE & SHARE DESIGN -->
             <div class="control-section-nb">
                 <h3 class="control-title-nb">
-                    <i class="fa-solid fa-download"></i>
-                    Save Your Design
+                    <i class="fa-solid fa-share-nodes"></i>
+                    Save & Share Your Design
                 </h3>
 
                 <p class="download-note-nb">
                     <i class="fa-solid fa-info-circle"></i>
-                    Download a preview of your custom design
+                    Download or share your custom design
                 </p>
 
-                <button type="button" 
-                        class="download-design-btn-nb" 
-                        id="downloadDesignBtn"
-                        onclick="downloadDesign()">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Download Design as PNG</span>
-                </button>
+                <div class="design-action-buttons-nb">
+                    <button type="button" 
+                            class="download-design-btn-nb" 
+                            id="downloadDesignBtn"
+                            onclick="downloadDesign()">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Download PNG</span>
+                    </button>
+
+                    <button type="button" 
+                            class="share-design-btn-nb" 
+                            id="shareDesignBtn"
+                            onclick="shareDesign()">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span>Share Design</span>
+                    </button>
+                </div>
             </div>
 
             <!-- PRICE + ADD TO CART -->
@@ -525,7 +535,6 @@
         const label = document.getElementById('sideLabel');
 
         if (side === 'front') {
-            /* ✅ Color-specific front image */
             const imageFile = getColorImageForSide('front');
             image.src = "/static/images/tshirts/" + imageFile;
             label.textContent = "Front View";
@@ -552,7 +561,6 @@
                 document.getElementById('logoPositionControls').style.display = 'none';
             }
         } else {
-            /* ✅ Color-specific back image */
             const imageFile = getColorImageForSide('back');
             image.src = "/static/images/tshirts/" + imageFile;
             label.textContent = "Back View";
@@ -597,7 +605,6 @@
         const currentSide = getActiveSide();
         const tshirtImage = document.getElementById('tshirtImage');
 
-        /* ✅ Current side ke hisaab se color-specific image */
         const imageFile = getColorImageForSide(currentSide);
         tshirtImage.src = "/static/images/tshirts/" + imageFile;
     }
@@ -1112,7 +1119,6 @@
             overlay.style.left = activePos.left + '%';
             overlay.style.maxWidth = 'none';
 
-            /* ✅ Script fonts (Great Vibes) ke liye uppercase off */
             const isScriptFont = activeFont.indexOf('Great Vibes') !== -1;
             const textTransform = isScriptFont ? 'none' : 'uppercase';
 
@@ -1289,7 +1295,6 @@
         window.selectedFrontTextPos = frontTextPos;
         window.selectedBackTextPos = backTextPos;
 
-        /* ✅ FONT DATA */
         window.selectedFrontTextFont = frontTextFont;
         window.selectedBackTextFont = backTextFont;
         window.selectedFrontTextWeight = frontTextWeight;
@@ -1316,7 +1321,6 @@
             return;
         }
 
-        /* ✅ Check if html2canvas is loaded */
         if (typeof html2canvas === 'undefined') {
             if (typeof showToast === 'function') {
                 showToast('Download feature not available. Please refresh.', 'error');
@@ -1325,13 +1329,11 @@
             return;
         }
 
-        /* ✅ Button loading state */
         const originalHTML = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Generating...</span>';
 
         try {
-            /* ✅ Capture t-shirt preview */
             const canvas = await html2canvas(preview, {
                 backgroundColor: '#ffffff',
                 scale: 2,
@@ -1342,7 +1344,6 @@
                 height: preview.offsetHeight
             });
 
-            /* ✅ Convert to PNG and download */
             canvas.toBlob(function (blob) {
 
                 if (!blob) {
@@ -1352,7 +1353,6 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
 
-                /* ✅ Generate unique filename */
                 const timestamp = new Date()
                     .toISOString()
                     .slice(0, 19)
@@ -1371,7 +1371,6 @@
                 link.href = url;
                 link.click();
 
-                /* ✅ Cleanup */
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
 
                 if (typeof showToast === 'function') {
@@ -1386,7 +1385,107 @@
                 showToast('Failed to download design. Please try again.', 'error');
             }
         } finally {
-            /* ✅ Restore button */
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+    }
+
+    /* ============ ✅ SOCIAL SHARE DESIGN ============ */
+    async function shareDesign() {
+        const btn = document.getElementById('shareDesignBtn');
+        const preview = document.getElementById('tshirtPreview');
+
+        if (!preview) {
+            if (typeof showToast === 'function') showToast('Preview not found.', 'error');
+            return;
+        }
+
+        if (typeof html2canvas === 'undefined') {
+            if (typeof showToast === 'function') {
+                showToast('Share feature not available. Please refresh.', 'error');
+            }
+            return;
+        }
+
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Preparing...</span>';
+
+        try {
+            const canvas = await html2canvas(preview, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                allowTaint: false,
+                logging: false,
+                width: preview.offsetWidth,
+                height: preview.offsetHeight
+            });
+
+            canvas.toBlob(async function (blob) {
+
+                if (!blob) {
+                    throw new Error('Failed to create image');
+                }
+
+                const side = getActiveSide();
+                const productNameEl = document.querySelector('.customize-header-content p');
+                const productName = productNameEl ? productNameEl.textContent.trim() : 'T-Shirt';
+
+                const fileName = `zenith-${productName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${side}.png`;
+                const file = new File([blob], fileName, { type: 'image/png' });
+
+                const shareText = `Check out my custom Zenith design! 🎨\n\n"${productName}" — ${side.toUpperCase()} view\n\nCreate your own at urbanwear-s9d8.onrender.com`;
+
+                /* ✅ Check Web Share API support */
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'My Zenith Design',
+                            text: shareText
+                        });
+
+                        if (typeof showToast === 'function') {
+                            showToast('Design shared successfully! 🎉');
+                        }
+                    } catch (shareError) {
+                        if (shareError.name !== 'AbortError') {
+                            console.error('Share error:', shareError);
+                            if (typeof showToast === 'function') {
+                                showToast('Share cancelled.', 'info');
+                            }
+                        }
+                    }
+                } else {
+                    /* ✅ Fallback for desktop — download + copy text */
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = url;
+                    link.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                    try {
+                        await navigator.clipboard.writeText(shareText);
+                        if (typeof showToast === 'function') {
+                            showToast('Design downloaded! Text copied to clipboard 📋');
+                        }
+                    } catch (clipError) {
+                        if (typeof showToast === 'function') {
+                            showToast('Design downloaded! Share it manually.', 'info');
+                        }
+                    }
+                }
+
+            }, 'image/png', 1.0);
+
+        } catch (error) {
+            console.error('Share error:', error);
+            if (typeof showToast === 'function') {
+                showToast('Failed to share design. Please try again.', 'error');
+            }
+        } finally {
             btn.disabled = false;
             btn.innerHTML = originalHTML;
         }

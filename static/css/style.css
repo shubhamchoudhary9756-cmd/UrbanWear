@@ -17973,3 +17973,105 @@ section {
         font-size: 11px;
     }
 }
+
+/* =====================================================
+   DESIGN ACTION BUTTONS (Download + Share)
+===================================================== */
+
+.design-action-buttons-nb {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+/* ============ SHARE BUTTON ============ */
+
+.share-design-btn-nb {
+    width: 100%;
+    padding: 16px 16px;
+    background: #c9a961;
+    border: 2px solid #c9a961;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 4px;
+}
+
+.share-design-btn-nb:hover:not(:disabled) {
+    background: #b8964e;
+    border-color: #b8964e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 169, 97, 0.3);
+}
+
+.share-design-btn-nb:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(201, 169, 97, 0.2);
+}
+
+.share-design-btn-nb:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.share-design-btn-nb:disabled:hover {
+    background: #c9a961;
+    border-color: #c9a961;
+    transform: none;
+    box-shadow: none;
+}
+
+.share-design-btn-nb i {
+    font-size: 14px;
+}
+
+.share-design-btn-nb i.fa-spinner {
+    animation: fa-spin 1s linear infinite;
+}
+
+/* ============ DOWNLOAD BUTTON (Compact) ============ */
+
+.design-action-buttons-nb .download-design-btn-nb {
+    padding: 16px 16px;
+    font-size: 12px;
+    letter-spacing: 1.2px;
+}
+
+/* ============ MOBILE RESPONSIVE ============ */
+
+@media (max-width: 768px) {
+
+    .design-action-buttons-nb {
+        gap: 8px;
+    }
+
+    .download-design-btn-nb,
+    .share-design-btn-nb {
+        padding: 14px 10px;
+        font-size: 11px;
+        letter-spacing: 0.8px;
+        gap: 6px;
+    }
+
+    .download-design-btn-nb i,
+    .share-design-btn-nb i {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .design-action-buttons-nb {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
