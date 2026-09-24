@@ -10,7 +10,7 @@ warnings.filterwarnings(
 
 from flask import (
     Flask, render_template, abort, redirect, url_for,
-    request, flash, jsonify
+    request, flash, jsonify, session
 )
 
 from config import Config
@@ -25,7 +25,6 @@ from flask_login import (
 )
 
 from flask_mail import Mail, Message
-
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -36,7 +35,6 @@ from werkzeug.security import (
 )
 
 from werkzeug.utils import secure_filename
-
 from sqlalchemy.orm import joinedload
 
 from functools import wraps
@@ -55,6 +53,21 @@ from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+
+# ==================================================
+# SECURITY HEADERS
+# ==================================================
+
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to every response"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    return response
 
 
 # ==================================================
@@ -115,6 +128,10 @@ UPLOAD_FOLDER = os.path.join(
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+ALLOWED_MIME_TYPES = {
+    "image/png", "image/jpeg", "image/jpg",
+    "image/gif", "image/webp"
+}
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5MB max
@@ -188,35 +205,61 @@ def safe_float(value, default=0.0):
         return default
 
 
+def sanitize_string(value, max_length=500):
+    """Sanitize user input string"""
+    if not value:
+        return ""
+    return str(value).strip()[:max_length]
+
+
 # ==================================================
 # FILE UPLOAD HELPERS
 # ==================================================
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
-    return "." in filename and \
-           filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    if not filename or "." not in filename:
+        return False
+    ext = filename.rsplit(".", 1)[1].lower()
+    return ext in ALLOWED_EXTENSIONS
 
 
 def save_uploaded_file(file):
-    """Save uploaded file and return relative path"""
+    """Save uploaded file and return relative path (secure)"""
     if not file or not file.filename:
         return None
 
     if not allowed_file(file.filename):
         return None
 
+    # Check MIME type
+    if hasattr(file, 'content_type') and file.content_type:
+        if file.content_type not in ALLOWED_MIME_TYPES:
+            return None
+
     ext = file.filename.rsplit(".", 1)[1].lower()
     unique_name = f"{uuid.uuid4().hex}.{ext}"
 
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_name)
+    # Secure the filename (prevents path traversal)
+    safe_name = secure_filename(unique_name)
+    if not safe_name:
+        return None
+
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
+
+    # Ensure the filepath is inside UPLOAD_FOLDER (path traversal protection)
+    real_upload = os.path.realpath(app.config["UPLOAD_FOLDER"])
+    real_filepath = os.path.realpath(filepath)
+    if not real_filepath.startswith(real_upload):
+        return None
+
     file.save(filepath)
 
-    return f"images/uploads/{unique_name}"
+    return f"images/uploads/{safe_name}"
 
 
 # ==================================================
-# ADMIN REQUIRED
+# ADMIN REQUIRED DECORATOR
 # ==================================================
 
 def admin_required(f):
@@ -254,16 +297,16 @@ def home():
 
 
 # ==================================================
-# PRODUCTS LISTING PAGE
+# PRODUCTS LISTING
 # ==================================================
 
 @app.route("/products")
 def products():
 
-    category = request.args.get("category", "").strip().lower()
-    ptype = request.args.get("type", "").strip().lower()
-    filter_by = request.args.get("filter", "").strip().lower()
-    search_q = request.args.get("q", "").strip()
+    category = sanitize_string(request.args.get("category", "").lower(), 50)
+    ptype = sanitize_string(request.args.get("type", "").lower(), 50)
+    filter_by = sanitize_string(request.args.get("filter", "").lower(), 50)
+    search_q = sanitize_string(request.args.get("q", ""), 100)
 
     query = Product.query.filter_by(is_active=True)
 
@@ -319,26 +362,23 @@ def products():
 
     all_products = query.all()
 
+    # Page title mapping
+    title_map = {
+        "new": "New Arrivals",
+        "bestsellers": "Best Sellers",
+        "sale": "Sale",
+        "premium": "Premium Edit",
+        "under999": "Under ₹999",
+        "spring": "Spring / Summer",
+        "autumn": "Autumn / Winter",
+        "monsoon": "Monsoon Edit",
+        "holiday": "Holiday Edit",
+    }
+
     if search_q:
         page_title = f'Search: "{search_q}"'
-    elif filter_by == "new":
-        page_title = "New Arrivals"
-    elif filter_by == "bestsellers":
-        page_title = "Best Sellers"
-    elif filter_by == "sale":
-        page_title = "Sale"
-    elif filter_by == "premium":
-        page_title = "Premium Edit"
-    elif filter_by == "under999":
-        page_title = "Under ₹999"
-    elif filter_by == "spring":
-        page_title = "Spring / Summer"
-    elif filter_by == "autumn":
-        page_title = "Autumn / Winter"
-    elif filter_by == "monsoon":
-        page_title = "Monsoon Edit"
-    elif filter_by == "holiday":
-        page_title = "Holiday Edit"
+    elif filter_by in title_map:
+        page_title = title_map[filter_by]
     elif category:
         page_title = f"{category.title()}'s Collection"
     elif ptype:
@@ -372,7 +412,7 @@ def product(product_id):
 
 
 # ==================================================
-# CUSTOMIZE PRODUCT PAGE ✅ NEW
+# CUSTOMIZE PRODUCT PAGE
 # ==================================================
 
 @app.route("/customize/<int:product_id>")
@@ -389,17 +429,13 @@ def customize(product_id):
 
 
 # ==================================================
-# CART
+# CART & WISHLIST
 # ==================================================
 
 @app.route("/cart")
 def cart():
     return render_template("cart.html")
 
-
-# ==================================================
-# WISHLIST
-# ==================================================
 
 @app.route("/wishlist")
 def wishlist():
@@ -414,18 +450,14 @@ def wishlist():
 @limiter.limit("5 per minute", methods=["POST"])
 def signup():
     if request.method == "POST":
-        full_name = request.form.get("full_name", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        phone = request.form.get("phone", "").strip()
+        full_name = sanitize_string(request.form.get("full_name", ""), 100)
+        email = sanitize_string(request.form.get("email", "").lower(), 120)
+        phone = sanitize_string(request.form.get("phone", ""), 20)
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
 
         if not all([full_name, email, phone, password, confirm_password]):
             flash("All fields are required.")
-            return redirect(url_for("signup"))
-
-        if len(full_name) > 100:
-            flash("Name is too long.")
             return redirect(url_for("signup"))
 
         if not is_valid_email(email):
@@ -485,7 +517,7 @@ def login():
         return redirect(url_for("home"))
 
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
+        email = sanitize_string(request.form.get("email", "").lower(), 120)
         password = request.form.get("password", "")
         remember = request.form.get("remember") == "on"
 
@@ -522,7 +554,7 @@ def admin_login():
         return redirect(url_for("home"))
 
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
+        email = sanitize_string(request.form.get("email", "").lower(), 120)
         password = request.form.get("password", "")
         remember = request.form.get("remember") == "on"
 
@@ -563,7 +595,7 @@ def logout():
 @limiter.limit("5 per minute", methods=["POST"])
 def forgot_password():
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
+        email = sanitize_string(request.form.get("email", "").lower(), 120)
 
         if not email:
             flash("Email is required.")
@@ -625,6 +657,7 @@ def forgot_password():
             except Exception as e:
                 print(f"❌ Email Error: {e}")
 
+        # Always same response (prevents user enumeration)
         flash("If this email is registered, a reset link has been sent.")
         return redirect(url_for("login"))
 
@@ -638,7 +671,7 @@ def forgot_password():
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 @limiter.limit("5 per minute", methods=["POST"])
 def reset_password(token):
-    if not token or len(token) > 100:
+    if not token or len(token) > 100 or not re.match(r'^[A-Za-z0-9_\-]+$', token):
         flash("Invalid reset link.")
         return redirect(url_for("forgot_password"))
 
@@ -712,15 +745,11 @@ def profile():
 @app.route("/profile/update", methods=["POST"])
 @login_required
 def update_profile():
-    full_name = request.form.get("full_name", "").strip()
-    phone = request.form.get("phone", "").strip()
+    full_name = sanitize_string(request.form.get("full_name", ""), 100)
+    phone = sanitize_string(request.form.get("phone", ""), 20)
 
     if not full_name or not phone:
         flash("All fields are required.")
-        return redirect(url_for("profile"))
-
-    if len(full_name) > 100:
-        flash("Name is too long.")
         return redirect(url_for("profile"))
 
     if not is_valid_phone(phone):
@@ -743,12 +772,14 @@ def update_profile():
 @login_required
 def checkout():
     if request.method == "POST":
-        full_name = request.form.get("full_name", "").strip()
-        address = request.form.get("address", "").strip()
-        city = request.form.get("city", "").strip()
-        state = request.form.get("state", "").strip()
-        pincode = request.form.get("pincode", "").strip()
-        payment_method = request.form.get("payment_method", "cod").strip().lower()
+        full_name = sanitize_string(request.form.get("full_name", ""), 100)
+        address = sanitize_string(request.form.get("address", ""), 300)
+        city = sanitize_string(request.form.get("city", ""), 50)
+        state = sanitize_string(request.form.get("state", ""), 50)
+        pincode = sanitize_string(request.form.get("pincode", ""), 10)
+        payment_method = sanitize_string(
+            request.form.get("payment_method", "cod").lower(), 20
+        )
 
         if not all([full_name, address, city, state, pincode]):
             flash("All fields are required.")
@@ -758,8 +789,8 @@ def checkout():
             flash("Invalid payment method.")
             return redirect(url_for("checkout"))
 
-        if len(pincode) > 10 or not pincode.isdigit():
-            flash("Please enter a valid pincode.")
+        if not pincode.isdigit() or len(pincode) != 6:
+            flash("Please enter a valid 6-digit pincode.")
             return redirect(url_for("checkout"))
 
         try:
@@ -771,6 +802,10 @@ def checkout():
 
         if not isinstance(cart_items, list) or not cart_items:
             flash("Your cart is empty.")
+            return redirect(url_for("cart"))
+
+        if len(cart_items) > 50:
+            flash("Too many items in cart.")
             return redirect(url_for("cart"))
 
         validated_items = []
@@ -787,12 +822,16 @@ def checkout():
             product = db.session.get(Product, product_id)
 
             if not product or not product.is_active:
-                flash(f"Product not available.")
+                flash("Product not available.")
                 return redirect(url_for("cart"))
 
             if product.stock < quantity:
                 flash(f"'{product.name}' sirf {product.stock} available hai.")
                 return redirect(url_for("cart"))
+
+            # Sanitize variant fields
+            size = sanitize_string(item.get("size", ""), 10) or None
+            color = sanitize_string(item.get("color", ""), 30) or None
 
             subtotal = product.price * quantity
             total_amount += subtotal
@@ -800,8 +839,8 @@ def checkout():
             validated_items.append({
                 "product": product,
                 "quantity": quantity,
-                "size": item.get("size"),
-                "color": item.get("color"),
+                "size": size,
+                "color": color,
                 "price": product.price,
             })
 
@@ -850,7 +889,7 @@ def checkout():
 
 
 # ==================================================
-# PAYMENT PAGE
+# PAYMENT ROUTES
 # ==================================================
 
 @app.route("/payment/<int:order_id>")
@@ -871,10 +910,6 @@ def payment_page(order_id):
         razorpay_key_id=app.config["RAZORPAY_KEY_ID"]
     )
 
-
-# ==================================================
-# CREATE RAZORPAY ORDER
-# ==================================================
 
 @app.route("/payment/create-order", methods=["POST"])
 @login_required
@@ -926,10 +961,6 @@ def create_payment_order():
         print(f"Razorpay Error: {e}")
         return jsonify({"error": "Payment initialization failed"}), 500
 
-
-# ==================================================
-# VERIFY PAYMENT
-# ==================================================
 
 @app.route("/payment/verify", methods=["POST"])
 @login_required
@@ -985,10 +1016,6 @@ def verify_payment():
         return jsonify({"status": "failed", "error": "Verification failed"}), 500
 
 
-# ==================================================
-# PAYMENT FAILED
-# ==================================================
-
 @app.route("/payment/failed/<int:order_id>", methods=["POST"])
 @login_required
 @csrf.exempt
@@ -1026,10 +1053,6 @@ def payment_failed(order_id):
         return jsonify({"error": "Failed to process"}), 500
 
 
-# ==================================================
-# PAYMENT SUCCESS / FAILURE / ORDER SUCCESS
-# ==================================================
-
 @app.route("/payment-success/<int:order_id>")
 @login_required
 def payment_success(order_id):
@@ -1058,7 +1081,7 @@ def order_success(order_id):
 
 
 # ==================================================
-# ORDERS PAGE
+# ORDERS
 # ==================================================
 
 @app.route("/orders")
@@ -1070,10 +1093,6 @@ def orders():
 
     return render_template("orders.html", orders=user_orders)
 
-
-# ==================================================
-# CANCEL ORDER
-# ==================================================
 
 @app.route("/order/<int:order_id>/cancel", methods=["POST"])
 @login_required
@@ -1105,10 +1124,6 @@ def cancel_order(order_id):
     flash("Order cancelled successfully.")
     return redirect(url_for("orders"))
 
-
-# ==================================================
-# ORDER DETAILS
-# ==================================================
 
 @app.route("/order/<int:order_id>")
 @login_required
@@ -1149,10 +1164,6 @@ def admin_panel():
     )
 
 
-# ==================================================
-# ADMIN — ORDERS TAB
-# ==================================================
-
 @app.route("/admin/orders")
 @login_required
 @admin_required
@@ -1168,10 +1179,6 @@ def admin_orders_tab():
     )
 
 
-# ==================================================
-# ADMIN — PRODUCTS TAB
-# ==================================================
-
 @app.route("/admin/products")
 @login_required
 @admin_required
@@ -1184,8 +1191,20 @@ def admin_products_tab():
     )
 
 
+@app.route("/admin/users")
+@login_required
+@admin_required
+def admin_users_tab():
+    all_users = User.query.order_by(User.created_at.desc()).all()
+    return render_template(
+        "admin_panel.html",
+        active_tab="users",
+        users=all_users
+    )
+
+
 # ==================================================
-# ADMIN — ADD PRODUCT (with File Upload)
+# ADMIN — PRODUCT MANAGEMENT
 # ==================================================
 
 @app.route("/admin/products/add", methods=["GET", "POST"])
@@ -1193,26 +1212,34 @@ def admin_products_tab():
 @admin_required
 def admin_add_product():
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
+        name = sanitize_string(request.form.get("name", ""), 200)
         price = safe_float(request.form.get("price"))
         old_price = safe_float(request.form.get("old_price"))
         rating = safe_float(request.form.get("rating"), 4.5)
-        description = request.form.get("description", "").strip()
-        category = request.form.get("category", "featured").strip()
-        subcategory = request.form.get("subcategory", "").strip().lower()
+        description = sanitize_string(request.form.get("description", ""), 2000)
+        category = sanitize_string(request.form.get("category", "featured"), 20)
+        subcategory = sanitize_string(request.form.get("subcategory", "").lower(), 100)
         stock = safe_int(request.form.get("stock"), 10)
 
         image_file = request.files.get("image_file")
-        image = save_uploaded_file(image_file) or request.form.get("image", "").strip()
+        image = save_uploaded_file(image_file) or sanitize_string(
+            request.form.get("image", ""), 500
+        )
 
         image2_file = request.files.get("image2_file")
-        image2 = save_uploaded_file(image2_file) or request.form.get("image2", "").strip()
+        image2 = save_uploaded_file(image2_file) or sanitize_string(
+            request.form.get("image2", ""), 500
+        )
 
         image3_file = request.files.get("image3_file")
-        image3 = save_uploaded_file(image3_file) or request.form.get("image3", "").strip()
+        image3 = save_uploaded_file(image3_file) or sanitize_string(
+            request.form.get("image3", ""), 500
+        )
 
         image4_file = request.files.get("image4_file")
-        image4 = save_uploaded_file(image4_file) or request.form.get("image4", "").strip()
+        image4 = save_uploaded_file(image4_file) or sanitize_string(
+            request.form.get("image4", ""), 500
+        )
 
         if not name or price <= 0 or not image:
             flash("Name, Price (> 0), and Image are required.")
@@ -1252,10 +1279,6 @@ def admin_add_product():
     return render_template("admin_product_form.html", product=None, mode="add")
 
 
-# ==================================================
-# ADMIN — EDIT PRODUCT (with File Upload)
-# ==================================================
-
 @app.route("/admin/products/edit/<int:product_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -1263,7 +1286,7 @@ def admin_edit_product(product_id):
     product = Product.query.get_or_404(product_id)
 
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
+        name = sanitize_string(request.form.get("name", ""), 200)
         price = safe_float(request.form.get("price"))
         old_price = safe_float(request.form.get("old_price"))
 
@@ -1276,46 +1299,31 @@ def admin_edit_product(product_id):
             product.price = price
             product.old_price = old_price if old_price > 0 else None
             product.rating = safe_float(request.form.get("rating"), 4.5)
-            product.description = request.form.get("description", "").strip()
-            product.category = request.form.get("category", "featured").strip()
-            product.subcategory = request.form.get("subcategory", "").strip().lower()
+            product.description = sanitize_string(
+                request.form.get("description", ""), 2000
+            )
+            product.category = sanitize_string(
+                request.form.get("category", "featured"), 20
+            )
+            product.subcategory = sanitize_string(
+                request.form.get("subcategory", "").lower(), 100
+            )
             product.stock = max(0, safe_int(request.form.get("stock"), 10))
 
-            image_file = request.files.get("image_file")
-            new_image = save_uploaded_file(image_file)
-            if new_image:
-                product.image = new_image
-            else:
-                text_image = request.form.get("image", "").strip()
-                if text_image:
-                    product.image = text_image
+            # Update images (file upload OR text path)
+            for idx, field in enumerate(["image", "image2", "image3", "image4"], 1):
+                file_key = f"{field}_file"
+                text_key = field
 
-            image2_file = request.files.get("image2_file")
-            new_image2 = save_uploaded_file(image2_file)
-            if new_image2:
-                product.image2 = new_image2
-            else:
-                text_image2 = request.form.get("image2", "").strip()
-                if text_image2:
-                    product.image2 = text_image2
+                uploaded = request.files.get(file_key)
+                new_path = save_uploaded_file(uploaded)
 
-            image3_file = request.files.get("image3_file")
-            new_image3 = save_uploaded_file(image3_file)
-            if new_image3:
-                product.image3 = new_image3
-            else:
-                text_image3 = request.form.get("image3", "").strip()
-                if text_image3:
-                    product.image3 = text_image3
-
-            image4_file = request.files.get("image4_file")
-            new_image4 = save_uploaded_file(image4_file)
-            if new_image4:
-                product.image4 = new_image4
-            else:
-                text_image4 = request.form.get("image4", "").strip()
-                if text_image4:
-                    product.image4 = text_image4
+                if new_path:
+                    setattr(product, field, new_path)
+                else:
+                    text_val = sanitize_string(request.form.get(text_key, ""), 500)
+                    if text_val:
+                        setattr(product, field, text_val)
 
             db.session.commit()
             flash(f"Product '{product.name}' updated successfully!")
@@ -1329,10 +1337,6 @@ def admin_edit_product(product_id):
 
     return render_template("admin_product_form.html", product=product, mode="edit")
 
-
-# ==================================================
-# ADMIN — DELETE PRODUCT
-# ==================================================
 
 @app.route("/admin/products/delete/<int:product_id>", methods=["POST"])
 @login_required
@@ -1352,32 +1356,12 @@ def admin_delete_product(product_id):
     return redirect(url_for("admin_products_tab"))
 
 
-# ==================================================
-# ADMIN — USERS TAB
-# ==================================================
-
-@app.route("/admin/users")
-@login_required
-@admin_required
-def admin_users_tab():
-    all_users = User.query.order_by(User.created_at.desc()).all()
-    return render_template(
-        "admin_panel.html",
-        active_tab="users",
-        users=all_users
-    )
-
-
-# ==================================================
-# ADMIN — UPDATE ORDER STATUS
-# ==================================================
-
 @app.route("/admin/order/<int:order_id>/update-status", methods=["POST"])
 @login_required
 @admin_required
 def admin_update_order_status(order_id):
     order = Order.query.get_or_404(order_id)
-    new_status = request.form.get("status", "").strip().lower()
+    new_status = sanitize_string(request.form.get("status", "").lower(), 20)
 
     valid_statuses = ["pending", "processing", "shipped", "delivered", "cancelled"]
 
@@ -1403,10 +1387,6 @@ def admin_update_order_status(order_id):
 
     return redirect(url_for("admin_orders_tab"))
 
-
-# ==================================================
-# ADMIN — ORDER DETAILS
-# ==================================================
 
 @app.route("/admin/order/<int:order_id>")
 @login_required
@@ -1455,102 +1435,75 @@ def internal_error(error):
 
 
 # ==================================================
-# RUN APPLICATION
+# STARTUP — DATABASE INIT & SEED
+# ==================================================
+
+def initialize_database():
+    """Create tables, admin user, and seed products"""
+    with app.app_context():
+        try:
+            db.create_all()
+            print("✅ Database tables ready!")
+        except Exception as e:
+            print(f"❌ DB create error: {e}")
+            return
+
+        # Create admin if missing
+        try:
+            admin_email = app.config.get("ADMIN_EMAIL", "admin@zenith.com")
+            admin_password = app.config.get("ADMIN_PASSWORD", "Admin@123")
+
+            admin_user = User.query.filter_by(email=admin_email).first()
+
+            if not admin_user:
+                admin_user = User(
+                    full_name="Admin",
+                    email=admin_email,
+                    phone="+919999999999",
+                    password=generate_password_hash(admin_password),
+                    is_admin=True
+                )
+                db.session.add(admin_user)
+                db.session.commit()
+                print(f"✅ Admin created: {admin_email}")
+            else:
+                print(f"✅ Admin exists: {admin_email}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Admin setup error: {e}")
+
+        # Seed products if empty
+        try:
+            if Product.query.count() == 0:
+                seed_products = [
+                    {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured", "subcategory": "men,tshirt"},
+                    {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured", "subcategory": "men,jeans"},
+                    {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured", "subcategory": "men,shoes"},
+                    {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller", "subcategory": "men,jacket"},
+                    {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller", "subcategory": "men,shoes"},
+                    {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller", "subcategory": "men,cap"},
+                    {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller", "subcategory": "men,backpack"},
+                ]
+                for p in seed_products:
+                    db.session.add(Product(**p))
+                db.session.commit()
+                print(f"✅ Seeded {len(seed_products)} products!")
+            else:
+                print(f"✅ Products already exist: {Product.query.count()}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Seed error: {e}")
+
+
+# Run DB init at import time (works with gunicorn)
+initialize_database()
+
+
+# ==================================================
+# RUN APPLICATION (local only)
 # ==================================================
 
 if __name__ == "__main__":
-    instance_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "instance"
-    )
-    os.makedirs(instance_path, exist_ok=True)
-
-    with app.app_context():
-        db.create_all()
-        print("✅ Database tables ready!")
-
-        admin_email = app.config["ADMIN_EMAIL"]
-        admin_password = app.config["ADMIN_PASSWORD"]
-        admin_user = User.query.filter_by(email=admin_email).first()
-
-        if not admin_user:
-            admin_user = User(
-                full_name="Admin",
-                email=admin_email,
-                phone="+919999999999",
-                password=generate_password_hash(admin_password),
-                is_admin=True
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print(f"✅ Admin created: {admin_email}")
-        else:
-            print(f"✅ Admin exists: {admin_email}")
-
-        if Product.query.count() == 0:
-            seed_products = [
-                {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured", "subcategory": "men,tshirt"},
-                {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured", "subcategory": "men,jeans"},
-                {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured", "subcategory": "men,shoes"},
-                {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller", "subcategory": "men,jacket"},
-                {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller", "subcategory": "men,shoes"},
-                {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller", "subcategory": "men,cap"},
-                {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller", "subcategory": "men,backpack"},
-            ]
-            for p in seed_products:
-                db.session.add(Product(**p))
-            db.session.commit()
-            print(f"✅ Seeded {len(seed_products)} products!")
-        else:
-            print(f"✅ Products already exists: {Product.query.count()}")
-
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=app.config.get("FLASK_ENV") != "production")
-
-    # ============================================
-# TEMPORARY MIGRATION ROUTE — DELETE LATER
-# ============================================
-@app.route("/run-migration-xyz123")
-def run_migration_xyz123():
-    from sqlalchemy import text, inspect
-    
-    try:
-        # Check existing columns
-        inspector = inspect(db.engine)
-        columns = [col['name'] for col in inspector.get_columns('products')]
-        
-        added = []
-        
-        # Add subcategory if missing
-        if 'subcategory' not in columns:
-            db.session.execute(text("ALTER TABLE products ADD COLUMN subcategory VARCHAR(100);"))
-            added.append('subcategory')
-        
-        # Add other missing columns if any
-        if 'image4' not in columns:
-            db.session.execute(text("ALTER TABLE products ADD COLUMN image4 VARCHAR(500);"))
-            added.append('image4')
-        
-        if 'stock' not in columns:
-            db.session.execute(text("ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 0;"))
-            added.append('stock')
-        
-        if 'is_active' not in columns:
-            db.session.execute(text("ALTER TABLE products ADD COLUMN is_active BOOLEAN DEFAULT TRUE;"))
-            added.append('is_active')
-        
-        if 'created_at' not in columns:
-            db.session.execute(text("ALTER TABLE products ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"))
-            added.append('created_at')
-        
-        db.session.commit()
-        
-        return f"""
-        <h1>✅ Migration Complete</h1>
-        <p><strong>Columns added:</strong> {', '.join(added) if added else 'None — all already exist'}</p>
-        <p><strong>All columns:</strong> {', '.join(columns + added)}</p>
-        <p><a href='/'>Go to Homepage</a></p>
-        """
-    
-    except Exception as e:
-        return f"<h1>❌ Error</h1><pre>{str(e)}</pre>"
+    debug_mode = app.config.get("FLASK_ENV") != "production"
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)

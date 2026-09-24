@@ -45,7 +45,8 @@
                     <img id="tshirtImage"
                          src="{{ url_for('static', filename='images/tshirts/tshirt-front.png') }}"
                          alt="T-Shirt Preview"
-                         class="tshirt-image-nb">
+                         class="tshirt-image-nb"
+                         crossorigin="anonymous">
 
                     <div class="tshirt-logo-overlay-nb" id="logoOverlay"></div>
 
@@ -70,22 +71,46 @@
                 </h3>
 
                 <div class="color-swatches-nb">
-                    <button type="button" class="color-swatch-nb active" data-color="white" data-image="tshirt-front.png" title="White" onclick="selectCustomColor(this)">
+                    <button type="button" class="color-swatch-nb active" 
+                            data-color="white" 
+                            data-image-front="tshirt-front.png" 
+                            data-image-back="tshirt-back.png" 
+                            title="White" onclick="selectCustomColor(this)">
                         <span style="background: #ffffff;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" data-color="red" data-image="tshirt-red.png" title="Red" onclick="selectCustomColor(this)">
+                    <button type="button" class="color-swatch-nb" 
+                            data-color="red" 
+                            data-image-front="tshirt-red.png" 
+                            data-image-back="tshirt-red-back.png" 
+                            title="Red" onclick="selectCustomColor(this)">
                         <span style="background: #c0392b;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" data-color="green" data-image="tshirt-green.png" title="Green" onclick="selectCustomColor(this)">
+                    <button type="button" class="color-swatch-nb" 
+                            data-color="green" 
+                            data-image-front="tshirt-green.png" 
+                            data-image-back="tshirt-green-back.png" 
+                            title="Green" onclick="selectCustomColor(this)">
                         <span style="background: #27ae60;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" data-color="cream" data-image="tshirt-cream.png" title="Cream" onclick="selectCustomColor(this)">
+                    <button type="button" class="color-swatch-nb" 
+                            data-color="cream" 
+                            data-image-front="tshirt-cream.png" 
+                            data-image-back="tshirt-cream-back.png" 
+                            title="Cream" onclick="selectCustomColor(this)">
                         <span style="background: #f4e5a1;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" data-color="pista" data-image="tshirt-pista.png" title="Pista" onclick="selectCustomColor(this)">
+                    <button type="button" class="color-swatch-nb" 
+                            data-color="pista" 
+                            data-image-front="tshirt-pista.png" 
+                            data-image-back="tshirt-pista-back.png" 
+                            title="Pista" onclick="selectCustomColor(this)">
                         <span style="background: #b8d8a8;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" data-color="pink" data-image="tshirt-pink.png" title="Pink" onclick="selectCustomColor(this)">
+                    <button type="button" class="color-swatch-nb" 
+                            data-color="pink" 
+                            data-image-front="tshirt-pink.png" 
+                            data-image-back="tshirt-pink-back.png" 
+                            title="Pink" onclick="selectCustomColor(this)">
                         <span style="background: #e91e8c;"></span>
                     </button>
                 </div>
@@ -370,6 +395,27 @@
                 </div>
             </div>
 
+            <!-- ✅ DOWNLOAD DESIGN BUTTON -->
+            <div class="control-section-nb">
+                <h3 class="control-title-nb">
+                    <i class="fa-solid fa-download"></i>
+                    Save Your Design
+                </h3>
+
+                <p class="download-note-nb">
+                    <i class="fa-solid fa-info-circle"></i>
+                    Download a preview of your custom design
+                </p>
+
+                <button type="button" 
+                        class="download-design-btn-nb" 
+                        id="downloadDesignBtn"
+                        onclick="downloadDesign()">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download Design as PNG</span>
+                </button>
+            </div>
+
             <!-- PRICE + ADD TO CART -->
             <div class="customize-footer-nb">
 
@@ -452,6 +498,21 @@
         return tab ? tab.dataset.side : 'front';
     }
 
+    /* ============ HELPER — Get Color Image for Side ============ */
+    function getColorImageForSide(side) {
+        const activeColorBtn = document.querySelector('.color-swatch-nb.active');
+
+        if (!activeColorBtn) {
+            return side === 'front' ? 'tshirt-front.png' : 'tshirt-back.png';
+        }
+
+        if (side === 'front') {
+            return activeColorBtn.dataset.imageFront || 'tshirt-front.png';
+        } else {
+            return activeColorBtn.dataset.imageBack || 'tshirt-back.png';
+        }
+    }
+
     /* ============ SIDE SWITCHER ============ */
     function switchSide(side) {
         const tabs = document.querySelectorAll('.side-tab-nb');
@@ -464,8 +525,8 @@
         const label = document.getElementById('sideLabel');
 
         if (side === 'front') {
-            const activeColorBtn = document.querySelector('.color-swatch-nb.active');
-            const imageFile = activeColorBtn ? activeColorBtn.dataset.image : 'tshirt-front.png';
+            /* ✅ Color-specific front image */
+            const imageFile = getColorImageForSide('front');
             image.src = "/static/images/tshirts/" + imageFile;
             label.textContent = "Front View";
 
@@ -491,7 +552,9 @@
                 document.getElementById('logoPositionControls').style.display = 'none';
             }
         } else {
-            image.src = "/static/images/tshirts/tshirt-back.png";
+            /* ✅ Color-specific back image */
+            const imageFile = getColorImageForSide('back');
+            image.src = "/static/images/tshirts/" + imageFile;
             label.textContent = "Back View";
 
             document.querySelectorAll('.logo-option-nb').forEach(b => b.classList.remove('active'));
@@ -527,7 +590,6 @@
         btn.classList.add('active');
 
         const color = btn.dataset.color;
-        const imageFile = btn.dataset.image;
 
         document.getElementById('selectedColorLabel').textContent =
             color.charAt(0).toUpperCase() + color.slice(1);
@@ -535,9 +597,9 @@
         const currentSide = getActiveSide();
         const tshirtImage = document.getElementById('tshirtImage');
 
-        if (currentSide === 'front') {
-            tshirtImage.src = "/static/images/tshirts/" + imageFile;
-        }
+        /* ✅ Current side ke hisaab se color-specific image */
+        const imageFile = getColorImageForSide(currentSide);
+        tshirtImage.src = "/static/images/tshirts/" + imageFile;
     }
 
     /* ============ LOGO SELECTOR ============ */
@@ -1241,6 +1303,92 @@
             addCustomizedToCart();
         } else {
             console.error('addCustomizedToCart function not found in script.js');
+        }
+    }
+
+    /* ============ ✅ DOWNLOAD DESIGN AS PNG ============ */
+    async function downloadDesign() {
+        const btn = document.getElementById('downloadDesignBtn');
+        const preview = document.getElementById('tshirtPreview');
+
+        if (!preview) {
+            if (typeof showToast === 'function') showToast('Preview not found.', 'error');
+            return;
+        }
+
+        /* ✅ Check if html2canvas is loaded */
+        if (typeof html2canvas === 'undefined') {
+            if (typeof showToast === 'function') {
+                showToast('Download feature not available. Please refresh.', 'error');
+            }
+            console.error('html2canvas library not loaded');
+            return;
+        }
+
+        /* ✅ Button loading state */
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Generating...</span>';
+
+        try {
+            /* ✅ Capture t-shirt preview */
+            const canvas = await html2canvas(preview, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                allowTaint: false,
+                logging: false,
+                width: preview.offsetWidth,
+                height: preview.offsetHeight
+            });
+
+            /* ✅ Convert to PNG and download */
+            canvas.toBlob(function (blob) {
+
+                if (!blob) {
+                    throw new Error('Failed to create image');
+                }
+
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+
+                /* ✅ Generate unique filename */
+                const timestamp = new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace(/[:T]/g, '-');
+
+                const productNameEl = document.querySelector('.customize-header-content p');
+                const productSlug = productNameEl
+                    ? productNameEl.textContent
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                    : 'design';
+
+                const side = getActiveSide();
+                link.download = `zenith-${productSlug}-${side}-${timestamp}.png`;
+                link.href = url;
+                link.click();
+
+                /* ✅ Cleanup */
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                if (typeof showToast === 'function') {
+                    showToast('Design downloaded successfully! 🎨');
+                }
+
+            }, 'image/png', 1.0);
+
+        } catch (error) {
+            console.error('Download error:', error);
+            if (typeof showToast === 'function') {
+                showToast('Failed to download design. Please try again.', 'error');
+            }
+        } finally {
+            /* ✅ Restore button */
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
         }
     }
 </script>

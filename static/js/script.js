@@ -1,10 +1,11 @@
 // ==================================================
-// Zenith JavaScript v15.4
+// Zenith JavaScript v15.5
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
 // + GLOBAL OFFER TIMER ✅
 // + SHOP THE LOOK ✅
 // + CUSTOMIZATION STUDIO ✅ (COLOR + LOGO + TEXT + FONT)
+// + COLOR-SPECIFIC IMAGES ✅
 // ==================================================
 
 "use strict";
@@ -443,7 +444,24 @@ function displayCart() {
         grandTotal += subtotal;
         totalQty += quantity;
 
-        const imageUrl = getImageUrl(item.image);
+        /* ✅ Customized item ke liye color-specific image */
+        let cartImage = item.image;
+        if (item.is_customized && item.customization) {
+            const color = item.color || "white";
+            const colorImageMap = {
+                "white": "images/tshirts/tshirt-front.png",
+                "red": "images/tshirts/tshirt-red.png",
+                "green": "images/tshirts/tshirt-green.png",
+                "cream": "images/tshirts/tshirt-cream.png",
+                "pista": "images/tshirts/tshirt-pista.png",
+                "pink": "images/tshirts/tshirt-pink.png"
+            };
+            if (colorImageMap[color]) {
+                cartImage = colorImageMap[color];
+            }
+        }
+
+        const imageUrl = getImageUrl(cartImage);
 
         let variantHTML = "";
 
@@ -766,6 +784,14 @@ function addCustomizedToCart() {
     const activeColor = document.querySelector(".color-swatch-nb.active");
     const selectedColor = activeColor ? activeColor.dataset.color : "white";
 
+    // ✅ Color-specific image save karo
+    const selectedColorImageFront = activeColor 
+        ? (activeColor.dataset.imageFront || "tshirt-front.png")
+        : "tshirt-front.png";
+    const selectedColorImageBack = activeColor 
+        ? (activeColor.dataset.imageBack || "tshirt-back.png")
+        : "tshirt-back.png";
+
     // Get selected size
     const activeSize = document.querySelector(".size-btn-custom-nb.active");
     const selectedSize = activeSize ? activeSize.dataset.size : "M";
@@ -814,8 +840,10 @@ function addCustomizedToCart() {
     const basePrice = Number(productData.price) || 0;
     const totalPrice = basePrice + customizationPrice;
 
-    // Build customization object
+    // ✅ Build customization object WITH color-specific images
     const customization = {
+        color_front_image: selectedColorImageFront,
+        color_back_image: selectedColorImageBack,
         front: {
             logo: frontLogo,
             text: frontText,
@@ -860,11 +888,12 @@ function addCustomizedToCart() {
         }
         showToast("Customized item quantity updated!");
     } else {
+        /* ✅ Cart mein color-specific front image save karo */
         cart.push({
             id: productId,
             name: productData.name + " (Custom)",
             price: totalPrice,
-            image: productData.image || "images/tshirts/tshirt-front.png",
+            image: "images/tshirts/" + selectedColorImageFront,
             quantity: 1,
             size: selectedSize,
             color: selectedColor,
@@ -2041,7 +2070,7 @@ function addAllLookItems() {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v15.4 loaded — Font Feature Added");
+    console.log("🚀 Zenith JS v15.5 loaded — Color-Specific Images ✅");
 
     loadCart();
     loadWishlist();

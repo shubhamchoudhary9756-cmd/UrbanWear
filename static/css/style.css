@@ -17890,3 +17890,86 @@ section {
         letter-spacing: 0.3px;
     }
 }
+/* =====================================================
+   DOWNLOAD DESIGN BUTTON
+===================================================== */
+
+.download-note-nb {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.5;
+}
+
+.download-note-nb i {
+    color: #c9a961;
+    font-size: 13px;
+}
+
+.download-design-btn-nb {
+    width: 100%;
+    padding: 16px 24px;
+    background: transparent;
+    border: 2px solid #1a1a1a;
+    color: #1a1a1a;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 4px;
+}
+
+.download-design-btn-nb:hover:not(:disabled) {
+    background: #1a1a1a;
+    color: #faf8f5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 26, 26, 0.15);
+}
+
+.download-design-btn-nb:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(26, 26, 26, 0.1);
+}
+
+.download-design-btn-nb:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: #c9a961;
+}
+
+.download-design-btn-nb:disabled:hover {
+    background: transparent;
+    color: #1a1a1a;
+    transform: none;
+    box-shadow: none;
+}
+
+.download-design-btn-nb i {
+    font-size: 14px;
+}
+
+.download-design-btn-nb i.fa-spinner {
+    animation: fa-spin 1s linear infinite;
+}
+
+@media (max-width: 768px) {
+    .download-design-btn-nb {
+        padding: 14px 20px;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .download-note-nb {
+        font-size: 11px;
+    }
+}
