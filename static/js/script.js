@@ -1,11 +1,13 @@
 // ==================================================
-// Zenith JavaScript v15.5
+// Zenith JavaScript v15.7
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
 // + GLOBAL OFFER TIMER ✅
 // + SHOP THE LOOK ✅
 // + CUSTOMIZATION STUDIO ✅ (COLOR + LOGO + TEXT + FONT)
 // + COLOR-SPECIFIC IMAGES ✅
+// + CART HORIZONTAL COMPACT LAYOUT ✅
+// + QUICK ADD — CAPTURE PHASE FIX ✅
 // ==================================================
 
 "use strict";
@@ -371,6 +373,7 @@ function addToCart(button) {
 }
 
 
+/* ✅ FIXED — capture phase + <a> tag click rok do */
 function registerCartButtons() {
 
     document.addEventListener("click", function(event) {
@@ -384,7 +387,7 @@ function registerCartButtons() {
 
         addToCart(button);
 
-    });
+    }, true);
 }
 
 
@@ -553,85 +556,95 @@ function displayCart() {
         cartItem.className = "cart-item";
         cartItem.dataset.index = index;
 
+        /* ✅ FLAT STRUCTURE — img + cart-info direct children of cart-item */
         cartItem.innerHTML = `
 
-            <div class="cart-product">
+            <img
+                class="cart-item-img"
+                src="${escapeHTML(imageUrl)}"
+                alt="${escapeHTML(item.name)}"
+            >
 
-                <img
-                    src="${escapeHTML(imageUrl)}"
-                    alt="${escapeHTML(item.name)}"
-                >
+            <div class="cart-info">
 
-                <div class="cart-info">
+                <h3>
+                    ${escapeHTML(item.name)}
+                    ${item.is_customized ? `<span class="customized-badge-inline"><i class="fa-solid fa-palette"></i></span>` : ""}
+                </h3>
 
-                    <h3>
-                        ${escapeHTML(item.name)}
-                        ${item.is_customized ? `<span class="customized-badge-inline"><i class="fa-solid fa-palette"></i></span>` : ""}
-                    </h3>
+                <p class="cart-price">
+                    ₹${price.toLocaleString("en-IN")}
+                </p>
 
-                    <p class="cart-price">
-                        ₹${price.toLocaleString("en-IN")}
-                    </p>
+                ${
+                    variantHTML
+                        ? `
+                            <div class="cart-variants">
+                                ${variantHTML}
+                            </div>
+                          `
+                        : ""
+                }
 
-                    ${
-                        variantHTML
-                            ? `
-                                <div class="cart-variants">
-                                    ${variantHTML}
-                                </div>
-                              `
-                            : ""
-                    }
+                ${customizationHTML}
 
-                    ${customizationHTML}
-
+                <!-- ✅ Mobile-only inline controls row -->
+                <div class="cart-item-controls-mobile">
+                    <div class="cart-quantity">
+                        <button
+                            type="button"
+                            class="quantity-decrease"
+                            data-index="${index}"
+                        >−</button>
+                        <span>${quantity}</span>
+                        <button
+                            type="button"
+                            class="quantity-increase"
+                            data-index="${index}"
+                        >+</button>
+                    </div>
+                    <div class="cart-subtotal">
+                        ₹${subtotal.toLocaleString("en-IN")}
+                    </div>
+                    <button
+                        type="button"
+                        class="remove-btn"
+                        data-index="${index}"
+                        aria-label="Remove item"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
 
             </div>
 
 
-            <div class="cart-quantity">
-
+            <!-- ✅ Desktop-only controls (right side) -->
+            <div class="cart-quantity cart-quantity-desktop">
                 <button
                     type="button"
                     class="quantity-decrease"
                     data-index="${index}"
-                >
-                    −
-                </button>
-
-                <span>
-                    ${quantity}
-                </span>
-
+                >−</button>
+                <span>${quantity}</span>
                 <button
                     type="button"
                     class="quantity-increase"
                     data-index="${index}"
-                >
-                    +
-                </button>
-
+                >+</button>
             </div>
 
-
-            <div class="cart-subtotal">
-
+            <div class="cart-subtotal cart-subtotal-desktop">
                 ₹${subtotal.toLocaleString("en-IN")}
-
             </div>
-
 
             <button
                 type="button"
-                class="remove-btn"
+                class="remove-btn remove-btn-desktop"
                 data-index="${index}"
+                aria-label="Remove item"
             >
-
                 <i class="fa-solid fa-trash"></i>
-
-                Remove
-
             </button>
         `;
 
@@ -2070,7 +2083,7 @@ function addAllLookItems() {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v15.5 loaded — Color-Specific Images ✅");
+    console.log("🚀 Zenith JS v15.7 loaded — Quick Add Fixed ✅");
 
     loadCart();
     loadWishlist();

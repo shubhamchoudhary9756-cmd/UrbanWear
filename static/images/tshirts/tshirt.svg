@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600" fill="none">
+  <defs>
+    <!-- Shadow gradients -->
+    <linearGradient id="bodyShadowLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bodyShadowRight" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="collarShade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="sleeveShadeLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="sleeveShadeRight" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ============ T-SHIRT BODY ============ -->
+  <g id="tshirt-body" fill="#ffffff" stroke="#000000" stroke-width="0.4" stroke-linejoin="round">
+
+    <!-- Left sleeve -->
+    <path d="M155 80 
+             L60 155 
+             L75 250 
+             L155 235 
+             L155 80 Z" 
+          id="left-sleeve"/>
+
+    <!-- Right sleeve -->
+    <path d="M345 80 
+             L440 155 
+             L425 250 
+             L345 235 
+             L345 80 Z" 
+          id="right-sleeve"/>
+
+    <!-- Main body -->
+    <path d="M155 80 
+             L155 235 
+             L155 560 
+             L345 560 
+             L345 235 
+             L345 80 
+             L330 70 
+             C 320 90, 290 105, 250 105 
+             C 210 105, 180 90, 170 70 
+             L 155 80 Z" 
+          id="body"/>
+
+    <!-- Collar (outer ring) -->
+    <path d="M170 70 
+             C 180 100, 210 115, 250 115 
+             C 290 115, 320 100, 330 70 
+             C 335 85, 330 95, 315 100 
+             C 290 108, 210 108, 185 100 
+             C 170 95, 165 85, 170 70 Z" 
+          fill="#ffffff" 
+          stroke="#000000" 
+          stroke-width="0.4"
+          id="collar-outer"/>
+
+    <!-- Collar (inner opening) -->
+    <ellipse cx="250" cy="90" rx="60" ry="12" 
+             fill="#f5f5f5" 
+             stroke="#000000" 
+             stroke-width="0.4"
+             id="collar-inner"/>
+
+  </g>
+
+  <!-- ============ SHADOWS & DETAILS ============ -->
+  
+  <!-- Left body shadow -->
+  <path d="M155 90 L155 560 L195 560 L195 90 Z" fill="url(#bodyShadowLeft)" pointer-events="none"/>
+  
+  <!-- Right body shadow -->
+  <path d="M345 90 L345 560 L305 560 L305 90 Z" fill="url(#bodyShadowRight)" pointer-events="none"/>
+  
+  <!-- Left sleeve shadow -->
+  <path d="M155 80 L60 155 L75 250 L100 248 L100 90 Z" fill="url(#sleeveShadeLeft)" pointer-events="none"/>
+  
+  <!-- Right sleeve shadow -->
+  <path d="M345 80 L440 155 L425 250 L400 248 L400 90 Z" fill="url(#sleeveShadeRight)" pointer-events="none"/>
+  
+  <!-- Collar shadow -->
+  <ellipse cx="250" cy="90" rx="60" ry="12" fill="url(#collarShade)" pointer-events="none"/>
+
+</svg>
