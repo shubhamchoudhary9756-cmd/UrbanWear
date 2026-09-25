@@ -8,7 +8,20 @@
     <title>{% block title %}Zenith | Premium Fashion Store{% endblock %}</title>
 
     <!-- ================= CSS ================= -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- 1. Base — Variables, Reset, Typography, Common -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+
+    <!-- 2. Components — Header, Buttons, Cards, Forms -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+
+    <!-- 3. Pages — Homepage, Product, Cart, Checkout, Auth, etc. -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+
+    <!-- 4. Customize — Design Studio (Color, Logo, Text, Font) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/customize.css') }}">
+
+    <!-- 5. Responsive — Media Queries (MUST be last) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 
     <!-- ================= GOOGLE FONTS ================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -1,0 +1,539 @@
+/* =====================================================
+   Zenith — BASE CSS v1.1
+   Foundation: Variables, Reset, Typography, Common
+===================================================== */
+
+
+/* =====================================================
+   1. DESIGN SYSTEM — CSS VARIABLES
+===================================================== */
+
+:root {
+    /* Backgrounds */
+    --bg-primary: #faf8f5;
+    --bg-secondary: #f5f1ea;
+    --bg-white: #ffffff;
+    --bg-dark: #1a1a1a;
+    --bg-black: #0d0d0d;
+
+    /* Text */
+    --text-primary: #1a1a1a;
+    --text-secondary: #555555;
+    --text-muted: #8b7355;
+    --text-light: #aaaaaa;
+
+    /* Accent — Gold */
+    --accent-gold: #c9a961;
+    --accent-gold-dark: #b3945a;
+    --gold-bright: #D4AF37;
+    --gold-light: #F4E5A1;
+    --gold-dark: #B8945A;
+
+    /* Borders */
+    --border-light: #e8e2d9;
+    --border-medium: #d4cdc0;
+
+    /* Fonts */
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-brand: 'Cinzel', 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', 'Poppins', sans-serif;
+
+    /* Spacing */
+    --section-padding: 100px 8%;
+    --container-max: 1400px;
+
+    /* Transitions */
+    --transition-fast: .2s ease;
+    --transition: .3s ease;
+    --transition-slow: .5s ease;
+}
+
+
+/* =====================================================
+   2. RESET
+===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.6;
+    font-family: var(--font-body);
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: var(--transition);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+ul {
+    list-style: none;
+}
+
+input, textarea, select {
+    font-family: var(--font-body);
+}
+
+
+/* =====================================================
+   3. TYPOGRAPHY — Common
+===================================================== */
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-tag {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    font-weight: 500;
+    font-family: var(--font-body);
+}
+
+.section-header h2 {
+    font-size: 48px;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-weight: 500;
+    font-family: var(--font-heading);
+}
+
+.section-header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+
+/* =====================================================
+   4. SECTIONS — Common Padding
+===================================================== */
+
+section {
+    padding: var(--section-padding);
+}
+
+.main-content {
+    min-height: 60vh;
+}
+
+
+/* =====================================================
+   5. ZENITH LOGO — Header
+===================================================== */
+
+.zenith-logo-header {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0;
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.zenith-logo-header:hover {
+    opacity: 0.9;
+}
+
+.zenith-header-mountain {
+    width: 92px;
+    height: 46px;
+    display: block;
+    margin: 0 auto 2px auto;
+    filter: drop-shadow(0 1px 2px rgba(201, 169, 97, 0.4));
+}
+
+.zenith-header-text {
+    display: block;
+    font-family: var(--font-brand);
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 8px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    line-height: 1;
+    text-align: center;
+    padding-left: 8px;
+    margin: 0;
+}
+
+.zenith-header-tagline {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 3.5px;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    line-height: 1;
+    text-align: center;
+    margin-top: 3px;
+    padding-left: 3.5px;
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   6. ZENITH LOGO — Official (Footer + Auth Pages)
+===================================================== */
+
+.zenith-logo-official {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 30px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.zenith-logo-official:hover {
+    opacity: 0.92;
+}
+
+.zenith-mountain-icon {
+    width: 220px;
+    height: 110px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.zenith-brand-name {
+    font-family: var(--font-brand);
+    font-size: 80px;
+    font-weight: 800;
+    letter-spacing: 24px;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #D4AF37 0%, #F4E5A1 50%, #B8945A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 4px rgba(212, 175, 55, 0.15));
+}
+
+.zenith-tagline-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.zenith-tagline-wrapper .zenith-line {
+    width: 80px;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+    display: inline-block;
+}
+
+.zenith-tagline-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 8px;
+    color: #D4AF37;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-left: 4px;
+}
+
+.zenith-logo-official.centered {
+    margin-bottom: 40px;
+}
+
+/* Footer version — Smaller */
+.footer .zenith-logo-official {
+    align-items: flex-start;
+    padding: 0;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.footer .zenith-mountain-icon {
+    width: 140px;
+    height: 70px;
+}
+
+.footer .zenith-brand-name {
+    font-size: 48px;
+    letter-spacing: 16px;
+}
+
+.footer .zenith-tagline-wrapper {
+    gap: 12px;
+    margin-top: 5px;
+}
+
+.footer .zenith-tagline-wrapper .zenith-line {
+    width: 50px;
+}
+
+.footer .zenith-tagline-text {
+    font-size: 8px;
+    letter-spacing: 5px;
+}
+
+
+/* =====================================================
+   7. FLASH MESSAGES & TOAST
+===================================================== */
+
+.flash-messages {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    width: calc(100% - 40px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.flash-messages p,
+.flash-message {
+    background: #fff8e6;
+    border-left: 4px solid var(--accent-gold);
+    padding: 14px 20px;
+    margin: 0;
+    color: #856404;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .3px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    animation: flashSlideIn 0.4s ease;
+    pointer-events: auto;
+    line-height: 1.5;
+}
+
+.flash-messages p.flash-success,
+.flash-message.flash-success {
+    background: #eaf7ed;
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.flash-messages p.flash-error,
+.flash-messages p.flash-danger,
+.flash-message.flash-error,
+.flash-message.flash-danger {
+    background: #fdecee;
+    border-left-color: #dc3545;
+    color: #721c24;
+}
+
+.flash-messages p.flash-info,
+.flash-message.flash-info {
+    background: #e6f4f9;
+    border-left-color: #17a2b8;
+    color: #0c5460;
+}
+
+.flash-messages p.flash-warning,
+.flash-message.flash-warning {
+    background: #fff8e6;
+    border-left-color: #f5b301;
+    color: #856404;
+}
+
+@keyframes flashSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.zenith-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--bg-dark);
+    color: var(--bg-primary);
+    padding: 16px 26px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .5px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, .2);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: var(--transition);
+    max-width: 350px;
+    border-left: 3px solid var(--accent-gold);
+}
+
+.zenith-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.zenith-toast i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.zenith-toast.success i {
+    color: var(--accent-gold);
+}
+
+.zenith-toast.error i {
+    color: #dc3545;
+}
+
+
+/* =====================================================
+   8. ANNOUNCEMENT BAR (Scrolling)
+===================================================== */
+
+.announcement-bar {
+    background: var(--bg-dark);
+    color: var(--accent-gold);
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.announcement-track {
+    display: flex;
+    gap: 80px;
+    animation: scrollAnnouncement 30s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+}
+
+.announcement-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.announcement-track span i {
+    color: var(--accent-gold);
+    font-size: 12px;
+}
+
+.announcement-bar:hover .announcement-track {
+    animation-play-state: paused;
+}
+
+@keyframes scrollAnnouncement {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+
+/* =====================================================
+   9. ERROR PAGE
+===================================================== */
+
+.error-section {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+    background: var(--bg-secondary);
+}
+
+.error-box {
+    text-align: center;
+    background: var(--bg-white);
+    padding: 70px 50px;
+    border: 1px solid var(--border-light);
+    max-width: 500px;
+    width: 100%;
+}
+
+.error-code {
+    font-size: 130px;
+    font-weight: 500;
+    color: var(--accent-gold);
+    margin-bottom: 10px;
+    line-height: 1;
+    font-family: var(--font-heading);
+}
+
+.error-box h2 {
+    font-size: 32px;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-family: var(--font-heading);
+}
+
+.error-box p {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   10. RAZORPAY Z-INDEX FIX
+===================================================== */
+
+.razorpay-container {
+    z-index: 99999 !important;
+}
