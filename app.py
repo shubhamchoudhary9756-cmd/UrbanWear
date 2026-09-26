@@ -1,5 +1,6 @@
 """
 Zenith - Flask E-Commerce Application
++ Cloudinary Integration for permanent image uploads
 """
 import warnings
 
@@ -45,6 +46,30 @@ import os
 import uuid
 import razorpay
 from datetime import datetime, timedelta, timezone
+
+
+# ==================================================
+# CLOUDINARY (Optional — fallback to local if not set)
+# ==================================================
+
+try:
+    import cloudinary
+    import cloudinary.uploader
+
+    _cloudinary_url = os.environ.get("CLOUDINARY_URL", "").strip()
+
+    if _cloudinary_url:
+        cloudinary.config(cloudinary_url=_cloudinary_url, secure=True)
+        CLOUDINARY_ENABLED = True
+        print("✅ Cloudinary configured — uploads will go to CDN")
+    else:
+        CLOUDINARY_ENABLED = False
+        print("⚠️  CLOUDINARY_URL not set — falling back to local uploads")
+
+except ImportError:
+    cloudinary = None
+    CLOUDINARY_ENABLED = False
+    print("⚠️  cloudinary package not installed — using local uploads")
 
 
 # ==================================================
@@ -116,7 +141,7 @@ razorpay_client = razorpay.Client(
 
 
 # ==================================================
-# FILE UPLOAD CONFIG
+# FILE UPLOAD CONFIG (Local fallback)
 # ==================================================
 
 UPLOAD_FOLDER = os.path.join(
@@ -224,8 +249,29 @@ def allowed_file(filename):
     return ext in ALLOWED_EXTENSIONS
 
 
-def save_uploaded_file(file):
-    """Save uploaded file and return relative path (secure)"""
+def _save_to_cloudinary(file):
+    """Upload file to Cloudinary and return secure URL"""
+    if not CLOUDINARY_ENABLED or cloudinary is None:
+        return None
+
+    try:
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder="zenith/products",
+            resource_type="image",
+            transformation=[
+                {"quality": "auto:good"},
+                {"fetch_format": "auto"}
+            ]
+        )
+        return upload_result.get("secure_url") or upload_result.get("url")
+    except Exception as e:
+        print(f"❌ Cloudinary upload error: {e}")
+        return None
+
+
+def _save_locally(file):
+    """Save file to local static folder (fallback)"""
     if not file or not file.filename:
         return None
 
@@ -240,14 +286,13 @@ def save_uploaded_file(file):
     ext = file.filename.rsplit(".", 1)[1].lower()
     unique_name = f"{uuid.uuid4().hex}.{ext}"
 
-    # Secure the filename (prevents path traversal)
     safe_name = secure_filename(unique_name)
     if not safe_name:
         return None
 
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
 
-    # Ensure the filepath is inside UPLOAD_FOLDER (path traversal protection)
+    # Path traversal protection
     real_upload = os.path.realpath(app.config["UPLOAD_FOLDER"])
     real_filepath = os.path.realpath(filepath)
     if not real_filepath.startswith(real_upload):
@@ -256,6 +301,34 @@ def save_uploaded_file(file):
     file.save(filepath)
 
     return f"images/uploads/{safe_name}"
+
+
+def save_uploaded_file(file):
+    """
+    Save uploaded file:
+    - Primary: Cloudinary (if configured) → returns full URL
+    - Fallback: Local static/images/uploads/ → returns relative path
+    """
+    if not file or not file.filename:
+        return None
+
+    if not allowed_file(file.filename):
+        return None
+
+    # Check MIME type
+    if hasattr(file, 'content_type') and file.content_type:
+        if file.content_type not in ALLOWED_MIME_TYPES:
+            return None
+
+    # Try Cloudinary first
+    if CLOUDINARY_ENABLED:
+        url = _save_to_cloudinary(file)
+        if url:
+            return url
+        print("⚠️  Cloudinary failed — falling back to local")
+
+    # Local fallback
+    return _save_locally(file)
 
 
 # ==================================================
@@ -362,7 +435,6 @@ def products():
 
     all_products = query.all()
 
-    # Page title mapping
     title_map = {
         "new": "New Arrivals",
         "bestsellers": "Best Sellers",
@@ -657,7 +729,6 @@ def forgot_password():
             except Exception as e:
                 print(f"❌ Email Error: {e}")
 
-        # Always same response (prevents user enumeration)
         flash("If this email is registered, a reset link has been sent.")
         return redirect(url_for("login"))
 
@@ -829,7 +900,6 @@ def checkout():
                 flash(f"'{product.name}' sirf {product.stock} available hai.")
                 return redirect(url_for("cart"))
 
-            # Sanitize variant fields
             size = sanitize_string(item.get("size", ""), 10) or None
             color = sanitize_string(item.get("color", ""), 30) or None
 
