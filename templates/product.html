@@ -40,17 +40,17 @@
                 {% if product.images %}
                     {% for img in product.images %}
                     <div class="thumb-nb {% if loop.first %}active{% endif %}"
-                         data-img="{{ url_for('static', filename=img) }}"
+                         data-img="{{ img|product_image }}"
                          onclick="changeImage(this)">
-                        <img src="{{ url_for('static', filename=img) }}"
+                        <img src="{{ img|product_image }}"
                              alt="{{ product.name }} thumbnail">
                     </div>
                     {% endfor %}
                 {% else %}
                     <div class="thumb-nb active"
-                         data-img="{{ url_for('static', filename=product.image) }}"
+                         data-img="{{ product.image|product_image }}"
                          onclick="changeImage(this)">
-                        <img src="{{ url_for('static', filename=product.image) }}"
+                        <img src="{{ product.image|product_image }}"
                              alt="{{ product.name }}">
                     </div>
                 {% endif %}
@@ -60,7 +60,7 @@
             <!-- Main Image -->
             <div class="main-image-nb">
                 <img id="main-image"
-                     src="{{ url_for('static', filename=product.image) }}"
+                     src="{{ product.image|product_image }}"
                      alt="{{ product.name }}">
 
                 {% if product.old_price and product.old_price > product.price %}
@@ -373,10 +373,14 @@
 
         <div class="related-card-nb">
             <a href="/product/{{ rp.id }}">
-                <img src="{{ url_for('static', filename=rp.image) }}" alt="{{ rp.name }}">
+                <img src="{{ rp.image|product_image }}" alt="{{ rp.name }}">
             </a>
             <h3><a href="/product/{{ rp.id }}">{{ rp.name }}</a></h3>
-            <p>₹{{ rp.price }} <span>₹{{ rp.old_price }}</span></p>
+            <p>₹{{ rp.price }}
+                {% if rp.old_price %}
+                <span>₹{{ rp.old_price }}</span>
+                {% endif %}
+            </p>
         </div>
 
         {% endfor %}

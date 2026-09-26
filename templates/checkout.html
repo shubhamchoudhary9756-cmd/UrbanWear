@@ -400,6 +400,16 @@
         const cartDataInput = document.getElementById("cart-data");
         const summaryCount = document.getElementById("summary-count-nb");
 
+        // ✅ Smart image URL helper — Cloudinary + local dono handle
+        function getCheckoutImageUrl(image) {
+            if (!image) return "";
+            image = String(image);
+            if (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("/")) {
+                return image;
+            }
+            return `/static/${image}`;
+        }
+
         if (cart.length === 0) {
             checkoutItems.innerHTML = `
                 <div class="empty-checkout-nb">
@@ -421,11 +431,13 @@
             total += subtotal;
             totalQty += item.quantity;
 
+            const imgUrl = getCheckoutImageUrl(item.image);
+
             html += `
                 <div class="checkout-item-nb">
                     <div class="checkout-item-img-nb">
-                        ${item.image
-                            ? `<img src="/static/${item.image}" alt="${item.name}">`
+                        ${imgUrl
+                            ? `<img src="${imgUrl}" alt="${item.name}">`
                             : `<i class="fa-solid fa-image"></i>`}
                     </div>
                     <div class="checkout-item-info-nb">

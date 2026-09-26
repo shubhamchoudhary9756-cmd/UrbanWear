@@ -44,7 +44,8 @@
             </button>
 
             <a href="/product/{{ product.id }}" class="product-img-wrap-nb">
-                <img src="{{ url_for('static', filename=product.image) }}"
+                <!-- ✅ FIXED — Cloudinary URL + local path dono handle karega -->
+                <img src="{{ product.image|product_image }}"
                      alt="{{ product.name }}">
 
                 <div class="product-quick-actions-nb">

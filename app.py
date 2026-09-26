@@ -1,6 +1,8 @@
 """
 Zenith - Flask E-Commerce Application
 + Cloudinary Integration for permanent image uploads
++ Active/Inactive product separation in admin panel
++ Jinja filter for smart image URL (Cloudinary + local)
 """
 import warnings
 
@@ -179,6 +181,31 @@ def load_user(user_id):
         return db.session.get(User, int(user_id))
     except (ValueError, TypeError):
         return None
+
+
+# ==================================================
+# JINJA FILTER — Smart Product Image URL
+# ==================================================
+
+@app.template_filter('product_image')
+def product_image_filter(image_path):
+    """
+    Returns correct image URL:
+    - If Cloudinary URL (http/https) → return as-is
+    - If local path (images/...) → return /static/... URL
+    - If empty → return placeholder
+    """
+    if not image_path:
+        return url_for('static', filename='images/placeholder.png')
+
+    image_path = str(image_path).strip()
+
+    # Cloudinary or any external URL
+    if image_path.startswith('http://') or image_path.startswith('https://'):
+        return image_path
+
+    # Local static file
+    return url_for('static', filename=image_path)
 
 
 # ==================================================
@@ -1249,15 +1276,25 @@ def admin_orders_tab():
     )
 
 
+# ✅ UPDATED — Active aur Inactive products alag-alag
 @app.route("/admin/products")
 @login_required
 @admin_required
 def admin_products_tab():
-    all_products = Product.query.order_by(Product.created_at.desc()).all()
+    active_products = Product.query.filter_by(
+        is_active=True
+    ).order_by(Product.created_at.desc()).all()
+
+    inactive_products = Product.query.filter_by(
+        is_active=False
+    ).order_by(Product.created_at.desc()).all()
+
     return render_template(
         "admin_panel.html",
         active_tab="products",
-        products=all_products
+        active_products=active_products,
+        inactive_products=inactive_products,
+        products=active_products  # backward compatibility
     )
 
 
@@ -1417,11 +1454,30 @@ def admin_delete_product(product_id):
     try:
         product.is_active = False
         db.session.commit()
-        flash(f"Product '{product.name}' deleted successfully!")
+        flash(f"Product '{product.name}' moved to deleted list. Restore kar sakte ho.")
     except Exception as e:
         db.session.rollback()
         print(f"Delete Error: {e}")
         flash("Failed to delete product.")
+
+    return redirect(url_for("admin_products_tab"))
+
+
+# ✅ NEW — Restore deleted product
+@app.route("/admin/products/restore/<int:product_id>", methods=["POST"])
+@login_required
+@admin_required
+def admin_restore_product(product_id):
+    product = Product.query.get_or_404(product_id)
+
+    try:
+        product.is_active = True
+        db.session.commit()
+        flash(f"Product '{product.name}' restored successfully!")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Restore Error: {e}")
+        flash("Failed to restore product.")
 
     return redirect(url_for("admin_products_tab"))
 
@@ -1574,6 +1630,6 @@ initialize_database()
 # ==================================================
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8000))
     debug_mode = app.config.get("FLASK_ENV") != "production"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
