@@ -3,6 +3,11 @@ Zenith - Flask E-Commerce Application
 + Cloudinary Integration for permanent image uploads
 + Active/Inactive product separation in admin panel
 + Jinja filter for smart image URL (Cloudinary + local)
++ Admin products: search + filter + sort + pagination (server-side)
++ Admin orders: search + status filter + sort + pagination (server-side)
++ Admin users: search + role filter + sort + pagination (server-side)
++ Admin dashboard: today/week/month stats + revenue chart + top products + low stock
++ Permanent delete: DB delete + Cloudinary image cleanup
 """
 import warnings
 
@@ -200,11 +205,9 @@ def product_image_filter(image_path):
 
     image_path = str(image_path).strip()
 
-    # Cloudinary or any external URL
     if image_path.startswith('http://') or image_path.startswith('https://'):
         return image_path
 
-    # Local static file
     return url_for('static', filename=image_path)
 
 
@@ -258,7 +261,6 @@ def safe_float(value, default=0.0):
 
 
 def sanitize_string(value, max_length=500):
-    """Sanitize user input string"""
     if not value:
         return ""
     return str(value).strip()[:max_length]
@@ -269,7 +271,6 @@ def sanitize_string(value, max_length=500):
 # ==================================================
 
 def allowed_file(filename):
-    """Check if file extension is allowed"""
     if not filename or "." not in filename:
         return False
     ext = filename.rsplit(".", 1)[1].lower()
@@ -277,7 +278,6 @@ def allowed_file(filename):
 
 
 def _save_to_cloudinary(file):
-    """Upload file to Cloudinary and return secure URL"""
     if not CLOUDINARY_ENABLED or cloudinary is None:
         return None
 
@@ -298,14 +298,12 @@ def _save_to_cloudinary(file):
 
 
 def _save_locally(file):
-    """Save file to local static folder (fallback)"""
     if not file or not file.filename:
         return None
 
     if not allowed_file(file.filename):
         return None
 
-    # Check MIME type
     if hasattr(file, 'content_type') and file.content_type:
         if file.content_type not in ALLOWED_MIME_TYPES:
             return None
@@ -319,7 +317,6 @@ def _save_locally(file):
 
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
 
-    # Path traversal protection
     real_upload = os.path.realpath(app.config["UPLOAD_FOLDER"])
     real_filepath = os.path.realpath(filepath)
     if not real_filepath.startswith(real_upload):
@@ -331,31 +328,68 @@ def _save_locally(file):
 
 
 def save_uploaded_file(file):
-    """
-    Save uploaded file:
-    - Primary: Cloudinary (if configured) → returns full URL
-    - Fallback: Local static/images/uploads/ → returns relative path
-    """
     if not file or not file.filename:
         return None
 
     if not allowed_file(file.filename):
         return None
 
-    # Check MIME type
     if hasattr(file, 'content_type') and file.content_type:
         if file.content_type not in ALLOWED_MIME_TYPES:
             return None
 
-    # Try Cloudinary first
     if CLOUDINARY_ENABLED:
         url = _save_to_cloudinary(file)
         if url:
             return url
         print("⚠️  Cloudinary failed — falling back to local")
 
-    # Local fallback
     return _save_locally(file)
+
+
+def _delete_cloudinary_image(image_url):
+    """
+    Delete image from Cloudinary if it's a Cloudinary URL.
+    Returns True if deleted or not a Cloudinary URL, False on error.
+    """
+    if not image_url:
+        return True
+
+    image_url = str(image_url).strip()
+
+    if not image_url.startswith("http://") and not image_url.startswith("https://"):
+        return True
+
+    if "cloudinary.com" not in image_url:
+        return True
+
+    if not CLOUDINARY_ENABLED or cloudinary is None:
+        return True
+
+    try:
+        from urllib.parse import urlparse
+        import re as _re
+
+        parsed = urlparse(image_url)
+        path = parsed.path
+
+        if "/upload/" not in path:
+            return True
+
+        after_upload = path.split("/upload/", 1)[1]
+        after_upload = _re.sub(r'^v\d+/', '', after_upload)
+        public_id = _re.sub(r'\.[a-zA-Z0-9]+$', '', after_upload)
+
+        if not public_id:
+            return True
+
+        cloudinary.uploader.destroy(public_id, resource_type="image")
+        print(f"✅ Cloudinary image deleted: {public_id}")
+        return True
+
+    except Exception as e:
+        print(f"⚠️  Cloudinary delete failed (non-critical): {e}")
+        return False
 
 
 # ==================================================
@@ -1178,7 +1212,7 @@ def order_success(order_id):
 
 
 # ==================================================
-# ORDERS
+# ORDERS (User side)
 # ==================================================
 
 @app.route("/orders")
@@ -1232,7 +1266,7 @@ def order_details(order_id):
 
 
 # ==================================================
-# ADMIN — DASHBOARD
+# ADMIN — DASHBOARD (Enhanced)
 # ==================================================
 
 @app.route("/admin")
@@ -1240,73 +1274,350 @@ def order_details(order_id):
 @login_required
 @admin_required
 def admin_panel():
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=7)
+    month_start = today_start - timedelta(days=30)
+
     total_orders = Order.query.count()
     total_users = User.query.count()
     total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
     pending_orders = Order.query.filter_by(status="pending").count()
     total_products = Product.query.count()
 
+    today_orders = Order.query.filter(Order.created_at >= today_start).count()
+    today_revenue = db.session.query(
+        db.func.sum(Order.total_amount)
+    ).filter(Order.created_at >= today_start).scalar() or 0
+    today_users = User.query.filter(User.created_at >= today_start).count()
+
+    week_orders = Order.query.filter(Order.created_at >= week_start).count()
+    week_revenue = db.session.query(
+        db.func.sum(Order.total_amount)
+    ).filter(Order.created_at >= week_start).scalar() or 0
+
+    month_orders = Order.query.filter(Order.created_at >= month_start).count()
+    month_revenue = db.session.query(
+        db.func.sum(Order.total_amount)
+    ).filter(Order.created_at >= month_start).scalar() or 0
+
+    order_status_breakdown = {
+        "pending": Order.query.filter_by(status="pending").count(),
+        "processing": Order.query.filter_by(status="processing").count(),
+        "shipped": Order.query.filter_by(status="shipped").count(),
+        "delivered": Order.query.filter_by(status="delivered").count(),
+        "cancelled": Order.query.filter_by(status="cancelled").count(),
+    }
+
+    revenue_chart_labels = []
+    revenue_chart_data = []
+
+    for i in range(6, -1, -1):
+        day_start = today_start - timedelta(days=i)
+        day_end = day_start + timedelta(days=1)
+
+        day_rev = db.session.query(
+            db.func.sum(Order.total_amount)
+        ).filter(
+            Order.created_at >= day_start,
+            Order.created_at < day_end
+        ).scalar() or 0
+
+        revenue_chart_labels.append(day_start.strftime("%d %b"))
+        revenue_chart_data.append(float(day_rev))
+
+    top_products_query = (
+        db.session.query(
+            OrderItem.product_name,
+            db.func.sum(OrderItem.quantity).label("total_qty"),
+            db.func.sum(OrderItem.quantity * OrderItem.price).label("total_revenue")
+        )
+        .group_by(OrderItem.product_name)
+        .order_by(db.func.sum(OrderItem.quantity).desc())
+        .limit(5)
+        .all()
+    )
+
+    top_products = [
+        {
+            "name": row.product_name,
+            "qty": int(row.total_qty or 0),
+            "revenue": float(row.total_revenue or 0)
+        }
+        for row in top_products_query
+    ]
+
+    low_stock_products = Product.query.filter(
+        Product.is_active == True,
+        Product.stock < 10
+    ).order_by(Product.stock.asc()).limit(8).all()
+
     recent_orders = Order.query.options(
         joinedload(Order.user)
     ).order_by(Order.created_at.desc()).limit(5).all()
 
+    recent_users = User.query.order_by(
+        User.created_at.desc()
+    ).limit(5).all()
+
     return render_template(
         "admin_panel.html",
+        active_tab="dashboard",
         total_orders=total_orders,
         total_users=total_users,
         total_revenue=total_revenue,
         pending_orders=pending_orders,
         total_products=total_products,
-        recent_orders=recent_orders
+        today_orders=today_orders,
+        today_revenue=today_revenue,
+        today_users=today_users,
+        week_orders=week_orders,
+        week_revenue=week_revenue,
+        month_orders=month_orders,
+        month_revenue=month_revenue,
+        order_status_breakdown=order_status_breakdown,
+        revenue_chart_labels=revenue_chart_labels,
+        revenue_chart_data=revenue_chart_data,
+        top_products=top_products,
+        low_stock_products=low_stock_products,
+        recent_orders=recent_orders,
+        recent_users=recent_users,
     )
 
+
+# ==================================================
+# ADMIN — ORDERS
+# ==================================================
 
 @app.route("/admin/orders")
 @login_required
 @admin_required
 def admin_orders_tab():
-    all_orders = Order.query.options(
-        joinedload(Order.user)
-    ).order_by(Order.created_at.desc()).all()
+    search_q = sanitize_string(request.args.get("q", ""), 100)
+    status_filter = sanitize_string(request.args.get("status", ""), 20)
+    sort_by = sanitize_string(request.args.get("sort", "newest"), 20)
+    page = max(1, safe_int(request.args.get("page"), 1))
+    per_page = 20
+
+    valid_statuses = ["pending", "processing", "shipped", "delivered", "cancelled"]
+
+    if status_filter and status_filter not in valid_statuses:
+        status_filter = ""
+
+    query = Order.query.options(joinedload(Order.user))
+
+    if search_q:
+        conditions = [
+            User.full_name.ilike(f'%{search_q}%'),
+            User.email.ilike(f'%{search_q}%'),
+        ]
+
+        try:
+            oid = int(search_q)
+            conditions.append(Order.id == oid)
+        except (ValueError, TypeError):
+            pass
+
+        query = query.join(User, Order.user_id == User.id).filter(
+            db.or_(*conditions)
+        )
+
+    if status_filter:
+        query = query.filter(Order.status == status_filter)
+
+    if sort_by == "amount_high":
+        query = query.order_by(Order.total_amount.desc())
+    elif sort_by == "amount_low":
+        query = query.order_by(Order.total_amount.asc())
+    elif sort_by == "oldest":
+        query = query.order_by(Order.created_at.asc())
+    else:
+        sort_by = "newest"
+        query = query.order_by(Order.created_at.desc())
+
+    total_count = query.count()
+    total_pages = max(1, (total_count + per_page - 1) // per_page)
+    page = min(page, total_pages)
+    offset = (page - 1) * per_page
+
+    orders_page = query.offset(offset).limit(per_page).all()
+
+    status_counts = {
+        "all": Order.query.count(),
+        "pending": Order.query.filter_by(status="pending").count(),
+        "processing": Order.query.filter_by(status="processing").count(),
+        "shipped": Order.query.filter_by(status="shipped").count(),
+        "delivered": Order.query.filter_by(status="delivered").count(),
+        "cancelled": Order.query.filter_by(status="cancelled").count(),
+    }
 
     return render_template(
         "admin_panel.html",
         active_tab="orders",
-        orders=all_orders
+        orders=orders_page,
+        search_q=search_q,
+        status_filter=status_filter,
+        sort_by=sort_by,
+        current_page=page,
+        total_pages=total_pages,
+        total_count=total_count,
+        per_page=per_page,
+        status_counts=status_counts,
+        valid_statuses=valid_statuses,
     )
 
 
-# ✅ UPDATED — Active aur Inactive products alag-alag
+# ==================================================
+# ADMIN — PRODUCTS
+# ==================================================
+
 @app.route("/admin/products")
 @login_required
 @admin_required
 def admin_products_tab():
-    active_products = Product.query.filter_by(
-        is_active=True
-    ).order_by(Product.created_at.desc()).all()
+    search_q = sanitize_string(request.args.get("q", ""), 100)
+    category_filter = sanitize_string(request.args.get("category", ""), 20)
+    sort_by = sanitize_string(request.args.get("sort", "newest"), 20)
+    tab = sanitize_string(request.args.get("tab", "active"), 20)
+    page = max(1, safe_int(request.args.get("page"), 1))
+    per_page = 12
 
-    inactive_products = Product.query.filter_by(
-        is_active=False
-    ).order_by(Product.created_at.desc()).all()
+    if tab not in ("active", "deleted"):
+        tab = "active"
+
+    is_active_filter = (tab == "active")
+    query = Product.query.filter_by(is_active=is_active_filter)
+
+    if search_q:
+        query = query.filter(
+            db.or_(
+                Product.name.ilike(f'%{search_q}%'),
+                Product.description.ilike(f'%{search_q}%'),
+                Product.subcategory.ilike(f'%{search_q}%'),
+            )
+        )
+
+    if category_filter in ["featured", "bestseller"]:
+        query = query.filter(Product.category == category_filter)
+
+    if sort_by == "price_low":
+        query = query.order_by(Product.price.asc())
+    elif sort_by == "price_high":
+        query = query.order_by(Product.price.desc())
+    elif sort_by == "name_asc":
+        query = query.order_by(Product.name.asc())
+    elif sort_by == "stock_low":
+        query = query.order_by(Product.stock.asc())
+    else:
+        sort_by = "newest"
+        query = query.order_by(Product.created_at.desc())
+
+    total_count = query.count()
+    total_pages = max(1, (total_count + per_page - 1) // per_page)
+    page = min(page, total_pages)
+    offset = (page - 1) * per_page
+
+    products_page = query.offset(offset).limit(per_page).all()
+
+    active_count = Product.query.filter_by(is_active=True).count()
+    deleted_count = Product.query.filter_by(is_active=False).count()
 
     return render_template(
         "admin_panel.html",
         active_tab="products",
-        active_products=active_products,
-        inactive_products=inactive_products,
-        products=active_products  # backward compatibility
+        products=products_page,
+        active_products=products_page if is_active_filter else [],
+        inactive_products=products_page if not is_active_filter else [],
+        current_tab=tab,
+        active_count=active_count,
+        deleted_count=deleted_count,
+        search_q=search_q,
+        category_filter=category_filter,
+        sort_by=sort_by,
+        current_page=page,
+        total_pages=total_pages,
+        total_count=total_count,
+        per_page=per_page,
     )
 
+
+# ==================================================
+# ADMIN — USERS
+# ==================================================
 
 @app.route("/admin/users")
 @login_required
 @admin_required
 def admin_users_tab():
-    all_users = User.query.order_by(User.created_at.desc()).all()
+    search_q = sanitize_string(request.args.get("q", ""), 100)
+    role_filter = sanitize_string(request.args.get("role", ""), 20)
+    sort_by = sanitize_string(request.args.get("sort", "newest"), 20)
+    page = max(1, safe_int(request.args.get("page"), 1))
+    per_page = 20
+
+    query = User.query
+
+    if search_q:
+        query = query.filter(
+            db.or_(
+                User.full_name.ilike(f'%{search_q}%'),
+                User.email.ilike(f'%{search_q}%'),
+                User.phone.ilike(f'%{search_q}%'),
+            )
+        )
+
+    if role_filter == "admin":
+        query = query.filter(User.is_admin == True)
+    elif role_filter == "user":
+        query = query.filter(User.is_admin == False)
+
+    if sort_by == "oldest":
+        query = query.order_by(User.created_at.asc())
+    elif sort_by == "name_asc":
+        query = query.order_by(User.full_name.asc())
+    elif sort_by == "name_desc":
+        query = query.order_by(User.full_name.desc())
+    else:
+        sort_by = "newest"
+        query = query.order_by(User.created_at.desc())
+
+    total_count = query.count()
+    total_pages = max(1, (total_count + per_page - 1) // per_page)
+    page = min(page, total_pages)
+    offset = (page - 1) * per_page
+
+    users_page = query.offset(offset).limit(per_page).all()
+
+    total_users_all = User.query.count()
+    admin_count = User.query.filter_by(is_admin=True).count()
+    regular_count = User.query.filter_by(is_admin=False).count()
+
+    user_ids = [u.id for u in users_page]
+    order_counts = {}
+    if user_ids:
+        order_count_rows = (
+            db.session.query(Order.user_id, db.func.count(Order.id))
+            .filter(Order.user_id.in_(user_ids))
+            .group_by(Order.user_id)
+            .all()
+        )
+        order_counts = {uid: cnt for uid, cnt in order_count_rows}
+
     return render_template(
         "admin_panel.html",
         active_tab="users",
-        users=all_users
+        users=users_page,
+        search_q=search_q,
+        role_filter=role_filter,
+        sort_by=sort_by,
+        current_page=page,
+        total_pages=total_pages,
+        total_count=total_count,
+        per_page=per_page,
+        total_users_all=total_users_all,
+        admin_count=admin_count,
+        regular_count=regular_count,
+        order_counts=order_counts,
     )
 
 
@@ -1417,7 +1728,6 @@ def admin_edit_product(product_id):
             )
             product.stock = max(0, safe_int(request.form.get("stock"), 10))
 
-            # Update images (file upload OR text path)
             for idx, field in enumerate(["image", "image2", "image3", "image4"], 1):
                 file_key = f"{field}_file"
                 text_key = field
@@ -1460,10 +1770,9 @@ def admin_delete_product(product_id):
         print(f"Delete Error: {e}")
         flash("Failed to delete product.")
 
-    return redirect(url_for("admin_products_tab"))
+    return redirect(url_for("admin_products_tab") + "#active")
 
 
-# ✅ NEW — Restore deleted product
 @app.route("/admin/products/restore/<int:product_id>", methods=["POST"])
 @login_required
 @admin_required
@@ -1479,7 +1788,49 @@ def admin_restore_product(product_id):
         print(f"Restore Error: {e}")
         flash("Failed to restore product.")
 
-    return redirect(url_for("admin_products_tab"))
+    return redirect(url_for("admin_products_tab") + "#deleted")
+
+
+@app.route("/admin/products/permanent-delete/<int:product_id>", methods=["POST"])
+@login_required
+@admin_required
+def admin_permanent_delete_product(product_id):
+    """
+    Permanently delete a product from database.
+    Only allowed for products that are already soft-deleted (is_active=False).
+    Deletes associated Cloudinary images (if any).
+    """
+    product = Product.query.get_or_404(product_id)
+
+    if product.is_active:
+        flash("Pehle product ko delete karo, phir permanently delete ho paayega.")
+        return redirect(url_for("admin_products_tab") + "#active")
+
+    product_name = product.name
+
+    image_urls = [
+        product.image,
+        product.image2,
+        product.image3,
+        product.image4,
+    ]
+    image_urls = [u for u in image_urls if u]
+
+    try:
+        for url in image_urls:
+            _delete_cloudinary_image(url)
+
+        db.session.delete(product)
+        db.session.commit()
+
+        flash(f"Product '{product_name}' permanently deleted. 🙏")
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Permanent Delete Error: {e}")
+        flash("Failed to permanently delete product.")
+
+    return redirect(url_for("admin_products_tab") + "#deleted")
 
 
 @app.route("/admin/order/<int:order_id>/update-status", methods=["POST"])
@@ -1511,7 +1862,17 @@ def admin_update_order_status(order_id):
         print(f"Status Update Error: {e}")
         flash("Failed to update order status.")
 
-    return redirect(url_for("admin_orders_tab"))
+    redirect_params = {}
+    if request.form.get("return_q"):
+        redirect_params["q"] = request.form.get("return_q")
+    if request.form.get("return_status"):
+        redirect_params["status"] = request.form.get("return_status")
+    if request.form.get("return_sort"):
+        redirect_params["sort"] = request.form.get("return_sort")
+    if request.form.get("return_page"):
+        redirect_params["page"] = request.form.get("return_page")
+
+    return redirect(url_for("admin_orders_tab", **redirect_params))
 
 
 @app.route("/admin/order/<int:order_id>")
@@ -1565,7 +1926,6 @@ def internal_error(error):
 # ==================================================
 
 def initialize_database():
-    """Create tables, admin user, and seed products"""
     with app.app_context():
         try:
             db.create_all()
@@ -1574,7 +1934,6 @@ def initialize_database():
             print(f"❌ DB create error: {e}")
             return
 
-        # Create admin if missing
         try:
             admin_email = app.config.get("ADMIN_EMAIL", "admin@zenith.com")
             admin_password = app.config.get("ADMIN_PASSWORD", "Admin@123")
@@ -1598,7 +1957,6 @@ def initialize_database():
             db.session.rollback()
             print(f"❌ Admin setup error: {e}")
 
-        # Seed products if empty
         try:
             if Product.query.count() == 0:
                 seed_products = [

@@ -107,7 +107,20 @@
 </div>
 
 
+<!-- ============================================ -->
+<!-- GLOBAL SCRIPTS -->
+<!-- ============================================ -->
+
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<!-- ============================================ -->
+<!-- DASHBOARD — Chart.js (only on dashboard tab) -->
+<!-- ============================================ -->
+
+{% if active_tab is not defined or active_tab == 'dashboard' %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/admin-dashboard.js') }}"></script>
+{% endif %}
 
 {% block extra_scripts %}{% endblock %}
 

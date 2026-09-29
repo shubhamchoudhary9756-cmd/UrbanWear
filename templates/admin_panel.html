@@ -5,25 +5,24 @@
 {% block content %}
 
 <!-- ============================================ -->
-<!-- DASHBOARD TAB -->
+<!-- DASHBOARD TAB — Enhanced -->
 <!-- ============================================ -->
 
 {% if active_tab is not defined or active_tab == 'dashboard' %}
 
     <div class="admin-content">
 
+        <!-- HEADER -->
         <div class="admin-content-header">
-
             <h1>
                 <i class="fa-solid fa-gauge-high"></i>
                 Dashboard
             </h1>
-
             <p>Welcome back, {{ current_user.full_name }}!</p>
-
         </div>
 
 
+        <!-- ALL-TIME STATS GRID -->
         <div class="stats-grid">
 
             <div class="stat-card red">
@@ -31,7 +30,7 @@
                     <i class="fa-solid fa-dollar-sign"></i>
                 </div>
                 <div class="stat-content">
-                    <span class="stat-value">₹{{ total_revenue }}</span>
+                    <span class="stat-value">₹{{ "%.0f"|format(total_revenue) }}</span>
                     <span class="stat-label">Total Revenue</span>
                 </div>
             </div>
@@ -69,21 +68,228 @@
         </div>
 
 
+        <!-- QUICK STATS -->
+        <div class="dashboard-quick-stats">
+
+            <div class="quick-stat-card">
+                <div class="quick-stat-header">
+                    <span class="quick-stat-tag">Today</span>
+                    <i class="fa-solid fa-calendar-day"></i>
+                </div>
+                <div class="quick-stat-body">
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Orders</span>
+                        <span class="quick-stat-value">{{ today_orders }}</span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Revenue</span>
+                        <span class="quick-stat-value gold">₹{{ "%.0f"|format(today_revenue) }}</span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">New Users</span>
+                        <span class="quick-stat-value">{{ today_users }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-stat-card">
+                <div class="quick-stat-header">
+                    <span class="quick-stat-tag">Last 7 Days</span>
+                    <i class="fa-solid fa-calendar-week"></i>
+                </div>
+                <div class="quick-stat-body">
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Orders</span>
+                        <span class="quick-stat-value">{{ week_orders }}</span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Revenue</span>
+                        <span class="quick-stat-value gold">₹{{ "%.0f"|format(week_revenue) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-stat-card">
+                <div class="quick-stat-header">
+                    <span class="quick-stat-tag">Last 30 Days</span>
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div class="quick-stat-body">
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Orders</span>
+                        <span class="quick-stat-value">{{ month_orders }}</span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Revenue</span>
+                        <span class="quick-stat-value gold">₹{{ "%.0f"|format(month_revenue) }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- REVENUE CHART + ORDER STATUS -->
+        <div class="dashboard-charts-grid">
+
+            <div class="dashboard-chart-card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fa-solid fa-chart-line"></i>
+                        Revenue — Last 7 Days
+                    </h3>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="revenueChart"
+                            data-labels='{{ revenue_chart_labels|tojson }}'
+                            data-values='{{ revenue_chart_data|tojson }}'></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-chart-card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fa-solid fa-chart-pie"></i>
+                        Order Status
+                    </h3>
+                </div>
+                <div class="status-breakdown">
+
+                    {% set total_status = order_status_breakdown.values()|sum %}
+
+                    {% for status, count in order_status_breakdown.items() %}
+                        <div class="status-breakdown-row">
+                            <div class="status-breakdown-left">
+                                <span class="status-dot status-dot-{{ status }}"></span>
+                                <span class="status-name">{{ status|capitalize }}</span>
+                            </div>
+                            <div class="status-breakdown-right">
+                                <span class="status-count">{{ count }}</span>
+                                {% if total_status > 0 %}
+                                    <span class="status-pct">
+                                        {{ "%.0f"|format((count / total_status * 100)) }}%
+                                    </span>
+                                {% else %}
+                                    <span class="status-pct">0%</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- LOW STOCK ALERTS -->
+        {% if low_stock_products %}
+
+        <div class="dashboard-section-card">
+
+            <div class="card-header">
+                <h3>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    Low Stock Alerts
+                    <span class="header-count">{{ low_stock_products|length }}</span>
+                </h3>
+                <a href="{{ url_for('admin_products_tab') }}?sort=stock_low" class="view-all-btn">
+                    View All
+                </a>
+            </div>
+
+            <div class="low-stock-list">
+
+                {% for p in low_stock_products %}
+                    <div class="low-stock-item">
+
+                        <div class="low-stock-img">
+                            <img src="{{ p.image|product_image }}" alt="{{ p.name }}">
+                        </div>
+
+                        <div class="low-stock-info">
+                            <span class="low-stock-name">{{ p.name }}</span>
+                            <span class="low-stock-cat">{{ p.category }}</span>
+                        </div>
+
+                        <div class="low-stock-right">
+                            <span class="low-stock-qty {% if p.stock <= 3 %}critical{% endif %}">
+                                {{ p.stock }} left
+                            </span>
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- TOP SELLING PRODUCTS -->
+        {% if top_products %}
+
+        <div class="dashboard-section-card">
+
+            <div class="card-header">
+                <h3>
+                    <i class="fa-solid fa-trophy"></i>
+                    Top Selling Products
+                </h3>
+            </div>
+
+            <div class="top-products-list">
+
+                {% set max_qty = top_products[0].qty if top_products else 1 %}
+
+                {% for tp in top_products %}
+                    <div class="top-product-item">
+
+                        <div class="top-product-rank">
+                            #{{ loop.index }}
+                        </div>
+
+                        <div class="top-product-info">
+                            <span class="top-product-name">{{ tp.name }}</span>
+                            <span class="top-product-meta">
+                                {{ tp.qty }} sold · ₹{{ "%.0f"|format(tp.revenue) }}
+                            </span>
+                        </div>
+
+                        <div class="top-product-bar">
+                            {% if max_qty > 0 %}
+                                <div class="top-product-bar-fill"
+                                     data-width="{{ (tp.qty / max_qty * 100) }}"></div>
+                            {% else %}
+                                <div class="top-product-bar-fill" data-width="0"></div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- RECENT ORDERS + QUICK ACTIONS -->
         <div class="dashboard-grid">
 
             <div class="recent-orders-card">
 
                 <div class="card-header">
-
                     <h3>
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         Recent Orders
                     </h3>
-
                     <a href="{{ url_for('admin_orders_tab') }}" class="view-all-btn">
                         View All
                     </a>
-
                 </div>
 
                 {% if recent_orders %}
@@ -122,12 +328,10 @@
             <div class="quick-actions-card">
 
                 <div class="card-header">
-
                     <h3>
                         <i class="fa-solid fa-bolt"></i>
                         Quick Actions
                     </h3>
-
                 </div>
 
                 <div class="quick-actions-list">
@@ -147,11 +351,59 @@
                         Manage Users
                     </a>
 
+                    <a href="{{ url_for('admin_add_product') }}" class="quick-action-btn">
+                        <i class="fa-solid fa-plus"></i>
+                        Add New Product
+                    </a>
+
                 </div>
 
             </div>
 
         </div>
+
+
+        <!-- RECENT SIGNUPS -->
+        {% if recent_users %}
+
+        <div class="dashboard-section-card" style="margin-top: 25px;">
+
+            <div class="card-header">
+                <h3>
+                    <i class="fa-solid fa-user-plus"></i>
+                    Recent Signups
+                </h3>
+                <a href="{{ url_for('admin_users_tab') }}" class="view-all-btn">
+                    View All
+                </a>
+            </div>
+
+            <div class="recent-signups-list">
+
+                {% for u in recent_users %}
+                    <div class="recent-signup-item">
+
+                        <div class="customer-avatar">
+                            {{ u.full_name[0]|upper }}
+                        </div>
+
+                        <div class="recent-signup-info">
+                            <span class="recent-signup-name">{{ u.full_name }}</span>
+                            <span class="recent-signup-email">{{ u.email }}</span>
+                        </div>
+
+                        <div class="recent-signup-date">
+                            {{ u.created_at.strftime('%d %b %Y') }}
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
 
     </div>
 
@@ -168,18 +420,113 @@
     <div class="admin-content">
 
         <div class="admin-content-header">
-
             <h1>
                 <i class="fa-solid fa-box"></i>
                 Orders
             </h1>
-
             <p>Manage all orders</p>
+        </div>
+
+
+        <form method="GET"
+              action="{{ url_for('admin_orders_tab') }}"
+              class="admin-filter-bar">
+
+            <div class="admin-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ search_q|default('') }}"
+                       placeholder="Search order ID / customer name / email..."
+                       autocomplete="off">
+                {% if search_q %}
+                <a href="{{ url_for('admin_orders_tab', status=status_filter, sort=sort_by) }}"
+                   class="admin-search-clear"
+                   title="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="status" class="admin-filter-select">
+                <option value="">All Statuses</option>
+                {% for s in valid_statuses %}
+                    <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>
+                        {{ s|capitalize }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="sort" class="admin-filter-select">
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
+                    Newest First
+                </option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
+                    Oldest First
+                </option>
+                <option value="amount_high" {% if sort_by == 'amount_high' %}selected{% endif %}>
+                    Amount: High → Low
+                </option>
+                <option value="amount_low" {% if sort_by == 'amount_low' %}selected{% endif %}>
+                    Amount: Low → High
+                </option>
+            </select>
+
+            <button type="submit" class="admin-filter-btn">
+                <i class="fa-solid fa-filter"></i>
+                Apply
+            </button>
+
+            {% if search_q or status_filter or (sort_by and sort_by != 'newest') %}
+            <a href="{{ url_for('admin_orders_tab') }}"
+               class="admin-filter-reset">
+                <i class="fa-solid fa-rotate-left"></i>
+                Reset
+            </a>
+            {% endif %}
+
+        </form>
+
+
+        <div class="order-status-tabs">
+
+            <a href="{{ url_for('admin_orders_tab', q=search_q, sort=sort_by) }}"
+               class="order-status-tab {% if not status_filter %}active{% endif %}">
+
+                <i class="fa-solid fa-list"></i>
+                All
+                <span class="status-tab-count">{{ status_counts.all }}</span>
+
+            </a>
+
+            {% for s in valid_statuses %}
+
+                <a href="{{ url_for('admin_orders_tab', q=search_q, sort=sort_by, status=s) }}"
+                   class="order-status-tab status-{{ s }} {% if status_filter == s %}active{% endif %}">
+
+                    {% if s == 'pending' %}
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    {% elif s == 'processing' %}
+                        <i class="fa-solid fa-gear"></i>
+                    {% elif s == 'shipped' %}
+                        <i class="fa-solid fa-truck-fast"></i>
+                    {% elif s == 'delivered' %}
+                        <i class="fa-solid fa-circle-check"></i>
+                    {% elif s == 'cancelled' %}
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    {% endif %}
+
+                    {{ s|capitalize }}
+                    <span class="status-tab-count">{{ status_counts[s] }}</span>
+
+                </a>
+
+            {% endfor %}
 
         </div>
 
 
-        {% if orders %}
+        {% if orders and orders|length > 0 %}
 
             <div class="admin-orders-table">
 
@@ -211,7 +558,12 @@
                                         <div class="customer-avatar">
                                             {{ order.user.full_name[0]|upper }}
                                         </div>
-                                        <span>{{ order.user.full_name }}</span>
+                                        <div>
+                                            <div>{{ order.user.full_name }}</div>
+                                            <small style="color: #999; font-size: 11px;">
+                                                {{ order.user.email }}
+                                            </small>
+                                        </div>
                                     </div>
                                 </td>
 
@@ -253,11 +605,104 @@
                     <i class="fa-solid fa-inbox"></i>
                 </div>
 
-                <h2>No Orders Yet</h2>
+                <h2>
+                    {% if search_q or status_filter %}
+                        No Matching Orders
+                    {% else %}
+                        No Orders Yet
+                    {% endif %}
+                </h2>
 
-                <p>No orders have been placed yet.</p>
+                <p>
+                    {% if search_q or status_filter %}
+                        Try different search terms or clear filters.
+                    {% else %}
+                        No orders have been placed yet.
+                    {% endif %}
+                </p>
+
+                {% if search_q or status_filter %}
+                    <a href="{{ url_for('admin_orders_tab') }}"
+                       class="admin-view-btn"
+                       style="margin-top: 20px; padding: 14px 30px;">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Clear Filters
+                    </a>
+                {% endif %}
 
             </div>
+
+        {% endif %}
+
+
+        {% if total_pages is defined and total_pages > 1 %}
+
+        <div class="admin-pagination">
+
+            <div class="admin-pagination-info">
+                Showing
+                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
+                –
+                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
+                of
+                <strong>{{ total_count }}</strong>
+                orders
+            </div>
+
+            <div class="admin-pagination-controls">
+
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page-1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
+
+                {% set start_page = [1, current_page - 2]|max %}
+                {% set end_page = [total_pages, start_page + 4]|min %}
+                {% set start_page = [1, end_page - 4]|max %}
+
+                {% if start_page > 1 %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=1) }}"
+                       class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=p) }}"
+                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
+                        {{ p }}
+                    </a>
+                {% endfor %}
+
+                {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=total_pages) }}"
+                       class="admin-page-btn">{{ total_pages }}</a>
+                {% endif %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page+1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
 
         {% endif %}
 
@@ -298,54 +743,113 @@
         </div>
 
 
-        <!-- ============================================ -->
-        <!-- ✅ TABS — Active / Deleted -->
-        <!-- ============================================ -->
+        <form method="GET"
+              action="{{ url_for('admin_products_tab') }}"
+              class="admin-filter-bar">
+
+            <input type="hidden" name="tab" value="{{ current_tab|default('active') }}">
+
+            <div class="admin-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ search_q|default('') }}"
+                       placeholder="Search products..."
+                       autocomplete="off">
+                {% if search_q %}
+                <a href="{{ url_for('admin_products_tab', tab=current_tab|default('active')) }}"
+                   class="admin-search-clear"
+                   title="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="category" class="admin-filter-select">
+                <option value="">All Categories</option>
+                <option value="featured" {% if category_filter == 'featured' %}selected{% endif %}>
+                    Featured
+                </option>
+                <option value="bestseller" {% if category_filter == 'bestseller' %}selected{% endif %}>
+                    Bestseller
+                </option>
+            </select>
+
+            <select name="sort" class="admin-filter-select">
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
+                    Newest First
+                </option>
+                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>
+                    Price: Low → High
+                </option>
+                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>
+                    Price: High → Low
+                </option>
+                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>
+                    Name: A → Z
+                </option>
+                <option value="stock_low" {% if sort_by == 'stock_low' %}selected{% endif %}>
+                    Stock: Low → High
+                </option>
+            </select>
+
+            <button type="submit" class="admin-filter-btn">
+                <i class="fa-solid fa-filter"></i>
+                Apply
+            </button>
+
+            {% if search_q or category_filter or (sort_by and sort_by != 'newest') %}
+            <a href="{{ url_for('admin_products_tab', tab=current_tab|default('active')) }}"
+               class="admin-filter-reset">
+                <i class="fa-solid fa-rotate-left"></i>
+                Reset
+            </a>
+            {% endif %}
+
+        </form>
+
 
         <div class="product-tabs">
 
             <button type="button"
-                    class="product-tab active"
+                    class="product-tab {% if current_tab == 'active' or not current_tab %}active{% endif %}"
                     onclick="switchProductTab('active')"
                     data-tab="active">
 
                 <i class="fa-solid fa-check-circle"></i>
                 Active Products
-                <span class="tab-count">{{ active_products|length if active_products is defined else 0 }}</span>
+                <span class="tab-count">{{ active_count|default(active_products|length if active_products is defined else 0) }}</span>
 
             </button>
 
             <button type="button"
-                    class="product-tab"
+                    class="product-tab {% if current_tab == 'deleted' %}active{% endif %}"
                     onclick="switchProductTab('deleted')"
                     data-tab="deleted">
 
                 <i class="fa-solid fa-trash"></i>
                 Deleted Products
-                <span class="tab-count">{{ inactive_products|length if inactive_products is defined else 0 }}</span>
+                <span class="tab-count">{{ deleted_count|default(inactive_products|length if inactive_products is defined else 0) }}</span>
 
             </button>
 
         </div>
 
 
-
-        <!-- ============================================ -->
-        <!-- ✅ ACTIVE PRODUCTS PANEL -->
-        <!-- ============================================ -->
+        {% if current_tab == 'active' or not current_tab %}
 
         <div class="product-panel" id="panel-active">
 
-            {% if active_products and active_products|length > 0 %}
+            {% if products and products|length > 0 %}
 
                 <div class="admin-products-grid">
 
-                    {% for product in active_products %}
+                    {% for product in products %}
 
                         <div class="admin-product-card">
 
                             <div class="product-image">
-                                <img src="{% if product.image.startswith('http') %}{{ product.image }}{% else %}{{ url_for('static', filename=product.image) }}{% endif %}"
+                                <img src="{{ product.image|product_image }}"
                                      alt="{{ product.name }}">
                             </div>
 
@@ -374,7 +878,8 @@
 
                                 <a href="{{ url_for('product', product_id=product.id) }}"
                                    class="admin-view-btn"
-                                   style="flex: 1; justify-content: center; min-width: 70px;">
+                                   style="flex: 1; justify-content: center; min-width: 70px;"
+                                   target="_blank">
 
                                     <i class="fa-solid fa-eye"></i>
                                     View
@@ -424,10 +929,23 @@
                         <i class="fa-solid fa-tags"></i>
                     </div>
 
-                    <h2>No Active Products</h2>
+                    <h2>
+                        {% if search_q or category_filter %}
+                            No Matching Products
+                        {% else %}
+                            No Active Products
+                        {% endif %}
+                    </h2>
 
-                    <p>Click "Add New Product" to get started.</p>
+                    <p>
+                        {% if search_q or category_filter %}
+                            Try different search terms or clear filters.
+                        {% else %}
+                            Click "Add New Product" to get started.
+                        {% endif %}
+                    </p>
 
+                    {% if not search_q and not category_filter %}
                     <a href="{{ url_for('admin_add_product') }}"
                        class="admin-view-btn"
                        style="margin-top: 20px; padding: 14px 30px;">
@@ -436,6 +954,7 @@
                         Add First Product
 
                     </a>
+                    {% endif %}
 
                 </div>
 
@@ -443,25 +962,24 @@
 
         </div>
 
+        {% endif %}
 
 
-        <!-- ============================================ -->
-        <!-- ✅ DELETED PRODUCTS PANEL -->
-        <!-- ============================================ -->
+        {% if current_tab == 'deleted' %}
 
-        <div class="product-panel" id="panel-deleted" style="display: none;">
+        <div class="product-panel" id="panel-deleted">
 
-            {% if inactive_products and inactive_products|length > 0 %}
+            {% if products and products|length > 0 %}
 
                 <div class="admin-products-grid">
 
-                    {% for product in inactive_products %}
+                    {% for product in products %}
 
                         <div class="admin-product-card"
                              style="opacity: 0.7; border: 1px dashed #dc3545;">
 
                             <div class="product-image">
-                                <img src="{% if product.image.startswith('http') %}{{ product.image }}{% else %}{{ url_for('static', filename=product.image) }}{% endif %}"
+                                <img src="{{ product.image|product_image }}"
                                      alt="{{ product.name }}">
                             </div>
 
@@ -493,7 +1011,7 @@
                                 <form method="POST"
                                       action="{{ url_for('admin_restore_product', product_id=product.id) }}"
                                       onsubmit="return confirm('Restore this product? It will become active again.')"
-                                      style="flex: 1;">
+                                      style="flex: 1; min-width: 80px;">
 
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -507,6 +1025,18 @@
                                     </button>
 
                                 </form>
+
+                                <button type="button"
+                                        class="admin-view-btn btn-delete-forever"
+                                        style="flex: 1; justify-content: center; background: #1a1a1a; border: none; cursor: pointer; min-width: 110px;"
+                                        data-product-id="{{ product.id }}"
+                                        data-product-name="{{ product.name }}"
+                                        onclick="openPermanentDeleteModal(this)">
+
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    Delete Forever
+
+                                </button>
 
                             </div>
 
@@ -524,9 +1054,21 @@
                         <i class="fa-solid fa-trash"></i>
                     </div>
 
-                    <h2>No Deleted Products</h2>
+                    <h2>
+                        {% if search_q or category_filter %}
+                            No Matching Products
+                        {% else %}
+                            No Deleted Products
+                        {% endif %}
+                    </h2>
 
-                    <p>Products delete karne ke baad yahan dikhenge.</p>
+                    <p>
+                        {% if search_q or category_filter %}
+                            Try different search terms or clear filters.
+                        {% else %}
+                            Products delete karne ke baad yahan dikhenge.
+                        {% endif %}
+                    </p>
 
                 </div>
 
@@ -534,160 +1076,81 @@
 
         </div>
 
+        {% endif %}
+
+
+        {% if total_pages is defined and total_pages > 1 %}
+
+        <div class="admin-pagination">
+
+            <div class="admin-pagination-info">
+                Showing
+                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
+                –
+                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
+                of
+                <strong>{{ total_count }}</strong>
+                products
+            </div>
+
+            <div class="admin-pagination-controls">
+
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=current_page-1) }}#{{ current_tab }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
+
+                {% set start_page = [1, current_page - 2]|max %}
+                {% set end_page = [total_pages, start_page + 4]|min %}
+                {% set start_page = [1, end_page - 4]|max %}
+
+                {% if start_page > 1 %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=1) }}#{{ current_tab }}"
+                       class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=p) }}#{{ current_tab }}"
+                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
+                        {{ p }}
+                    </a>
+                {% endfor %}
+
+                {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=total_pages) }}#{{ current_tab }}"
+                       class="admin-page-btn">{{ total_pages }}</a>
+                {% endif %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=current_page+1) }}#{{ current_tab }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
     </div>
-
-
-    <!-- ============================================ -->
-    <!-- ✅ TABS CSS -->
-    <!-- ============================================ -->
-
-    <style>
-        .product-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #e8e2d9;
-            padding-bottom: 0;
-            flex-wrap: wrap;
-        }
-
-        .product-tab {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 22px;
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: #888;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
-            position: relative;
-            top: 2px;
-        }
-
-        .product-tab:hover {
-            color: #1a1a1a;
-        }
-
-        .product-tab.active {
-            color: #1a1a1a;
-            border-bottom-color: #c9a961;
-        }
-
-        .product-tab.active i {
-            color: #c9a961;
-        }
-
-        .product-tab[data-tab="deleted"].active {
-            color: #dc3545;
-            border-bottom-color: #dc3545;
-        }
-
-        .product-tab[data-tab="deleted"].active i {
-            color: #dc3545;
-        }
-
-        .product-tab .tab-count {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 22px;
-            height: 22px;
-            padding: 0 7px;
-            background: #f5f1ea;
-            color: #666;
-            border-radius: 11px;
-            font-size: 11px;
-            font-weight: 700;
-            transition: all 0.25s ease;
-        }
-
-        .product-tab.active .tab-count {
-            background: #c9a961;
-            color: #fff;
-        }
-
-        .product-tab[data-tab="deleted"].active .tab-count {
-            background: #dc3545;
-            color: #fff;
-        }
-
-        .product-panel {
-            animation: fadeIn 0.25s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 600px) {
-            .product-tab {
-                padding: 10px 14px;
-                font-size: 12px;
-                gap: 6px;
-            }
-            .product-tab .tab-count {
-                min-width: 20px;
-                height: 20px;
-                padding: 0 6px;
-                font-size: 10px;
-            }
-        }
-    </style>
-
-
-    <!-- ============================================ -->
-    <!-- ✅ TABS JavaScript -->
-    <!-- ============================================ -->
-
-    <script>
-        function switchProductTab(tabName) {
-            // All panels hide karo
-            document.querySelectorAll('.product-panel').forEach(panel => {
-                panel.style.display = 'none';
-            });
-
-            // All tabs se active class hatao
-            document.querySelectorAll('.product-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Selected panel dikhao
-            const selectedPanel = document.getElementById('panel-' + tabName);
-            if (selectedPanel) {
-                selectedPanel.style.display = 'block';
-            }
-
-            // Selected tab pe active class lagao
-            const selectedTab = document.querySelector(`.product-tab[data-tab="${tabName}"]`);
-            if (selectedTab) {
-                selectedTab.classList.add('active');
-            }
-
-            // URL hash update karo (page refresh pe tab yaad rahega)
-            if (history.replaceState) {
-                history.replaceState(null, null, '#' + tabName);
-            }
-        }
-
-        // Page load pe URL hash check karo
-        document.addEventListener('DOMContentLoaded', function() {
-            const hash = window.location.hash.replace('#', '');
-
-            if (hash === 'deleted') {
-                switchProductTab('deleted');
-            } else {
-                switchProductTab('active');
-            }
-        });
-    </script>
 
 {% endif %}
 
@@ -713,7 +1176,94 @@
         </div>
 
 
-        {% if users %}
+        <form method="GET"
+              action="{{ url_for('admin_users_tab') }}"
+              class="admin-filter-bar">
+
+            <div class="admin-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ search_q|default('') }}"
+                       placeholder="Search name / email / phone..."
+                       autocomplete="off">
+                {% if search_q %}
+                <a href="{{ url_for('admin_users_tab', role=role_filter, sort=sort_by) }}"
+                   class="admin-search-clear"
+                   title="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="role" class="admin-filter-select">
+                <option value="">All Roles</option>
+                <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>
+                    Admins Only
+                </option>
+                <option value="user" {% if role_filter == 'user' %}selected{% endif %}>
+                    Regular Users
+                </option>
+            </select>
+
+            <select name="sort" class="admin-filter-select">
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
+                    Newest First
+                </option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
+                    Oldest First
+                </option>
+                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>
+                    Name: A → Z
+                </option>
+                <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>
+                    Name: Z → A
+                </option>
+            </select>
+
+            <button type="submit" class="admin-filter-btn">
+                <i class="fa-solid fa-filter"></i>
+                Apply
+            </button>
+
+            {% if search_q or role_filter or (sort_by and sort_by != 'newest') %}
+            <a href="{{ url_for('admin_users_tab') }}"
+               class="admin-filter-reset">
+                <i class="fa-solid fa-rotate-left"></i>
+                Reset
+            </a>
+            {% endif %}
+
+        </form>
+
+
+        <div class="order-status-tabs">
+
+            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by) }}"
+               class="order-status-tab {% if not role_filter %}active{% endif %}">
+                <i class="fa-solid fa-users"></i>
+                <span>All</span>
+                <span class="status-tab-count">{{ total_users_all }}</span>
+            </a>
+
+            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by, role='admin') }}"
+               class="order-status-tab status-pending {% if role_filter == 'admin' %}active{% endif %}">
+                <i class="fa-solid fa-crown"></i>
+                <span>Admins</span>
+                <span class="status-tab-count">{{ admin_count }}</span>
+            </a>
+
+            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by, role='user') }}"
+               class="order-status-tab status-delivered {% if role_filter == 'user' %}active{% endif %}">
+                <i class="fa-solid fa-user"></i>
+                <span>Regular Users</span>
+                <span class="status-tab-count">{{ regular_count }}</span>
+            </a>
+
+        </div>
+
+
+        {% if users and users|length > 0 %}
 
             <div class="admin-orders-table">
 
@@ -726,7 +1276,8 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Joined</th>
-                            <th>Admin</th>
+                            <th>Orders</th>
+                            <th>Role</th>
                         </tr>
                     </thead>
 
@@ -736,7 +1287,9 @@
 
                             <tr>
 
-                                <td>#{{ user.id }}</td>
+                                <td>
+                                    <span class="order-id-badge">#{{ user.id }}</span>
+                                </td>
 
                                 <td>
                                     <div class="customer-info">
@@ -754,10 +1307,22 @@
                                 <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
 
                                 <td>
-                                    {% if user.is_admin %}
-                                        <span class="admin-badge-small">Yes</span>
+                                    {% set cnt = order_counts.get(user.id, 0) %}
+                                    {% if cnt > 0 %}
+                                        <span class="order-total-badge">{{ cnt }}</span>
                                     {% else %}
-                                        <span class="user-badge-small">No</span>
+                                        <span style="color: #999; font-size: 12px;">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.is_admin %}
+                                        <span class="admin-badge-small">
+                                            <i class="fa-solid fa-crown" style="font-size: 9px; margin-right: 3px;"></i>
+                                            Admin
+                                        </span>
+                                    {% else %}
+                                        <span class="user-badge-small">User</span>
                                     {% endif %}
                                 </td>
 
@@ -775,16 +1340,231 @@
 
             <div class="empty-orders">
 
-                <i class="fa-solid fa-users-slash"></i>
+                <div class="empty-orders-icon">
+                    <i class="fa-solid fa-users-slash"></i>
+                </div>
 
-                <h2>No Users Found</h2>
+                <h2>
+                    {% if search_q or role_filter %}
+                        No Matching Users
+                    {% else %}
+                        No Users Yet
+                    {% endif %}
+                </h2>
+
+                <p>
+                    {% if search_q or role_filter %}
+                        Try different search terms or clear filters.
+                    {% else %}
+                        No users have registered yet.
+                    {% endif %}
+                </p>
+
+                {% if search_q or role_filter %}
+                    <a href="{{ url_for('admin_users_tab') }}"
+                       class="admin-view-btn"
+                       style="margin-top: 20px; padding: 14px 30px;">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Clear Filters
+                    </a>
+                {% endif %}
 
             </div>
+
+        {% endif %}
+
+
+        {% if total_pages is defined and total_pages > 1 %}
+
+        <div class="admin-pagination">
+
+            <div class="admin-pagination-info">
+                Showing
+                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
+                –
+                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
+                of
+                <strong>{{ total_count }}</strong>
+                users
+            </div>
+
+            <div class="admin-pagination-controls">
+
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=current_page-1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
+
+                {% set start_page = [1, current_page - 2]|max %}
+                {% set end_page = [total_pages, start_page + 4]|min %}
+                {% set start_page = [1, end_page - 4]|max %}
+
+                {% if start_page > 1 %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=1) }}"
+                       class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=p) }}"
+                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
+                        {{ p }}
+                    </a>
+                {% endfor %}
+
+                {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=total_pages) }}"
+                       class="admin-page-btn">{{ total_pages }}</a>
+                {% endif %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=current_page+1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
 
         {% endif %}
 
     </div>
 
 {% endif %}
+
+
+
+<!-- ============================================ -->
+<!-- PERMANENT DELETE MODAL -->
+<!-- ============================================ -->
+
+<div class="zenith-modal-overlay" id="permanentDeleteModal">
+    <div class="zenith-modal">
+
+        <div class="zenith-modal-icon danger">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h2 class="zenith-modal-title">Permanently Delete?</h2>
+
+        <p class="zenith-modal-message">
+            You are about to <strong>permanently delete</strong>:
+        </p>
+
+        <div class="zenith-modal-product" id="modalProductName"></div>
+
+        <p class="zenith-modal-warning">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>This action <strong>cannot be undone</strong>. The product and all its images will be removed forever.</span>
+        </p>
+
+        <div class="zenith-modal-actions">
+
+            <button type="button"
+                    class="zenith-modal-btn secondary"
+                    onclick="closePermanentDeleteModal()">
+                <i class="fa-solid fa-xmark"></i>
+                Cancel
+            </button>
+
+            <form method="POST"
+                  action=""
+                  id="permanentDeleteForm"
+                  style="flex: 1;">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <button type="submit"
+                        class="zenith-modal-btn danger"
+                        style="width: 100%;">
+                    <i class="fa-solid fa-trash-can"></i>
+                    Delete Forever
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<!-- ============================================ -->
+<!-- SCRIPTS — Tab Switch + Permanent Delete Modal -->
+<!-- ============================================ -->
+
+<script>
+    /* ============================================ */
+    /* PRODUCTS TAB SWITCH */
+    /* ============================================ */
+    function switchProductTab(tabName) {
+        var params = new URLSearchParams(window.location.search);
+        params.set('tab', tabName);
+        params.set('page', '1');
+        window.location.href = "{{ url_for('admin_products_tab') }}?" + params.toString() + "#" + tabName;
+    }
+
+
+    /* ============================================ */
+    /* PERMANENT DELETE MODAL */
+    /* ============================================ */
+    function openPermanentDeleteModal(button) {
+        var productId = button.getAttribute('data-product-id');
+        var productName = button.getAttribute('data-product-name');
+
+        var modal = document.getElementById('permanentDeleteModal');
+        var nameEl = document.getElementById('modalProductName');
+        var form = document.getElementById('permanentDeleteForm');
+
+        if (!modal || !form) return;
+
+        if (nameEl) nameEl.textContent = productName;
+        form.action = '/admin/products/permanent-delete/' + productId;
+
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePermanentDeleteModal() {
+        var modal = document.getElementById('permanentDeleteModal');
+        if (!modal) return;
+
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    // Close on overlay click
+    document.addEventListener('click', function(e) {
+        var modal = document.getElementById('permanentDeleteModal');
+        if (modal && e.target === modal) {
+            closePermanentDeleteModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePermanentDeleteModal();
+        }
+    });
+</script>
 
 {% endblock %}
