@@ -32,9 +32,10 @@
             </button>
 
             <a href="/product/{{ product.id }}" class="product-img-wrap-nb">
-                <!-- ✅ FIXED — Cloudinary URL + local path dono handle karega -->
+                <!-- ✅ Lazy loading + Cloudinary optimization -->
                 <img src="{{ product.image|product_image }}"
-                     alt="{{ product.name }}">
+                     alt="{{ product.name }}"
+                     loading="lazy">
                 <div class="product-quick-actions-nb">
                     <button type="button"
                             class="quick-add-cart-nb add-cart"

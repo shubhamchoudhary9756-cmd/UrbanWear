@@ -1,5 +1,5 @@
 // ==================================================
-// Zenith JavaScript v15.7
+// Zenith JavaScript v15.8
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
 // + GLOBAL OFFER TIMER ✅
@@ -8,6 +8,7 @@
 // + COLOR-SPECIFIC IMAGES ✅
 // + CART HORIZONTAL COMPACT LAYOUT ✅
 // + QUICK ADD — CAPTURE PHASE FIX ✅
+// + LAZY LOADING FOR CART & WISHLIST IMAGES ✅
 // ==================================================
 
 "use strict";
@@ -557,12 +558,14 @@ function displayCart() {
         cartItem.dataset.index = index;
 
         /* ✅ FLAT STRUCTURE — img + cart-info direct children of cart-item */
+        /* ✅ LAZY LOADING on image */
         cartItem.innerHTML = `
 
             <img
                 class="cart-item-img"
                 src="${escapeHTML(imageUrl)}"
                 alt="${escapeHTML(item.name)}"
+                loading="lazy"
             >
 
             <div class="cart-info">
@@ -1454,6 +1457,7 @@ function displayWishlist() {
 
         const imageUrl = getImageUrl(product.image);
 
+        /* ✅ LAZY LOADING on image */
         item.innerHTML = `
 
             <a href="/product/${Number(product.id)}" class="wishlist-img-wrap-nb">
@@ -1461,6 +1465,7 @@ function displayWishlist() {
                 <img
                     src="${escapeHTML(imageUrl)}"
                     alt="${escapeHTML(product.name)}"
+                    loading="lazy"
                 >
 
             </a>
@@ -2083,7 +2088,7 @@ function addAllLookItems() {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v15.7 loaded — Quick Add Fixed ✅");
+    console.log("🚀 Zenith JS v15.8 loaded — Lazy loading for cart & wishlist ✅");
 
     loadCart();
     loadWishlist();
