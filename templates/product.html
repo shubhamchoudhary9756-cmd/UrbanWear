@@ -34,7 +34,7 @@
 
         <div class="gallery-nb">
 
-            <!-- Thumbnails -->
+            <!-- Thumbnails — ✅ lazy load (below main image visual) -->
             <div class="thumbnails-nb">
 
                 {% if product.images %}
@@ -43,7 +43,8 @@
                          data-img="{{ img|product_image }}"
                          onclick="changeImage(this)">
                         <img src="{{ img|product_image }}"
-                             alt="{{ product.name }} thumbnail">
+                             alt="{{ product.name }} thumbnail"
+                             loading="lazy">
                     </div>
                     {% endfor %}
                 {% else %}
@@ -51,17 +52,20 @@
                          data-img="{{ product.image|product_image }}"
                          onclick="changeImage(this)">
                         <img src="{{ product.image|product_image }}"
-                             alt="{{ product.name }}">
+                             alt="{{ product.name }}"
+                             loading="lazy">
                     </div>
                 {% endif %}
 
             </div>
 
-            <!-- Main Image -->
+            <!-- Main Image — ✅ eager load (above fold, critical) -->
             <div class="main-image-nb">
                 <img id="main-image"
                      src="{{ product.image|product_image }}"
-                     alt="{{ product.name }}">
+                     alt="{{ product.name }}"
+                     loading="eager"
+                     fetchpriority="high">
 
                 {% if product.old_price and product.old_price > product.price %}
                 <span class="discount-badge-nb">
@@ -356,7 +360,7 @@
 
 
 <!-- ==================================================
-                    RELATED PRODUCTS (Optional)
+                    RELATED PRODUCTS — ✅ lazy load
 ================================================== -->
 
 {% if related_products %}
@@ -373,7 +377,9 @@
 
         <div class="related-card-nb">
             <a href="/product/{{ rp.id }}">
-                <img src="{{ rp.image|product_image }}" alt="{{ rp.name }}">
+                <img src="{{ rp.image|product_image }}"
+                     alt="{{ rp.name }}"
+                     loading="lazy">
             </a>
             <h3><a href="/product/{{ rp.id }}">{{ rp.name }}</a></h3>
             <p>₹{{ rp.price }}

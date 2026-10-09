@@ -1,5 +1,6 @@
 """
 Zenith - Database Models
++ Performance indexes for faster queries
 """
 
 from flask_sqlalchemy import SQLAlchemy
@@ -50,6 +51,12 @@ class User(UserMixin, db.Model):
         cascade="all, delete-orphan"
     )
 
+    # ✅ PERFORMANCE INDEXES
+    __table_args__ = (
+        db.Index("idx_user_is_admin", "is_admin"),
+        db.Index("idx_user_created_at", "created_at"),
+    )
+
     def __repr__(self):
         return f"<User {self.email}>"
 
@@ -89,7 +96,7 @@ class Product(db.Model):
     # Homepage section category (featured / bestseller)
     category = db.Column(db.String(50), default="featured", nullable=False)
 
-    # ✅ NEW: Subcategory for filtering (men, women, shirts, jeans, etc.)
+    # Subcategory for filtering (men, women, shirts, jeans, etc.)
     subcategory = db.Column(db.String(100), nullable=True, default="")
 
     stock = db.Column(db.Integer, default=10)
@@ -102,6 +109,14 @@ class Product(db.Model):
         "OrderItem",
         back_populates="product",
         lazy="dynamic"
+    )
+
+    # ✅ PERFORMANCE INDEXES
+    __table_args__ = (
+        db.Index("idx_product_is_active", "is_active"),
+        db.Index("idx_product_category", "category"),
+        db.Index("idx_product_subcategory", "subcategory"),
+        db.Index("idx_product_created_at", "created_at"),
     )
 
     @property
@@ -130,7 +145,7 @@ class Product(db.Model):
             "images": self.images,
             "rating": self.rating,
             "category": self.category,
-            "subcategory": self.subcategory or "",  # ✅ NEW
+            "subcategory": self.subcategory or "",
             "stock": self.stock,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
@@ -166,6 +181,14 @@ class Order(db.Model):
         "OrderItem",
         back_populates="order",
         cascade="all, delete-orphan"
+    )
+
+    # ✅ PERFORMANCE INDEXES
+    __table_args__ = (
+        db.Index("idx_order_user_id", "user_id"),
+        db.Index("idx_order_status", "status"),
+        db.Index("idx_order_payment_status", "payment_status"),
+        db.Index("idx_order_created_at", "created_at"),
     )
 
     def __repr__(self):
@@ -206,6 +229,12 @@ class OrderItem(db.Model):
     # Relationships
     order = db.relationship("Order", back_populates="items")
     product = db.relationship("Product", back_populates="order_items")
+
+    # ✅ PERFORMANCE INDEXES
+    __table_args__ = (
+        db.Index("idx_orderitem_order_id", "order_id"),
+        db.Index("idx_orderitem_product_id", "product_id"),
+    )
 
     def __repr__(self):
         return f"<OrderItem #{self.id}>"

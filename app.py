@@ -2,12 +2,13 @@
 Zenith - Flask E-Commerce Application
 + Cloudinary Integration for permanent image uploads
 + Active/Inactive product separation in admin panel
-+ Jinja filter for smart image URL (Cloudinary + local)
++ Jinja filter for smart image URL (Cloudinary + local) + auto-optimization
 + Admin products: search + filter + sort + pagination (server-side)
 + Admin orders: search + status filter + sort + pagination (server-side)
 + Admin users: search + role filter + sort + pagination (server-side)
 + Admin dashboard: today/week/month stats + revenue chart + top products + low stock
 + Permanent delete: DB delete + Cloudinary image cleanup
++ Performance: eager loading + image optimization
 """
 import warnings
 
@@ -189,25 +190,37 @@ def load_user(user_id):
 
 
 # ==================================================
-# JINJA FILTER — Smart Product Image URL
+# JINJA FILTER — Smart Product Image URL + Optimization
 # ==================================================
 
 @app.template_filter('product_image')
 def product_image_filter(image_path):
     """
-    Returns correct image URL:
-    - If Cloudinary URL (http/https) → return as-is
-    - If local path (images/...) → return /static/... URL
-    - If empty → return placeholder
+    Returns optimized image URL:
+
+    - Cloudinary URL → auto-optimize (WebP, quality, size) for 70% smaller
+    - Local path → return /static/... URL
+    - Empty → return placeholder
     """
     if not image_path:
         return url_for('static', filename='images/placeholder.png')
 
     image_path = str(image_path).strip()
 
+    # Cloudinary URL — add auto-optimization transformations
+    if "cloudinary.com" in image_path and "/upload/" in image_path:
+        parts = image_path.split("/upload/", 1)
+        if len(parts) == 2:
+            # q_auto: auto quality | f_auto: WebP/AVIF | w_800: 800px width
+            # Ye ek image ko 70% smaller banata hai without visible quality loss
+            return f"{parts[0]}/upload/q_auto,f_auto,w_800/{parts[1]}"
+        return image_path
+
+    # Any other external URL — return as-is
     if image_path.startswith('http://') or image_path.startswith('https://'):
         return image_path
 
+    # Local static file
     return url_for('static', filename=image_path)
 
 
@@ -377,7 +390,8 @@ def _delete_cloudinary_image(image_url):
             return True
 
         after_upload = path.split("/upload/", 1)[1]
-        after_upload = _re.sub(r'^v\d+/', '', after_upload)
+        # Remove transformation segments (q_auto,f_auto,w_800/ etc.)
+        after_upload = _re.sub(r'^[^/]*\/v\d+\/', '', after_upload) if _re.match(r'^[^/]*\/v\d+\/', after_upload) else _re.sub(r'^v\d+/', '', after_upload)
         public_id = _re.sub(r'\.[a-zA-Z0-9]+$', '', after_upload)
 
         if not public_id:
@@ -1212,13 +1226,15 @@ def order_success(order_id):
 
 
 # ==================================================
-# ORDERS (User side)
+# ORDERS (User side) — with eager loading ✅
 # ==================================================
 
 @app.route("/orders")
 @login_required
 def orders():
-    user_orders = Order.query.filter_by(
+    user_orders = Order.query.options(
+        joinedload(Order.items)   # ✅ Eager load items (no N+1)
+    ).filter_by(
         user_id=current_user.id
     ).order_by(Order.created_at.desc()).all()
 
