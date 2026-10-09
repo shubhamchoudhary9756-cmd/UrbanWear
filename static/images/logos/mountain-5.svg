@@ -1,23 +1,12 @@
 <svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <linearGradient id="zenith5a" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="gold5" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#F4E5A1"/>
       <stop offset="50%" stop-color="#D4AF37"/>
       <stop offset="100%" stop-color="#8B6F3F"/>
     </linearGradient>
-    <linearGradient id="zenith5b" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#B8945A"/>
-      <stop offset="100%" stop-color="#8B6F3F"/>
-    </linearGradient>
   </defs>
-  <!-- Left wing -->
-  <path d="M400 60 L280 180 L400 160 Z" fill="url(#zenith5a)" opacity="0.85"/>
-  <!-- Right wing -->
-  <path d="M400 60 L520 180 L400 160 Z" fill="url(#zenith5b)" opacity="0.85"/>
-  <!-- Center peak -->
-  <path d="M400 30 L440 180 L400 150 L360 180 Z" fill="url(#zenith5a)"/>
-  <!-- Peak highlight -->
-  <path d="M400 30 L400 150 L360 180 Z" fill="#F4E5A1" opacity="0.4"/>
-  <!-- Snow -->
-  <path d="M400 30 L415 70 L400 60 L385 70 Z" fill="#FFFFFF"/>
+  <path d="M360 180 L360 100 L370 70 L380 100 L380 180 Z" fill="url(#gold5)" opacity="0.6"/>
+  <path d="M420 180 L420 100 L430 70 L440 100 L440 180 Z" fill="url(#gold5)" opacity="0.6"/>
+  <path d="M390 180 L390 80 L400 30 L410 80 L410 180 Z" fill="url(#gold5)"/>
 </svg>

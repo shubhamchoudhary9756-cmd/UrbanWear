@@ -81,7 +81,7 @@
                     <h2>Order Summary</h2>
                 </div>
 
-                <!-- COUPON CODE -->
+                <!-- COUPON CODE WITH SUGGESTIONS -->
                 <div class="coupon-box-nb">
                     <label for="coupon-input-nb">
                         <i class="fa-solid fa-tag"></i> Have a coupon?
@@ -91,12 +91,29 @@
                         <input type="text"
                                id="coupon-input-nb"
                                placeholder="Enter code (e.g. ZENITH20)"
-                               autocomplete="off">
+                               autocomplete="off"
+                               maxlength="50"
+                               onfocus="showCouponSuggestionsNB()"
+                               onblur="setTimeout(hideCouponSuggestionsNB, 250)">
                         <button type="button"
                                 class="coupon-apply-btn-nb"
+                                id="coupon-apply-btn-nb"
                                 onclick="applyCouponNB()">
                             Apply
                         </button>
+
+                        <!-- DROPDOWN SUGGESTIONS -->
+                        <div class="coupon-suggestions-nb" id="coupon-suggestions-nb">
+                            <div class="coupon-suggestions-header-nb">
+                                <i class="fa-solid fa-fire"></i>
+                                Available Coupons
+                            </div>
+                            <div id="coupon-suggestions-list-nb">
+                                <div class="coupon-suggestion-loading-nb">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <p id="coupon-message-nb" class="coupon-message-nb"></p>
@@ -120,7 +137,7 @@
                     <div class="summary-line-nb discount-line-nb"
                          id="discount-line-nb"
                          style="display: none;">
-                        <span>Discount</span>
+                        <span>Discount <small id="discount-code-label-nb"></small></span>
                         <strong id="discount-value-nb">- ₹0</strong>
                     </div>
 
@@ -142,7 +159,7 @@
                 <!-- CHECKOUT BUTTON -->
                 <button type="button"
                         class="checkout-btn-nb"
-                        onclick="window.location.href='/checkout'">
+                        onclick="proceedToCheckoutNB()">
 
                     <i class="fa-solid fa-lock"></i>
                     Proceed to Checkout
@@ -188,41 +205,216 @@
 {% block extra_scripts %}
 <script>
     /* =====================================================
-       COUPON — Extra JS Function
+       COUPON — Real Backend Integration
     ===================================================== */
 
-    function applyCouponNB() {
+    // State: currently applied coupon
+    window.appliedCouponNB = null;
+    window.currentSubtotalNB = 0;
+    window.currentDiscountNB = 0;
+
+
+    /* =====================================================
+       APPLY COUPON (AJAX)
+    ===================================================== */
+
+    async function applyCouponNB() {
         const input = document.getElementById('coupon-input-nb');
         const message = document.getElementById('coupon-message-nb');
-        const code = input.value.trim().toUpperCase();
+        const applyBtn = document.getElementById('coupon-apply-btn-nb');
+
+        const code = (input.value || '').trim().toUpperCase();
 
         if (!code) {
-            message.textContent = 'Please enter a coupon code';
-            message.className = 'coupon-message-nb error-nb';
+            showCouponMessageNB('Please enter a coupon code', 'error');
             return;
         }
 
-        const validCoupons = {
-            'ZENITH20': 20,
-            'ZENITH10': 10,
-            'WELCOME15': 15
-        };
+        // Disable button + show loading
+        if (applyBtn) {
+            applyBtn.disabled = true;
+            applyBtn.textContent = '...';
+        }
+        showCouponMessageNB('Checking...', 'info');
 
-        if (validCoupons[code]) {
-            const percent = validCoupons[code];
-            message.textContent = `✅ ${code} applied — ${percent}% OFF`;
-            message.className = 'coupon-message-nb success-nb';
+        try {
+            const subtotal = getSubtotalNB();
 
-            if (typeof window.applyCouponCode === 'function') {
-                window.applyCouponCode(code, percent);
+            if (subtotal <= 0) {
+                showCouponMessageNB('Your cart is empty', 'error');
+                return;
             }
-        } else {
-            message.textContent = '❌ Invalid coupon code';
-            message.className = 'coupon-message-nb error-nb';
+
+            const response = await fetch('/api/coupon/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    code: code,
+                    amount: subtotal
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.valid) {
+                // Success
+                window.appliedCouponNB = data.code;
+                window.currentDiscountNB = data.discount;
+
+                showCouponMessageNB(data.message || `✅ ${data.code} applied!`, 'success');
+                showDiscountLineNB(data.code, data.discount);
+                updateGrandTotalNB();
+
+                // Save to localStorage for checkout page
+                try {
+                    localStorage.setItem('zenith_coupon_code', data.code);
+                    localStorage.setItem('zenith_coupon_discount', data.discount);
+                } catch (e) { /* ignore */ }
+
+                // Change button to "Remove"
+                if (applyBtn) {
+                    applyBtn.textContent = 'Remove';
+                    applyBtn.disabled = false;
+                    applyBtn.onclick = removeCouponNB;
+                    applyBtn.classList.add('remove-state-nb');
+                }
+
+                input.disabled = true;
+
+                // Hide suggestions
+                hideCouponSuggestionsNB();
+            } else {
+                // Failed
+                showCouponMessageNB('❌ ' + (data.message || 'Invalid coupon'), 'error');
+                removeCouponNB(true);
+            }
+
+        } catch (err) {
+            console.error('Coupon error:', err);
+            showCouponMessageNB('Network error. Please try again.', 'error');
+            removeCouponNB(true);
+        } finally {
+            if (applyBtn && window.appliedCouponNB === null) {
+                applyBtn.disabled = false;
+                applyBtn.textContent = 'Apply';
+            }
         }
     }
 
-    /* Free Shipping Bar Update */
+
+    /* =====================================================
+       REMOVE COUPON
+    ===================================================== */
+
+    function removeCouponNB(silent) {
+        window.appliedCouponNB = null;
+        window.currentDiscountNB = 0;
+
+        const input = document.getElementById('coupon-input-nb');
+        const applyBtn = document.getElementById('coupon-apply-btn-nb');
+        const message = document.getElementById('coupon-message-nb');
+
+        if (input) {
+            input.disabled = false;
+            input.value = '';
+        }
+
+        if (applyBtn) {
+            applyBtn.textContent = 'Apply';
+            applyBtn.disabled = false;
+            applyBtn.onclick = applyCouponNB;
+            applyBtn.classList.remove('remove-state-nb');
+        }
+
+        if (!silent && message) {
+            showCouponMessageNB('Coupon removed', 'info');
+        }
+
+        hideDiscountLineNB();
+        updateGrandTotalNB();
+
+        try {
+            localStorage.removeItem('zenith_coupon_code');
+            localStorage.removeItem('zenith_coupon_discount');
+        } catch (e) { /* ignore */ }
+    }
+
+
+    /* =====================================================
+       UI HELPERS
+    ===================================================== */
+
+    function showCouponMessageNB(text, type) {
+        const message = document.getElementById('coupon-message-nb');
+        if (!message) return;
+
+        message.textContent = text;
+        message.className = 'coupon-message-nb';
+
+        if (type === 'success') message.classList.add('success-nb');
+        else if (type === 'error') message.classList.add('error-nb');
+        else message.classList.add('info-nb');
+    }
+
+
+    function showDiscountLineNB(code, discount) {
+        const line = document.getElementById('discount-line-nb');
+        const valueEl = document.getElementById('discount-value-nb');
+        const labelEl = document.getElementById('discount-code-label-nb');
+
+        if (line) line.style.display = 'flex';
+        if (valueEl) valueEl.textContent = '- ₹' + formatNumberNB(discount);
+        if (labelEl) labelEl.textContent = '(' + code + ')';
+    }
+
+
+    function hideDiscountLineNB() {
+        const line = document.getElementById('discount-line-nb');
+        if (line) line.style.display = 'none';
+    }
+
+
+    function updateGrandTotalNB() {
+        const subtotal = getSubtotalNB();
+        const discount = window.currentDiscountNB || 0;
+        const total = Math.max(0, subtotal - discount);
+
+        const el = document.getElementById('grand-total');
+        if (el) el.textContent = formatNumberNB(total);
+    }
+
+
+    function getSubtotalNB() {
+        // Read subtotal from DOM (script.js sets it)
+        const el = document.getElementById('subtotal-nb');
+        if (!el) return 0;
+        const val = parseFloat((el.textContent || '0').replace(/,/g, ''));
+        return isNaN(val) ? 0 : val;
+    }
+
+
+    function formatNumberNB(n) {
+        return Math.round(n).toLocaleString('en-IN');
+    }
+
+
+    /* =====================================================
+       CHECKOUT — Attach coupon code
+    ===================================================== */
+
+    function proceedToCheckoutNB() {
+        // Coupon code is in localStorage, checkout page will pick it up
+        window.location.href = '/checkout';
+    }
+
+
+    /* =====================================================
+       FREE SHIPPING BAR
+    ===================================================== */
+
     window.updateShippingBar = function (subtotal) {
         const FREE_LIMIT = 999;
         const bar = document.getElementById('shipping-bar');
@@ -246,5 +438,198 @@
             if (cost) cost.textContent = '₹99';
         }
     };
+
+
+    /* =====================================================
+       COUPON SUGGESTIONS — Fetch & Display Active Coupons
+    ===================================================== */
+
+    let couponSuggestionsLoadedNB = false;
+    let activeCouponsNB = [];
+
+
+    async function showCouponSuggestionsNB() {
+        const dropdown = document.getElementById('coupon-suggestions-nb');
+        const list = document.getElementById('coupon-suggestions-list-nb');
+
+        if (!dropdown || !list) return;
+
+        // Agar already coupon applied hai toh suggestions mat dikhao
+        if (window.appliedCouponNB) return;
+
+        // Agar input disabled hai toh bhi mat dikhao
+        const input = document.getElementById('coupon-input-nb');
+        if (input && input.disabled) return;
+
+        dropdown.classList.add('show-nb');
+
+        // Agar pehle se load ho chuke hain toh sirf render karo
+        if (couponSuggestionsLoadedNB && activeCouponsNB.length > 0) {
+            renderCouponSuggestionsNB();
+            return;
+        }
+
+        // Fetch active coupons from backend
+        list.innerHTML = '<div class="coupon-suggestion-loading-nb"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+
+        try {
+            const response = await fetch('/api/coupon/active');
+            const data = await response.json();
+
+            if (data.coupons && data.coupons.length > 0) {
+                activeCouponsNB = data.coupons;
+                couponSuggestionsLoadedNB = true;
+                renderCouponSuggestionsNB();
+            } else {
+                list.innerHTML = '<div class="coupon-suggestion-empty-nb">😔 No active coupons available</div>';
+            }
+        } catch (err) {
+            console.error('Coupon fetch error:', err);
+            list.innerHTML = '<div class="coupon-suggestion-empty-nb">Failed to load coupons</div>';
+        }
+    }
+
+
+    function hideCouponSuggestionsNB() {
+        const dropdown = document.getElementById('coupon-suggestions-nb');
+        if (dropdown) dropdown.classList.remove('show-nb');
+    }
+
+
+    function renderCouponSuggestionsNB() {
+        const list = document.getElementById('coupon-suggestions-list-nb');
+        if (!list) return;
+
+        if (activeCouponsNB.length === 0) {
+            list.innerHTML = '<div class="coupon-suggestion-empty-nb">😔 No active coupons available</div>';
+            return;
+        }
+
+        const subtotal = getSubtotalNB();
+
+        list.innerHTML = activeCouponsNB.map(c => {
+            const isEligible = subtotal >= (c.min_order_amount || 0);
+            const maxCapText = c.max_discount ? ` · max ₹${Math.round(c.max_discount)}` : '';
+            const minText = c.min_order_amount > 0 ? `Min order ₹${Math.round(c.min_order_amount)}` : 'No minimum';
+            const eligibleClass = isEligible ? '' : 'disabled-nb';
+
+            return `
+                <div class="coupon-suggestion-item-nb ${eligibleClass}"
+                     onclick="${isEligible ? `selectCouponNB('${c.code}')` : ''}">
+
+                    <div class="coupon-suggestion-left-nb">
+                        <div class="coupon-suggestion-code-nb">${c.code}</div>
+                        <div class="coupon-suggestion-desc-nb">
+                            ${c.discount_percent}% OFF${maxCapText}
+                        </div>
+                        <div class="coupon-suggestion-meta-nb">
+                            ${minText}
+                        </div>
+                    </div>
+
+                    <div class="coupon-suggestion-right-nb">
+                        ${isEligible
+                            ? '<i class="fa-solid fa-circle-arrow-right"></i>'
+                            : '<span class="not-eligible-nb">Not eligible</span>'}
+                    </div>
+
+                </div>
+            `;
+        }).join('');
+    }
+
+
+    function selectCouponNB(code) {
+        const input = document.getElementById('coupon-input-nb');
+        if (input) input.value = code;
+
+        hideCouponSuggestionsNB();
+        applyCouponNB();
+    }
+
+
+    /* =====================================================
+       AUTO-RESTORE COUPON ON PAGE LOAD
+    ===================================================== */
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Try restore coupon from localStorage
+        try {
+            const savedCode = localStorage.getItem('zenith_coupon_code');
+            if (savedCode) {
+                const input = document.getElementById('coupon-input-nb');
+                if (input) {
+                    input.value = savedCode;
+                    // Auto-validate after cart loads (1s delay)
+                    setTimeout(() => {
+                        applyCouponNB();
+                    }, 800);
+                }
+            }
+        } catch (e) { /* ignore */ }
+    });
+
+
+    /* =====================================================
+       WATCH FOR CART UPDATES
+       (Re-validate coupon when subtotal changes)
+    ===================================================== */
+
+    let lastSubtotalNB = 0;
+    setInterval(function () {
+        const subtotal = getSubtotalNB();
+
+        if (subtotal !== lastSubtotalNB) {
+            lastSubtotalNB = subtotal;
+
+            // Update shipping bar
+            if (typeof window.updateShippingBar === 'function') {
+                window.updateShippingBar(subtotal);
+            }
+
+            // Re-validate coupon if one is applied
+            if (window.appliedCouponNB && subtotal > 0) {
+                const code = window.appliedCouponNB;
+                const input = document.getElementById('coupon-input-nb');
+                if (input) input.value = code;
+                // Silent re-check
+                revalidateCouponNB(code, subtotal);
+            }
+
+            // Re-render suggestions if dropdown is open
+            if (couponSuggestionsLoadedNB && activeCouponsNB.length > 0) {
+                const dropdown = document.getElementById('coupon-suggestions-nb');
+                if (dropdown && dropdown.classList.contains('show-nb')) {
+                    renderCouponSuggestionsNB();
+                }
+            }
+
+            updateGrandTotalNB();
+        }
+    }, 1000);
+
+
+    async function revalidateCouponNB(code, subtotal) {
+        try {
+            const response = await fetch('/api/coupon/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code, amount: subtotal })
+            });
+            const data = await response.json();
+
+            if (data.valid) {
+                window.currentDiscountNB = data.discount;
+                showDiscountLineNB(data.code, data.discount);
+                updateGrandTotalNB();
+            } else {
+                // Coupon no longer valid
+                showCouponMessageNB('❌ ' + (data.message || 'Coupon no longer valid'), 'error');
+                removeCouponNB(true);
+            }
+        } catch (e) {
+            // Ignore network errors silently during revalidation
+        }
+    }
 </script>
 {% endblock %}

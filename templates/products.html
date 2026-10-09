@@ -15,94 +15,519 @@
     <div class="products-header-nb">
         <span class="products-tag-nb">Explore</span>
         <h1>{{ page_title }}</h1>
-        <p>{{ products|length }} products found</p>
+        <p>{{ result_count }} product{% if result_count != 1 %}s{% endif %} found</p>
     </div>
 
-    {% if products %}
+    <!-- ============================================ -->
+    <!-- FILTERS + PRODUCTS LAYOUT -->
+    <!-- ============================================ -->
 
-    <div class="product-grid-nb">
+    <div class="products-layout-nb">
 
-        {% for product in products %}
+        <!-- ============================================ -->
+        <!-- FILTER SIDEBAR (Desktop) -->
+        <!-- ============================================ -->
 
-        <div class="product-card-nb">
+        <aside class="filters-sidebar-nb" id="filtersSidebar">
 
-            {% if product.old_price and product.old_price > product.price %}
-                <span class="sale-badge-nb">SALE</span>
-            {% endif %}
-
-            <button type="button"
-                    class="wishlist-btn-nb wishlist-btn"
-                    data-id="{{ product.id }}"
-                    data-name="{{ product.name }}"
-                    data-price="{{ product.price }}"
-                    data-old-price="{{ product.old_price }}"
-                    data-image="{{ product.image }}"
-                    data-rating="{{ product.rating }}"
-                    data-description="{{ product.description|e }}"
-                    aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-            </button>
-
-            <a href="/product/{{ product.id }}" class="product-img-wrap-nb">
-                <!-- ✅ FIXED — Cloudinary URL + local path dono handle karega -->
-                <img src="{{ product.image|product_image }}"
-                     alt="{{ product.name }}">
-
-                <div class="product-quick-actions-nb">
-                    <button type="button"
-                            class="quick-add-cart-nb add-cart"
-                            data-id="{{ product.id }}"
-                            data-name="{{ product.name }}"
-                            data-price="{{ product.price }}"
-                            data-image="{{ product.image }}"
-                            aria-label="Add to cart">
-                        <i class="fa-solid fa-bag-shopping"></i> Quick Add
-                    </button>
-                </div>
-            </a>
-
-            <div class="product-info-nb">
-
-                <div class="product-rating-nb">
-                    <i class="fa-solid fa-star"></i>
-                    {{ product.rating }}
-                </div>
-
-                <h3 class="product-name-nb">
-                    <a href="/product/{{ product.id }}">{{ product.name }}</a>
-                </h3>
-
-                <p class="product-price-nb">
-                    ₹{{ product.price }}
-                    {% if product.old_price and product.old_price > product.price %}
-                        <span>₹{{ product.old_price }}</span>
+            <div class="filters-header-nb">
+                <h2>
+                    <i class="fa-solid fa-sliders"></i>
+                    Filters
+                    {% if active_filter_count > 0 %}
+                        <span class="filters-count-badge">{{ active_filter_count }}</span>
                     {% endif %}
-                </p>
+                </h2>
+                <button type="button"
+                        class="filters-close-nb"
+                        id="filtersCloseBtn"
+                        aria-label="Close filters">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form method="GET"
+                  action="{{ url_for('products') }}"
+                  id="filtersForm">
+
+                <!-- Preserve existing params -->
+                {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+                {% if ptype %}<input type="hidden" name="type" value="{{ ptype }}">{% endif %}
+                {% if filter_by %}<input type="hidden" name="filter" value="{{ filter_by }}">{% endif %}
+                {% if search_q %}<input type="hidden" name="q" value="{{ search_q }}">{% endif %}
+
+                <!-- ============ PRICE RANGE ============ -->
+                <div class="filter-group-nb">
+                    <h3 class="filter-title-nb">
+                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                        Price Range
+                    </h3>
+
+                    <div class="price-inputs-nb">
+                        <div class="price-input-wrap-nb">
+                            <span>₹</span>
+                            <input type="number"
+                                   name="price_min"
+                                   id="priceMin"
+                                   placeholder="{{ price_range.min }}"
+                                   min="0"
+                                   value="{{ filter_state.price_min|int if filter_state.price_min > 0 else '' }}">
+                        </div>
+                        <span class="price-sep-nb">–</span>
+                        <div class="price-input-wrap-nb">
+                            <span>₹</span>
+                            <input type="number"
+                                   name="price_max"
+                                   id="priceMax"
+                                   placeholder="{{ price_range.max }}"
+                                   min="0"
+                                   value="{{ filter_state.price_max|int if filter_state.price_max > 0 else '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Quick price chips -->
+                    <div class="price-chips-nb">
+                        <button type="button" class="price-chip-nb" data-min="0" data-max="999">
+                            Under ₹999
+                        </button>
+                        <button type="button" class="price-chip-nb" data-min="1000" data-max="1999">
+                            ₹1000 – ₹1999
+                        </button>
+                        <button type="button" class="price-chip-nb" data-min="2000" data-max="2999">
+                            ₹2000 – ₹2999
+                        </button>
+                        <button type="button" class="price-chip-nb" data-min="3000" data-max="">
+                            ₹3000+
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============ SIZES ============ -->
+                {% if available_sizes %}
+                <div class="filter-group-nb">
+                    <h3 class="filter-title-nb">
+                        <i class="fa-solid fa-ruler"></i>
+                        Size
+                    </h3>
+
+                    <div class="filter-chips-nb">
+                        {% for size in available_sizes %}
+                            <label class="filter-chip-checkbox-nb">
+                                <input type="checkbox"
+                                       name="sizes_multi"
+                                       value="{{ size }}"
+                                       {% if size.lower() in filter_state.sizes %}checked{% endif %}>
+                                <span>{{ size }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ============ COLORS ============ -->
+                {% if available_colors %}
+                <div class="filter-group-nb">
+                    <h3 class="filter-title-nb">
+                        <i class="fa-solid fa-palette"></i>
+                        Color
+                    </h3>
+
+                    <div class="filter-color-grid-nb">
+                        {% for color in available_colors %}
+                            <label class="filter-color-option-nb"
+                                   title="{{ color|capitalize }}">
+                                <input type="checkbox"
+                                       name="colors_multi"
+                                       value="{{ color }}"
+                                       {% if color in filter_state.colors %}checked{% endif %}>
+                                <span class="color-swatch-nb color-swatch-{{ color }}"></span>
+                                <span class="color-name-nb">{{ color|capitalize }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ============ QUICK TOGGLES ============ -->
+                <div class="filter-group-nb">
+                    <h3 class="filter-title-nb">
+                        <i class="fa-solid fa-bolt"></i>
+                        Quick Filters
+                    </h3>
+
+                    <label class="filter-toggle-nb">
+                        <input type="checkbox"
+                               name="in_stock"
+                               value="1"
+                               {% if filter_state.in_stock %}checked{% endif %}>
+                        <span class="filter-toggle-slider-nb"></span>
+                        <span class="filter-toggle-label-nb">
+                            <i class="fa-solid fa-box"></i>
+                            In Stock Only
+                        </span>
+                    </label>
+
+                    <label class="filter-toggle-nb">
+                        <input type="checkbox"
+                               name="on_sale"
+                               value="1"
+                               {% if filter_state.on_sale %}checked{% endif %}>
+                        <span class="filter-toggle-slider-nb"></span>
+                        <span class="filter-toggle-label-nb">
+                            <i class="fa-solid fa-tag"></i>
+                            On Sale
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Hidden sort input (updated by JS) -->
+                <input type="hidden" name="sort" id="sortHiddenInput" value="{{ filter_state.sort }}">
+
+                <!-- ============ ACTIONS ============ -->
+                <div class="filters-actions-nb">
+                    <button type="submit" class="filters-apply-btn-nb">
+                        <i class="fa-solid fa-check"></i>
+                        Apply Filters
+                    </button>
+                    {% if active_filter_count > 0 %}
+                    <a href="{{ url_for('products') }}"
+                       class="filters-clear-btn-nb">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Clear All
+                    </a>
+                    {% endif %}
+                </div>
+
+            </form>
+
+        </aside>
+
+        <!-- ============================================ -->
+        <!-- PRODUCTS AREA -->
+        <!-- ============================================ -->
+
+        <div class="products-main-nb">
+
+            <!-- Top bar — sort + mobile filter button + active chips -->
+            <div class="products-toolbar-nb">
+
+                <button type="button"
+                        class="filters-toggle-btn-nb"
+                        id="filtersToggleBtn">
+                    <i class="fa-solid fa-sliders"></i>
+                    Filters
+                    {% if active_filter_count > 0 %}
+                        <span class="filters-count-badge">{{ active_filter_count }}</span>
+                    {% endif %}
+                </button>
+
+                <div class="products-sort-nb">
+                    <label for="sortSelect">
+                        <i class="fa-solid fa-arrow-down-wide-short"></i>
+                        Sort:
+                    </label>
+                    <select id="sortSelect" class="sort-select-nb">
+                        <option value="newest" {% if filter_state.sort == 'newest' or not filter_state.sort %}selected{% endif %}>
+                            Newest First
+                        </option>
+                        <option value="price_low" {% if filter_state.sort == 'price_low' %}selected{% endif %}>
+                            Price: Low → High
+                        </option>
+                        <option value="price_high" {% if filter_state.sort == 'price_high' %}selected{% endif %}>
+                            Price: High → Low
+                        </option>
+                        <option value="rating" {% if filter_state.sort == 'rating' %}selected{% endif %}>
+                            Top Rated
+                        </option>
+                        <option value="discount" {% if filter_state.sort == 'discount' %}selected{% endif %}>
+                            Biggest Discount
+                        </option>
+                        <option value="name_asc" {% if filter_state.sort == 'name_asc' %}selected{% endif %}>
+                            Name: A → Z
+                        </option>
+                    </select>
+                </div>
+
+                <span class="products-count-nb">
+                    {{ result_count }} item{% if result_count != 1 %}s{% endif %}
+                </span>
 
             </div>
 
+            <!-- Active filter chips (show what's applied) -->
+            {% if active_filter_count > 0 %}
+            <div class="active-filters-nb">
+
+                {% if filter_state.price_min > 0 or filter_state.price_max > 0 %}
+                <span class="active-chip-nb">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                    ₹{{ filter_state.price_min|int }} – ₹{{ filter_state.price_max|int if filter_state.price_max > 0 else '∞' }}
+                </span>
+                {% endif %}
+
+                {% for s in filter_state.sizes %}
+                <span class="active-chip-nb">
+                    Size: {{ s|upper }}
+                </span>
+                {% endfor %}
+
+                {% for c in filter_state.colors %}
+                <span class="active-chip-nb">
+                    Color: {{ c|capitalize }}
+                </span>
+                {% endfor %}
+
+                {% if filter_state.in_stock %}
+                <span class="active-chip-nb">
+                    <i class="fa-solid fa-box"></i> In Stock
+                </span>
+                {% endif %}
+
+                {% if filter_state.on_sale %}
+                <span class="active-chip-nb">
+                    <i class="fa-solid fa-tag"></i> On Sale
+                </span>
+                {% endif %}
+
+                <a href="{{ url_for('products') }}" class="active-chip-clear-nb">
+                    <i class="fa-solid fa-xmark"></i> Clear All
+                </a>
+
+            </div>
+            {% endif %}
+
+            <!-- ============================================ -->
+            <!-- PRODUCT GRID -->
+            <!-- ============================================ -->
+
+            {% if products %}
+
+            <div class="product-grid-nb">
+
+                {% for product in products %}
+
+                <div class="product-card-nb">
+
+                    {% if product.old_price and product.old_price > product.price %}
+                        <span class="sale-badge-nb">SALE</span>
+                    {% endif %}
+
+                    <button type="button"
+                            class="wishlist-btn-nb wishlist-btn"
+                            data-id="{{ product.id }}"
+                            data-name="{{ product.name }}"
+                            data-price="{{ product.price }}"
+                            data-old-price="{{ product.old_price }}"
+                            data-image="{{ product.image }}"
+                            data-rating="{{ product.rating }}"
+                            data-description="{{ product.description|e }}"
+                            aria-label="Add to wishlist">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+
+                    <a href="/product/{{ product.id }}" class="product-img-wrap-nb">
+                        <img src="{{ product.image|product_image }}"
+                             alt="{{ product.name }}"
+                             loading="lazy">
+
+                        <div class="product-quick-actions-nb">
+                            <button type="button"
+                                    class="quick-add-cart-nb add-cart"
+                                    data-id="{{ product.id }}"
+                                    data-name="{{ product.name }}"
+                                    data-price="{{ product.price }}"
+                                    data-image="{{ product.image }}"
+                                    aria-label="Add to cart">
+                                <i class="fa-solid fa-bag-shopping"></i> Quick Add
+                            </button>
+                        </div>
+                    </a>
+
+                    <div class="product-info-nb">
+
+                        <div class="product-rating-nb">
+                            <i class="fa-solid fa-star"></i>
+                            {{ product.rating }}
+                        </div>
+
+                        <h3 class="product-name-nb">
+                            <a href="/product/{{ product.id }}">{{ product.name }}</a>
+                        </h3>
+
+                        <p class="product-price-nb">
+                            ₹{{ product.price }}
+                            {% if product.old_price and product.old_price > product.price %}
+                                <span>₹{{ product.old_price }}</span>
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="products-empty-nb">
+                <div class="products-empty-icon-nb">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h2>No Products Found</h2>
+                <p>
+                    {% if active_filter_count > 0 %}
+                        Try adjusting your filters or clear them to see more products.
+                    {% else %}
+                        Try a different category or search term.
+                    {% endif %}
+                </p>
+                {% if active_filter_count > 0 %}
+                    <a href="{{ url_for('products') }}" class="products-empty-btn-nb">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Clear All Filters
+                    </a>
+                {% else %}
+                    <a href="/" class="products-empty-btn-nb">
+                        <i class="fa-solid fa-house"></i>
+                        Back to Home
+                    </a>
+                {% endif %}
+            </div>
+
+            {% endif %}
+
         </div>
 
-        {% endfor %}
-
     </div>
-
-    {% else %}
-
-    <div class="products-empty-nb">
-        <div class="products-empty-icon-nb">
-            <i class="fa-solid fa-box-open"></i>
-        </div>
-        <h2>No Products Found</h2>
-        <p>Try a different category or search term.</p>
-        <a href="/" class="products-empty-btn-nb">
-            <i class="fa-solid fa-house"></i>
-            Back to Home
-        </a>
-    </div>
-
-    {% endif %}
 
 </section>
 
+<!-- Mobile filters backdrop -->
+<div class="filters-backdrop-nb" id="filtersBackdrop"></div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // ============================================
+    // MOBILE FILTERS DRAWER
+    // ============================================
+    const sidebar = document.getElementById('filtersSidebar');
+    const backdrop = document.getElementById('filtersBackdrop');
+    const openBtn = document.getElementById('filtersToggleBtn');
+    const closeBtn = document.getElementById('filtersCloseBtn');
+
+    function openFilters() {
+        if (sidebar) sidebar.classList.add('open');
+        if (backdrop) backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFilters() {
+        if (sidebar) sidebar.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openFilters);
+    if (closeBtn) closeBtn.addEventListener('click', closeFilters);
+    if (backdrop) backdrop.addEventListener('click', closeFilters);
+
+    // ESC key closes drawer
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeFilters();
+    });
+
+    // ============================================
+    // MULTI-CHECKBOX → COMMA-SEPARATED HIDDEN INPUT
+    // ============================================
+    const form = document.getElementById('filtersForm');
+
+    function syncMultiCheckboxes() {
+        if (!form) return;
+
+        ['sizes', 'colors'].forEach(function(field) {
+            // Remove old hidden inputs
+            form.querySelectorAll('input[type="hidden"][name="' + field + '"]').forEach(function(el) {
+                el.remove();
+            });
+
+            // Collect checked values
+            const checked = form.querySelectorAll('input[name="' + field + '_multi"]:checked');
+            if (checked.length === 0) return;
+
+            const values = Array.from(checked).map(function(cb) { return cb.value; });
+
+            // Create hidden input with comma-separated values
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = field;
+            hidden.value = values.join(',');
+            form.appendChild(hidden);
+        });
+    }
+
+    // Sync on form submit
+    if (form) {
+        form.addEventListener('submit', function() {
+            syncMultiCheckboxes();
+        });
+    }
+
+    // ============================================
+    // PRICE CHIPS
+    // ============================================
+    document.querySelectorAll('.price-chip-nb').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            const min = chip.getAttribute('data-min') || '';
+            const max = chip.getAttribute('data-max') || '';
+            const minEl = document.getElementById('priceMin');
+            const maxEl = document.getElementById('priceMax');
+
+            if (minEl) minEl.value = min;
+            if (maxEl) maxEl.value = max;
+
+            // Auto-submit form for quick UX
+            if (form) {
+                syncMultiCheckboxes();
+                form.submit();
+            }
+        });
+    });
+
+    // ============================================
+    // SORT SELECT → auto submit
+    // ============================================
+    const sortSelect = document.getElementById('sortSelect');
+    const sortHidden = document.getElementById('sortHiddenInput');
+
+    if (sortSelect && sortHidden) {
+        sortSelect.addEventListener('change', function() {
+            sortHidden.value = sortSelect.value;
+            if (form) {
+                syncMultiCheckboxes();
+                form.submit();
+            }
+        });
+    }
+
+    // ============================================
+    // AUTO-CLOSE DRAWER ON DESKTOP RESIZE
+    // ============================================
+    let lastWidth = window.innerWidth;
+    window.addEventListener('resize', function() {
+        if (window.innerWidth !== lastWidth) {
+            lastWidth = window.innerWidth;
+            if (window.innerWidth > 900) closeFilters();
+        }
+    });
+
+})();
+</script>
 {% endblock %}

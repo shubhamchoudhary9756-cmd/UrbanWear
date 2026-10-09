@@ -12,7 +12,6 @@
 
     <div class="admin-content">
 
-        <!-- HEADER -->
         <div class="admin-content-header">
             <h1>
                 <i class="fa-solid fa-gauge-high"></i>
@@ -22,7 +21,6 @@
         </div>
 
 
-        <!-- ALL-TIME STATS GRID -->
         <div class="stats-grid">
 
             <div class="stat-card red">
@@ -68,7 +66,6 @@
         </div>
 
 
-        <!-- QUICK STATS -->
         <div class="dashboard-quick-stats">
 
             <div class="quick-stat-card">
@@ -129,7 +126,6 @@
         </div>
 
 
-        <!-- REVENUE CHART + ORDER STATUS -->
         <div class="dashboard-charts-grid">
 
             <div class="dashboard-chart-card">
@@ -182,7 +178,6 @@
         </div>
 
 
-        <!-- LOW STOCK ALERTS -->
         {% if low_stock_products %}
 
         <div class="dashboard-section-card">
@@ -228,7 +223,6 @@
         {% endif %}
 
 
-        <!-- TOP SELLING PRODUCTS -->
         {% if top_products %}
 
         <div class="dashboard-section-card">
@@ -277,7 +271,6 @@
         {% endif %}
 
 
-        <!-- RECENT ORDERS + QUICK ACTIONS -->
         <div class="dashboard-grid">
 
             <div class="recent-orders-card">
@@ -351,6 +344,11 @@
                         Manage Users
                     </a>
 
+                    <a href="{{ url_for('admin_add_coupon') }}" class="quick-action-btn">
+                        <i class="fa-solid fa-ticket"></i>
+                        Add Coupon
+                    </a>
+
                     <a href="{{ url_for('admin_add_product') }}" class="quick-action-btn">
                         <i class="fa-solid fa-plus"></i>
                         Add New Product
@@ -363,7 +361,6 @@
         </div>
 
 
-        <!-- RECENT SIGNUPS -->
         {% if recent_users %}
 
         <div class="dashboard-section-card" style="margin-top: 25px;">
@@ -1452,6 +1449,822 @@
 
 
 <!-- ============================================ -->
+<!-- COUPONS TAB -->
+<!-- ============================================ -->
+
+{% if active_tab == 'coupons' %}
+
+    <div class="admin-content">
+
+        <div class="admin-content-header"
+             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+
+            <div>
+                <h1>
+                    <i class="fa-solid fa-ticket"></i>
+                    Coupons
+                </h1>
+                <p>Manage discount coupons</p>
+            </div>
+
+            <a href="{{ url_for('admin_add_coupon') }}"
+               class="admin-view-btn"
+               style="padding: 12px 24px; font-size: 12px;">
+
+                <i class="fa-solid fa-plus"></i>
+                Add New Coupon
+
+            </a>
+
+        </div>
+
+
+        <form method="GET"
+              action="{{ url_for('admin_coupons_tab') }}"
+              class="admin-filter-bar">
+
+            <div class="admin-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ search_q|default('') }}"
+                       placeholder="Search coupon code..."
+                       autocomplete="off">
+                {% if search_q %}
+                <a href="{{ url_for('admin_coupons_tab', status=status_filter, sort=sort_by) }}"
+                   class="admin-search-clear"
+                   title="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="status" class="admin-filter-select">
+                <option value="">All Statuses</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>
+                    Active Only
+                </option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>
+                    Inactive Only
+                </option>
+                <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>
+                    Expired
+                </option>
+                <option value="exhausted" {% if status_filter == 'exhausted' %}selected{% endif %}>
+                    Used Up
+                </option>
+            </select>
+
+            <select name="sort" class="admin-filter-select">
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
+                    Newest First
+                </option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
+                    Oldest First
+                </option>
+                <option value="code_asc" {% if sort_by == 'code_asc' %}selected{% endif %}>
+                    Code: A → Z
+                </option>
+                <option value="discount_high" {% if sort_by == 'discount_high' %}selected{% endif %}>
+                    Discount: High → Low
+                </option>
+                <option value="usage_high" {% if sort_by == 'usage_high' %}selected{% endif %}>
+                    Usage: High → Low
+                </option>
+            </select>
+
+            <button type="submit" class="admin-filter-btn">
+                <i class="fa-solid fa-filter"></i>
+                Apply
+            </button>
+
+            {% if search_q or status_filter or (sort_by and sort_by != 'newest') %}
+            <a href="{{ url_for('admin_coupons_tab') }}"
+               class="admin-filter-reset">
+                <i class="fa-solid fa-rotate-left"></i>
+                Reset
+            </a>
+            {% endif %}
+
+        </form>
+
+
+        <div class="order-status-tabs">
+
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by) }}"
+               class="order-status-tab {% if not status_filter %}active{% endif %}">
+
+                <i class="fa-solid fa-list"></i>
+                All
+                <span class="status-tab-count">{{ total_all }}</span>
+
+            </a>
+
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='active') }}"
+               class="order-status-tab status-delivered {% if status_filter == 'active' %}active{% endif %}">
+
+                <i class="fa-solid fa-circle-check"></i>
+                Active
+                <span class="status-tab-count">{{ active_count }}</span>
+
+            </a>
+
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='inactive') }}"
+               class="order-status-tab status-pending {% if status_filter == 'inactive' %}active{% endif %}">
+
+                <i class="fa-solid fa-circle-pause"></i>
+                Inactive
+                <span class="status-tab-count">{{ inactive_count }}</span>
+
+            </a>
+
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='expired') }}"
+               class="order-status-tab status-cancelled {% if status_filter == 'expired' %}active{% endif %}">
+
+                <i class="fa-solid fa-clock"></i>
+                Expired
+                <span class="status-tab-count">{{ expired_count }}</span>
+
+            </a>
+
+        </div>
+
+
+        {% if coupons and coupons|length > 0 %}
+
+            <div class="admin-orders-table">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Discount</th>
+                            <th>Min Order</th>
+                            <th>Max Cap</th>
+                            <th>Usage</th>
+                            <th>Expiry</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for coupon in coupons %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="coupon-code-badge">
+                                        {{ coupon.code }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="coupon-discount-badge">
+                                        {{ coupon.discount_percent }}% OFF
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if coupon.min_order_amount and coupon.min_order_amount > 0 %}
+                                        ₹{{ "%.0f"|format(coupon.min_order_amount) }}
+                                    {% else %}
+                                        <span style="color: #999; font-size: 12px;">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if coupon.max_discount %}
+                                        ₹{{ "%.0f"|format(coupon.max_discount) }}
+                                    {% else %}
+                                        <span style="color: #999; font-size: 12px;">No cap</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="coupon-usage-badge">
+                                        {{ coupon.used_count or 0 }}
+                                        {% if coupon.usage_limit %}
+                                            / {{ coupon.usage_limit }}
+                                        {% else %}
+                                            / ∞
+                                        {% endif %}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if coupon.expiry_date %}
+                                        {% if coupon.is_expired %}
+                                            <span style="color: #dc3545; font-size: 12px;">
+                                                {{ coupon.expiry_date.strftime('%d %b %Y') }}
+                                                <i class="fa-solid fa-triangle-exclamation" style="font-size: 10px;"></i>
+                                            </span>
+                                        {% else %}
+                                            <span style="font-size: 12px;">
+                                                {{ coupon.expiry_date.strftime('%d %b %Y') }}
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color: #999; font-size: 12px;">Never</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if coupon.is_expired %}
+                                        <span class="order-status cancelled">Expired</span>
+                                    {% elif coupon.is_exhausted %}
+                                        <span class="order-status cancelled">Used Up</span>
+                                    {% elif coupon.is_active %}
+                                        <span class="order-status delivered">Active</span>
+                                    {% else %}
+                                        <span class="order-status pending">Inactive</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="coupon-actions">
+
+                                        <a href="{{ url_for('admin_edit_coupon', coupon_id=coupon.id) }}"
+                                           class="admin-view-btn coupon-action-btn">
+
+                                            <i class="fa-solid fa-pen"></i>
+                                            Edit
+
+                                        </a>
+
+                                        <form method="POST"
+                                              action="{{ url_for('admin_toggle_coupon', coupon_id=coupon.id) }}"
+                                              class="coupon-action-form">
+
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                            {% if coupon.is_active %}
+                                                <button type="submit"
+                                                        class="admin-view-btn coupon-action-btn coupon-btn-disable">
+                                                    <i class="fa-solid fa-pause"></i>
+                                                    Disable
+                                                </button>
+                                            {% else %}
+                                                <button type="submit"
+                                                        class="admin-view-btn coupon-action-btn coupon-btn-enable">
+                                                    <i class="fa-solid fa-play"></i>
+                                                    Enable
+                                                </button>
+                                            {% endif %}
+
+                                        </form>
+
+                                        <form method="POST"
+                                              action="{{ url_for('admin_delete_coupon', coupon_id=coupon.id) }}"
+                                              onsubmit="return confirm('Delete coupon {{ coupon.code }} permanently?')"
+                                              class="coupon-action-form">
+
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                            <button type="submit"
+                                                    class="admin-view-btn coupon-action-btn coupon-btn-delete">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-orders">
+
+                <div class="empty-orders-icon">
+                    <i class="fa-solid fa-ticket"></i>
+                </div>
+
+                <h2>
+                    {% if search_q or status_filter %}
+                        No Matching Coupons
+                    {% else %}
+                        No Coupons Yet
+                    {% endif %}
+                </h2>
+
+                <p>
+                    {% if search_q or status_filter %}
+                        Try different search terms or clear filters.
+                    {% else %}
+                        Click "Add New Coupon" to create your first discount code.
+                    {% endif %}
+                </p>
+
+                {% if not search_q and not status_filter %}
+                    <a href="{{ url_for('admin_add_coupon') }}"
+                       class="admin-view-btn"
+                       style="margin-top: 20px; padding: 14px 30px;">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Add First Coupon
+
+                    </a>
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+        {% if total_pages is defined and total_pages > 1 %}
+
+        <div class="admin-pagination">
+
+            <div class="admin-pagination-info">
+                Showing
+                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
+                –
+                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
+                of
+                <strong>{{ total_count }}</strong>
+                coupons
+            </div>
+
+            <div class="admin-pagination-controls">
+
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page-1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
+
+                {% set start_page = [1, current_page - 2]|max %}
+                {% set end_page = [total_pages, start_page + 4]|min %}
+                {% set start_page = [1, end_page - 4]|max %}
+
+                {% if start_page > 1 %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=1) }}"
+                       class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=p) }}"
+                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
+                        {{ p }}
+                    </a>
+                {% endfor %}
+
+                {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=total_pages) }}"
+                       class="admin-page-btn">{{ total_pages }}</a>
+                {% endif %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page+1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+
+
+<!-- ============================================ -->
+<!-- REVIEWS TAB ✅ NEW -->
+<!-- ============================================ -->
+
+{% if active_tab == 'reviews' %}
+
+    <div class="admin-content">
+
+        <div class="admin-content-header">
+            <h1>
+                <i class="fa-solid fa-star"></i>
+                Reviews
+            </h1>
+            <p>Moderate customer reviews</p>
+        </div>
+
+
+        <!-- STATS -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 30px;">
+
+            <div class="stat-card yellow">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value">{{ total_all }}</span>
+                    <span class="stat-label">Total Reviews</span>
+                </div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value">{{ approved_count }}</span>
+                    <span class="stat-label">Approved</span>
+                </div>
+            </div>
+
+            <div class="stat-card red">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value">{{ pending_count }}</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+            </div>
+
+            <div class="stat-card blue">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value">{{ avg_all }}★</span>
+                    <span class="stat-label">Avg Rating</span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- FILTER BAR -->
+        <form method="GET"
+              action="{{ url_for('admin_reviews_tab') }}"
+              class="admin-filter-bar">
+
+            <div class="admin-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ search_q|default('') }}"
+                       placeholder="Search by user, email, or text..."
+                       autocomplete="off">
+                {% if search_q %}
+                <a href="{{ url_for('admin_reviews_tab', status=status_filter, rating=rating_filter, sort=sort_by) }}"
+                   class="admin-search-clear"
+                   title="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="status" class="admin-filter-select">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>
+                    Pending
+                </option>
+                <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>
+                    Approved
+                </option>
+            </select>
+
+            <select name="rating" class="admin-filter-select">
+                <option value="">All Ratings</option>
+                <option value="5" {% if rating_filter == 5 %}selected{% endif %}>5 ★</option>
+                <option value="4" {% if rating_filter == 4 %}selected{% endif %}>4 ★</option>
+                <option value="3" {% if rating_filter == 3 %}selected{% endif %}>3 ★</option>
+                <option value="2" {% if rating_filter == 2 %}selected{% endif %}>2 ★</option>
+                <option value="1" {% if rating_filter == 1 %}selected{% endif %}>1 ★</option>
+            </select>
+
+            <select name="sort" class="admin-filter-select">
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
+                    Newest First
+                </option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
+                    Oldest First
+                </option>
+                <option value="rating_high" {% if sort_by == 'rating_high' %}selected{% endif %}>
+                    Rating: High → Low
+                </option>
+                <option value="rating_low" {% if sort_by == 'rating_low' %}selected{% endif %}>
+                    Rating: Low → High
+                </option>
+            </select>
+
+            <button type="submit" class="admin-filter-btn">
+                <i class="fa-solid fa-filter"></i>
+                Apply
+            </button>
+
+            {% if search_q or status_filter or rating_filter or (sort_by and sort_by != 'newest') %}
+            <a href="{{ url_for('admin_reviews_tab') }}"
+               class="admin-filter-reset">
+                <i class="fa-solid fa-rotate-left"></i>
+                Reset
+            </a>
+            {% endif %}
+
+        </form>
+
+
+        <!-- STATUS TABS -->
+        <div class="order-status-tabs">
+
+            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter) }}"
+               class="order-status-tab {% if not status_filter %}active{% endif %}">
+                <i class="fa-solid fa-list"></i>
+                All
+                <span class="status-tab-count">{{ total_all }}</span>
+            </a>
+
+            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter, status='pending') }}"
+               class="order-status-tab status-pending {% if status_filter == 'pending' %}active{% endif %}">
+                <i class="fa-solid fa-clock"></i>
+                Pending
+                <span class="status-tab-count">{{ pending_count }}</span>
+            </a>
+
+            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter, status='approved') }}"
+               class="order-status-tab status-delivered {% if status_filter == 'approved' %}active{% endif %}">
+                <i class="fa-solid fa-circle-check"></i>
+                Approved
+                <span class="status-tab-count">{{ approved_count }}</span>
+            </a>
+
+        </div>
+
+
+        <!-- REVIEWS TABLE -->
+        {% if reviews and reviews|length > 0 %}
+
+            <div class="admin-orders-table">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Product</th>
+                            <th>Rating</th>
+                            <th>Review</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for review in reviews %}
+
+                            <tr>
+
+                                <td>
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">
+                                            {{ review.user.full_name[0]|upper if review.user else '?' }}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #1a1a1a;">
+                                                {{ review.user.full_name if review.user else 'Anonymous' }}
+                                            </div>
+                                            <small style="color: #999; font-size: 11px;">
+                                                {{ review.user.email if review.user else '' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <a href="{{ url_for('product', product_id=review.product_id) }}"
+                                       target="_blank"
+                                       style="color: #c9a961; font-weight: 600; font-size: 13px; text-decoration: none;">
+                                        {{ review.product.name if review.product else 'Product #' + review.product_id|string }}
+                                    </a>
+                                </td>
+
+                                <td style="white-space: nowrap;">
+                                    <span style="color: #c9a961; font-size: 14px; letter-spacing: 1px;">
+                                        {% for i in range(review.rating) %}⭐{% endfor %}
+                                    </span>
+                                </td>
+
+                                <td style="max-width: 320px;">
+                                    {% if review.title %}
+                                        <strong style="display: block; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">
+                                            {{ review.title }}
+                                        </strong>
+                                    {% endif %}
+                                    <span style="font-size: 12px; color: #666; line-height: 1.5;">
+                                        {{ review.comment[:120] }}{% if review.comment|length > 120 %}...{% endif %}
+                                    </span>
+                                    {% if review.photo_url %}
+                                        <div style="margin-top: 6px; font-size: 11px; color: #c9a961;">
+                                            <i class="fa-solid fa-image"></i> Has photo
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <td style="font-size: 12px; white-space: nowrap; color: #888;">
+                                    {{ review.created_at.strftime('%d %b %Y') if review.created_at else '' }}
+                                </td>
+
+                                <td>
+                                    {% if review.is_approved %}
+                                        <span class="order-status delivered">Approved</span>
+                                    {% else %}
+                                        <span class="order-status pending">Pending</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+
+                                        {% if not review.is_approved %}
+                                        <form method="POST"
+                                              action="{{ url_for('admin_approve_review', review_id=review.id) }}"
+                                              style="display: inline;">
+
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                            <button type="submit"
+                                                    class="admin-view-btn"
+                                                    style="padding: 6px 10px; font-size: 11px; background: #28a745; border: none; cursor: pointer;">
+
+                                                <i class="fa-solid fa-check"></i>
+                                                Approve
+
+                                            </button>
+
+                                        </form>
+                                        {% endif %}
+
+                                        <form method="POST"
+                                              action="{{ url_for('admin_reject_review', review_id=review.id) }}"
+                                              onsubmit="return confirm('Reject and remove this review?')"
+                                              style="display: inline;">
+
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                            <button type="submit"
+                                                    class="admin-view-btn"
+                                                    style="padding: 6px 10px; font-size: 11px; background: #dc3545; border: none; cursor: pointer;">
+
+                                                <i class="fa-solid fa-xmark"></i>
+                                                Reject
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-orders">
+
+                <div class="empty-orders-icon">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+
+                <h2>
+                    {% if search_q or status_filter or rating_filter %}
+                        No Matching Reviews
+                    {% else %}
+                        No Reviews Yet
+                    {% endif %}
+                </h2>
+
+                <p>
+                    {% if search_q or status_filter or rating_filter %}
+                        Try different search terms or clear filters.
+                    {% else %}
+                        Reviews will appear here once users submit them.
+                    {% endif %}
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- PAGINATION -->
+        {% if total_pages is defined and total_pages > 1 %}
+
+        <div class="admin-pagination">
+
+            <div class="admin-pagination-info">
+                Showing
+                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
+                –
+                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
+                of
+                <strong>{{ total_count }}</strong>
+                reviews
+            </div>
+
+            <div class="admin-pagination-controls">
+
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=current_page-1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
+
+                {% set start_page = [1, current_page - 2]|max %}
+                {% set end_page = [total_pages, start_page + 4]|min %}
+                {% set start_page = [1, end_page - 4]|max %}
+
+                {% if start_page > 1 %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=1) }}"
+                       class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=p) }}"
+                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
+                        {{ p }}
+                    </a>
+                {% endfor %}
+
+                {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}
+                        <span class="admin-page-dots">…</span>
+                    {% endif %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=total_pages) }}"
+                       class="admin-page-btn">{{ total_pages }}</a>
+                {% endif %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=current_page+1) }}"
+                       class="admin-page-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="admin-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+
+
+<!-- ============================================ -->
 <!-- PERMANENT DELETE MODAL -->
 <!-- ============================================ -->
 
@@ -1508,13 +2321,10 @@
 
 
 <!-- ============================================ -->
-<!-- SCRIPTS — Tab Switch + Permanent Delete Modal -->
+<!-- SCRIPTS -->
 <!-- ============================================ -->
 
 <script>
-    /* ============================================ */
-    /* PRODUCTS TAB SWITCH */
-    /* ============================================ */
     function switchProductTab(tabName) {
         var params = new URLSearchParams(window.location.search);
         params.set('tab', tabName);
@@ -1522,10 +2332,6 @@
         window.location.href = "{{ url_for('admin_products_tab') }}?" + params.toString() + "#" + tabName;
     }
 
-
-    /* ============================================ */
-    /* PERMANENT DELETE MODAL */
-    /* ============================================ */
     function openPermanentDeleteModal(button) {
         var productId = button.getAttribute('data-product-id');
         var productName = button.getAttribute('data-product-name');
@@ -1551,7 +2357,6 @@
         document.body.style.overflow = '';
     }
 
-    // Close on overlay click
     document.addEventListener('click', function(e) {
         var modal = document.getElementById('permanentDeleteModal');
         if (modal && e.target === modal) {
@@ -1559,7 +2364,6 @@
         }
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closePermanentDeleteModal();

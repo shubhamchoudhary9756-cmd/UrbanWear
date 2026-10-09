@@ -1,16 +1,18 @@
 <svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <linearGradient id="zenith7a" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="gold7a" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F4E5A1"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#8B6F3F"/>
+    </linearGradient>
+    <linearGradient id="gold7b" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#D4AF37"/>
-      <stop offset="50%" stop-color="#F4E5A1"/>
-      <stop offset="100%" stop-color="#B8945A"/>
+      <stop offset="100%" stop-color="#8B6F3F"/>
     </linearGradient>
   </defs>
-  <!-- Minimal 3-line mountain -->
-  <path d="M280 180 L400 60 L400 180 Z" fill="url(#zenith7a)"/>
-  <path d="M400 60 L520 180 L400 180 Z" fill="url(#zenith7a)" opacity="0.7"/>
-  <!-- Center line -->
-  <line x1="400" y1="60" x2="400" y2="180" stroke="#8B6F3F" stroke-width="3"/>
-  <!-- Snow accent -->
-  <path d="M400 60 L420 100 L400 90 L380 100 Z" fill="#FFFFFF" opacity="0.9"/>
+  <path d="M400 40 L480 140 L400 180 L320 140 Z" fill="url(#gold7a)"/>
+  <path d="M400 40 L400 180 L320 140 Z" fill="#8B6F3F" opacity="0.4"/>
+  <path d="M400 75 L440 125 L400 145 L360 125 Z" fill="#F4E5A1" opacity="0.7"/>
+  <path d="M240 165 L320 100 L360 145 L400 175 Z" fill="url(#gold7b)" opacity="0.5"/>
+  <path d="M560 165 L480 100 L440 145 L400 175 Z" fill="url(#gold7b)" opacity="0.5"/>
 </svg>

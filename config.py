@@ -121,3 +121,36 @@ class Config:
     # FILE UPLOAD
     # ==================================================
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024
+
+    # ==================================================
+    # COUPON — Default Seeded Coupons (Optional)
+    # ==================================================
+    # Ye config mein hai — app.py `initialize_database()` mein use hoga
+    # Default coupons automatically seed honge first-time app start pe
+
+    SEED_COUPONS = [
+        {
+            "code": "ZENITH20",
+            "discount_percent": 20,
+            "min_order_amount": 999,
+            "max_discount": 500,
+            "usage_limit": 1000,
+            "is_active": True
+        },
+        {
+            "code": "WELCOME10",
+            "discount_percent": 10,
+            "min_order_amount": 0,
+            "max_discount": 300,
+            "usage_limit": 500,
+            "is_active": True
+        },
+        {
+            "code": "FLAT50",
+            "discount_percent": 5,
+            "min_order_amount": 499,
+            "max_discount": 200,
+            "usage_limit": 2000,
+            "is_active": True
+        }
+    ]

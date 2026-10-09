@@ -67,6 +67,19 @@
                 <span>Users</span>
             </a>
 
+            <a href="{{ url_for('admin_coupons_tab') }}"
+               class="sidebar-link {% if active_tab == 'coupons' %}active{% endif %}">
+                <i class="fa-solid fa-ticket"></i>
+                <span>Coupons</span>
+            </a>
+
+            <!-- ✅ NEW: REVIEWS LINK -->
+            <a href="{{ url_for('admin_reviews_tab') }}"
+               class="sidebar-link {% if active_tab == 'reviews' %}active{% endif %}">
+                <i class="fa-solid fa-star"></i>
+                <span>Reviews</span>
+            </a>
+
         </nav>
 
         <div class="sidebar-footer">

@@ -2,6 +2,11 @@
 
 {% block title %}Customize {{ product.name }} | Zenith{% endblock %}
 
+{% block extra_head %}
+<!-- ✅ html2canvas for Download/Share Design PNG -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+{% endblock %}
+
 {% block content %}
 
 <section class="customize-page-nb">
@@ -71,45 +76,45 @@
                 </h3>
 
                 <div class="color-swatches-nb">
-                    <button type="button" class="color-swatch-nb active" 
-                            data-color="white" 
-                            data-image-front="tshirt-front.png" 
-                            data-image-back="tshirt-back.png" 
+                    <button type="button" class="color-swatch-nb active"
+                            data-color="white"
+                            data-image-front="tshirt-front.png"
+                            data-image-back="tshirt-back.png"
                             title="White" onclick="selectCustomColor(this)">
                         <span style="background: #ffffff;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" 
-                            data-color="red" 
-                            data-image-front="tshirt-red.png" 
-                            data-image-back="tshirt-red-back.png" 
+                    <button type="button" class="color-swatch-nb"
+                            data-color="red"
+                            data-image-front="tshirt-red.png"
+                            data-image-back="tshirt-red-back.png"
                             title="Red" onclick="selectCustomColor(this)">
                         <span style="background: #c0392b;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" 
-                            data-color="green" 
-                            data-image-front="tshirt-green.png" 
-                            data-image-back="tshirt-green-back.png" 
+                    <button type="button" class="color-swatch-nb"
+                            data-color="green"
+                            data-image-front="tshirt-green.png"
+                            data-image-back="tshirt-green-back.png"
                             title="Green" onclick="selectCustomColor(this)">
                         <span style="background: #27ae60;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" 
-                            data-color="cream" 
-                            data-image-front="tshirt-cream.png" 
-                            data-image-back="tshirt-cream-back.png" 
+                    <button type="button" class="color-swatch-nb"
+                            data-color="cream"
+                            data-image-front="tshirt-cream.png"
+                            data-image-back="tshirt-cream-back.png"
                             title="Cream" onclick="selectCustomColor(this)">
                         <span style="background: #f4e5a1;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" 
-                            data-color="pista" 
-                            data-image-front="tshirt-pista.png" 
-                            data-image-back="tshirt-pista-back.png" 
+                    <button type="button" class="color-swatch-nb"
+                            data-color="pista"
+                            data-image-front="tshirt-pista.png"
+                            data-image-back="tshirt-pista-back.png"
                             title="Pista" onclick="selectCustomColor(this)">
                         <span style="background: #b8d8a8;"></span>
                     </button>
-                    <button type="button" class="color-swatch-nb" 
-                            data-color="pink" 
-                            data-image-front="tshirt-pink.png" 
-                            data-image-back="tshirt-pink-back.png" 
+                    <button type="button" class="color-swatch-nb"
+                            data-color="pink"
+                            data-image-front="tshirt-pink.png"
+                            data-image-back="tshirt-pink-back.png"
                             title="Pink" onclick="selectCustomColor(this)">
                         <span style="background: #e91e8c;"></span>
                     </button>
@@ -408,16 +413,16 @@
                 </p>
 
                 <div class="design-action-buttons-nb">
-                    <button type="button" 
-                            class="download-design-btn-nb" 
+                    <button type="button"
+                            class="download-design-btn-nb"
                             id="downloadDesignBtn"
                             onclick="downloadDesign()">
                         <i class="fa-solid fa-download"></i>
                         <span>Download PNG</span>
                     </button>
 
-                    <button type="button" 
-                            class="share-design-btn-nb" 
+                    <button type="button"
+                            class="share-design-btn-nb"
                             id="shareDesignBtn"
                             onclick="shareDesign()">
                         <i class="fa-solid fa-share-nodes"></i>

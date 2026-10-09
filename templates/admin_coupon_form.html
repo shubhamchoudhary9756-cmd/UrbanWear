@@ -1,0 +1,207 @@
+{% extends "admin_base.html" %}
+
+{% block title %}
+    {% if mode == 'edit' %}Edit Coupon{% else %}Add Coupon{% endif %} | Zenith
+{% endblock %}
+
+{% block content %}
+
+<div class="admin-content">
+
+    <!-- HEADER -->
+    <div class="admin-content-header"
+         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+
+        <div>
+            <h1>
+                <i class="fa-solid fa-ticket"></i>
+                {% if mode == 'edit' %}
+                    Edit Coupon
+                {% else %}
+                    Add New Coupon
+                {% endif %}
+            </h1>
+            <p>
+                {% if mode == 'edit' %}
+                    Update coupon details
+                {% else %}
+                    Create a new discount coupon
+                {% endif %}
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_coupons_tab') }}"
+           class="admin-view-btn"
+           style="padding: 12px 24px; font-size: 12px; background: #6c757d;">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Coupons
+
+        </a>
+
+    </div>
+
+
+    <!-- FORM CARD -->
+    <div class="admin-form-card">
+
+        <form method="POST"
+              action="{% if mode == 'edit' %}{{ url_for('admin_edit_coupon', coupon_id=coupon.id) }}{% else %}{{ url_for('admin_add_coupon') }}{% endif %}"
+              class="admin-form">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+
+            <!-- CODE -->
+            <div class="form-group">
+                <label for="code">
+                    Coupon Code <span class="required">*</span>
+                </label>
+                <input type="text"
+                       id="code"
+                       name="code"
+                       value="{{ coupon.code if coupon else '' }}"
+                       placeholder="e.g. ZENITH20"
+                       maxlength="50"
+                       required
+                       style="text-transform: uppercase;"
+                       autocomplete="off">
+                <small class="form-hint">
+                    Only letters, numbers, and underscores. Min 3 characters. Will be auto-uppercased.
+                </small>
+            </div>
+
+
+            <!-- DISCOUNT % -->
+            <div class="form-group">
+                <label for="discount_percent">
+                    Discount Percentage <span class="required">*</span>
+                </label>
+                <input type="number"
+                       id="discount_percent"
+                       name="discount_percent"
+                       value="{{ coupon.discount_percent if coupon else '' }}"
+                       placeholder="e.g. 20"
+                       min="1"
+                       max="100"
+                       required>
+                <small class="form-hint">
+                    Value between 1 and 100. Example: 20 = 20% off.
+                </small>
+            </div>
+
+
+            <!-- MIN ORDER -->
+            <div class="form-group">
+                <label for="min_order_amount">
+                    Minimum Order Amount (₹)
+                </label>
+                <input type="number"
+                       id="min_order_amount"
+                       name="min_order_amount"
+                       value="{{ coupon.min_order_amount if coupon and coupon.min_order_amount else '0' }}"
+                       placeholder="0"
+                       min="0"
+                       step="1">
+                <small class="form-hint">
+                    Minimum cart value required to apply this coupon. Set 0 for no minimum.
+                </small>
+            </div>
+
+
+            <!-- MAX DISCOUNT -->
+            <div class="form-group">
+                <label for="max_discount">
+                    Maximum Discount Cap (₹)
+                </label>
+                <input type="number"
+                       id="max_discount"
+                       name="max_discount"
+                       value="{{ coupon.max_discount if coupon and coupon.max_discount else '' }}"
+                       placeholder="Leave empty for no cap"
+                       min="0"
+                       step="1">
+                <small class="form-hint">
+                    Maximum discount amount. Example: 500 = customer can save max ₹500. Empty = no cap.
+                </small>
+            </div>
+
+
+            <!-- USAGE LIMIT -->
+            <div class="form-group">
+                <label for="usage_limit">
+                    Total Usage Limit
+                </label>
+                <input type="number"
+                       id="usage_limit"
+                       name="usage_limit"
+                       value="{{ coupon.usage_limit if coupon and coupon.usage_limit else '' }}"
+                       placeholder="Leave empty for unlimited"
+                       min="0"
+                       step="1">
+                <small class="form-hint">
+                    Total number of times this coupon can be used. Empty = unlimited.
+                </small>
+            </div>
+
+
+            <!-- EXPIRY DATE -->
+            <div class="form-group">
+                <label for="expiry_date">
+                    Expiry Date
+                </label>
+                <input type="date"
+                       id="expiry_date"
+                       name="expiry_date"
+                       value="{% if coupon and coupon.expiry_date %}{{ coupon.expiry_date.strftime('%Y-%m-%d') }}{% endif %}">
+                <small class="form-hint">
+                    Leave empty for no expiry. Coupon stops working after 11:59 PM on this date.
+                </small>
+            </div>
+
+
+            <!-- IS ACTIVE -->
+            <div class="form-group form-checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox"
+                           name="is_active"
+                           {% if not coupon or coupon.is_active %}checked{% endif %}>
+                    <span class="checkbox-text">
+                        <strong>Active</strong> — Coupon can be applied by customers
+                    </span>
+                </label>
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="admin-form-actions">
+
+                <a href="{{ url_for('admin_coupons_tab') }}"
+                   class="admin-form-btn cancel">
+
+                    <i class="fa-solid fa-xmark"></i>
+                    Cancel
+
+                </a>
+
+                <button type="submit"
+                        class="admin-form-btn submit">
+
+                    <i class="fa-solid fa-check"></i>
+                    {% if mode == 'edit' %}
+                        Update Coupon
+                    {% else %}
+                        Create Coupon
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

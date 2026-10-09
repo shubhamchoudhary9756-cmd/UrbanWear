@@ -71,6 +71,9 @@
         <!-- CSRF TOKEN -->
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+        <!-- HIDDEN COUPON CODE (from cart) -->
+        <input type="hidden" name="coupon_code" id="coupon-code-hidden" value="">
+
         <div class="checkout-grid-nb">
 
             <!-- ============================================
@@ -122,6 +125,7 @@
                         <input type="tel"
                                id="phone"
                                name="phone"
+                               value="{{ current_user.phone or '' }}"
                                placeholder="10-digit mobile number"
                                pattern="[0-9]{10}"
                                maxlength="10"
@@ -263,23 +267,6 @@
                             </span>
                         </label>
 
-                        <!-- NET BANKING -->
-                        <label class="payment-option-nb">
-                            <input type="radio"
-                                   name="payment_method"
-                                   value="netbanking">
-                            <div class="payment-icon-nb">
-                                <i class="fa-solid fa-building-columns"></i>
-                            </div>
-                            <div class="payment-info-nb">
-                                <span class="payment-title-nb">Net Banking</span>
-                                <span class="payment-desc-nb">All major banks supported</span>
-                            </div>
-                            <span class="payment-check-nb">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </span>
-                        </label>
-
                     </div>
 
                 </div>
@@ -323,10 +310,11 @@
                             <span class="free-nb">FREE</span>
                         </div>
 
+                        <!-- DISCOUNT ROW (auto-show if coupon applied) -->
                         <div class="summary-total-row-nb discount-nb"
                              id="checkout-discount-row"
                              style="display: none;">
-                            <span>Discount</span>
+                            <span id="checkout-discount-label">Discount</span>
                             <span id="checkout-discount">- ₹0</span>
                         </div>
 
@@ -400,7 +388,13 @@
         const cartDataInput = document.getElementById("cart-data");
         const summaryCount = document.getElementById("summary-count-nb");
 
-        // ✅ Smart image URL helper — Cloudinary + local dono handle
+        // ✅ Coupon elements
+        const couponCodeHidden = document.getElementById("coupon-code-hidden");
+        const discountRow = document.getElementById("checkout-discount-row");
+        const discountLabel = document.getElementById("checkout-discount-label");
+        const discountValue = document.getElementById("checkout-discount");
+
+        // ✅ Smart image URL helper
         function getCheckoutImageUrl(image) {
             if (!image) return "";
             image = String(image);
@@ -409,6 +403,28 @@
             }
             return `/static/${image}`;
         }
+
+        // ✅ Number formatting (Indian style)
+        function formatNumber(n) {
+            return Math.round(n).toLocaleString("en-IN");
+        }
+
+        // ✅ Read coupon from localStorage
+        let couponCode = null;
+        let couponDiscount = 0;
+        try {
+            couponCode = localStorage.getItem("zenith_coupon_code");
+            couponDiscount = parseFloat(localStorage.getItem("zenith_coupon_discount") || "0");
+            if (isNaN(couponDiscount)) couponDiscount = 0;
+        } catch (e) {
+            couponCode = null;
+            couponDiscount = 0;
+        }
+
+
+        /* =====================================================
+           EMPTY CART
+        ===================================================== */
 
         if (cart.length === 0) {
             checkoutItems.innerHTML = `
@@ -422,13 +438,18 @@
             return;
         }
 
-        let total = 0;
+
+        /* =====================================================
+           RENDER ITEMS
+        ===================================================== */
+
+        let subtotal = 0;
         let totalQty = 0;
         let html = "";
 
         cart.forEach(item => {
-            const subtotal = item.price * item.quantity;
-            total += subtotal;
+            const lineTotal = item.price * item.quantity;
+            subtotal += lineTotal;
             totalQty += item.quantity;
 
             const imgUrl = getCheckoutImageUrl(item.image);
@@ -449,19 +470,67 @@
                         </span>
                     </div>
                     <div class="checkout-item-price-nb">
-                        <strong>₹${subtotal.toLocaleString("en-IN")}</strong>
+                        <strong>₹${formatNumber(lineTotal)}</strong>
                     </div>
                 </div>
             `;
         });
 
         checkoutItems.innerHTML = html;
-        checkoutSubtotal.textContent = "₹" + total.toLocaleString("en-IN");
-        checkoutTotal.textContent = total.toLocaleString("en-IN");
+        checkoutSubtotal.textContent = "₹" + formatNumber(subtotal);
         if (summaryCount) {
             summaryCount.textContent = totalQty + (totalQty === 1 ? " item" : " items");
         }
+
+
+        /* =====================================================
+           APPLY COUPON DISCOUNT (from cart)
+        ===================================================== */
+
+        let finalDiscount = 0;
+
+        if (couponCode && couponDiscount > 0) {
+            // Cap discount to subtotal (safety)
+            finalDiscount = Math.min(couponDiscount, subtotal);
+
+            // Show discount row
+            if (discountRow) discountRow.style.display = "flex";
+            if (discountLabel) discountLabel.textContent = `Discount (${couponCode})`;
+            if (discountValue) discountValue.textContent = "- ₹" + formatNumber(finalDiscount);
+
+            // Set hidden field for server
+            if (couponCodeHidden) couponCodeHidden.value = couponCode;
+        }
+
+
+        /* =====================================================
+           GRAND TOTAL
+        ===================================================== */
+
+        const grandTotal = Math.max(0, subtotal - finalDiscount);
+        checkoutTotal.textContent = formatNumber(grandTotal);
+
+
+        /* =====================================================
+           HIDDEN CART DATA (for server)
+        ===================================================== */
+
         cartDataInput.value = JSON.stringify(cart);
+
+
+        /* =====================================================
+           FORM SUBMIT — Disable button + show loading
+        ===================================================== */
+
+        const form = document.getElementById("checkout-form");
+        const placeBtn = document.querySelector(".place-order-btn-nb");
+
+        if (form && placeBtn) {
+            form.addEventListener("submit", function () {
+                placeBtn.disabled = true;
+                placeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Placing Order...';
+            });
+        }
     });
 </script>
 {% endblock %}

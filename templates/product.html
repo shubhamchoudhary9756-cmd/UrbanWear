@@ -19,24 +19,17 @@
 </div>
 
 
-
 <!-- ==================================================
-                    PRODUCT DETAILS — NOBERO STYLE
+                    PRODUCT DETAILS
 ================================================== -->
 
 <section class="product-nb">
 
     <div class="product-nb-grid">
 
-        <!-- ============================================
-                    LEFT — GALLERY
-        ============================================ -->
-
         <div class="gallery-nb">
 
-            <!-- Thumbnails — ✅ lazy load (below main image visual) -->
             <div class="thumbnails-nb">
-
                 {% if product.images %}
                     {% for img in product.images %}
                     <div class="thumb-nb {% if loop.first %}active{% endif %}"
@@ -56,10 +49,8 @@
                              loading="lazy">
                     </div>
                 {% endif %}
-
             </div>
 
-            <!-- Main Image — ✅ eager load (above fold, critical) -->
             <div class="main-image-nb">
                 <img id="main-image"
                      src="{{ product.image|product_image }}"
@@ -81,27 +72,25 @@
         </div>
 
 
-
-        <!-- ============================================
-                    RIGHT — PRODUCT INFO
-        ============================================ -->
-
         <div class="info-nb">
 
-            <!-- Category -->
             <span class="cat-tag-nb">{{ product.category }}</span>
 
-            <!-- Title -->
             <h1 class="title-nb">{{ product.name }}</h1>
 
-            <!-- Rating -->
             <div class="rating-row-nb">
-                <span class="stars-nb">⭐⭐⭐⭐⭐</span>
-                <span class="rating-value-nb">{{ product.rating }}</span>
-                <span class="rating-count-nb">(128 Reviews)</span>
+                <span class="stars-nb">
+                    {% set r = avg_rating|round|int %}
+                    {% for i in range(5) %}
+                        {% if i < r %}⭐{% else %}<span class="star-dim">⭐</span>{% endif %}
+                    {% endfor %}
+                </span>
+                <span class="rating-value-nb">{{ avg_rating }}</span>
+                <a href="#reviews" class="rating-count-nb">
+                    ({{ review_count }} Review{{ 's' if review_count != 1 else '' }})
+                </a>
             </div>
 
-            <!-- Price -->
             <div class="price-nb">
                 <span class="current-price-nb">₹{{ product.price }}</span>
                 {% if product.old_price and product.old_price > product.price %}
@@ -114,14 +103,8 @@
 
             <p class="tax-note-nb">Inclusive of all taxes</p>
 
-            <!-- Description -->
             <p class="desc-nb">{{ product.description }}</p>
 
-
-
-            <!-- ============================================
-                        COLOR SELECTOR
-            ============================================ -->
 
             <div class="option-block-nb">
                 <h3 class="option-title-nb">
@@ -129,30 +112,13 @@
                 </h3>
 
                 <div class="color-options-nb">
-                    <span class="color-nb black-nb"
-                          data-color="Black"
-                          title="Black"
-                          onclick="selectColor(this)"></span>
-                    <span class="color-nb white-nb"
-                          data-color="White"
-                          title="White"
-                          onclick="selectColor(this)"></span>
-                    <span class="color-nb blue-nb"
-                          data-color="Blue"
-                          title="Blue"
-                          onclick="selectColor(this)"></span>
-                    <span class="color-nb gold-nb"
-                          data-color="Gold"
-                          title="Gold"
-                          onclick="selectColor(this)"></span>
+                    <span class="color-nb black-nb" data-color="Black" title="Black" onclick="selectColor(this)"></span>
+                    <span class="color-nb white-nb" data-color="White" title="White" onclick="selectColor(this)"></span>
+                    <span class="color-nb blue-nb" data-color="Blue" title="Blue" onclick="selectColor(this)"></span>
+                    <span class="color-nb gold-nb" data-color="Gold" title="Gold" onclick="selectColor(this)"></span>
                 </div>
             </div>
 
-
-
-            <!-- ============================================
-                        SIZE SELECTOR
-            ============================================ -->
 
             <div class="option-block-nb">
                 <div class="size-header-nb">
@@ -174,30 +140,15 @@
             </div>
 
 
-
-            <!-- ============================================
-                        QUANTITY
-            ============================================ -->
-
             <div class="option-block-nb">
                 <h3 class="option-title-nb">Quantity</h3>
-
                 <div class="qty-nb">
-                    <button type="button" onclick="changeQty(-1)">
-                        <i class="fa-solid fa-minus"></i>
-                    </button>
+                    <button type="button" onclick="changeQty(-1)"><i class="fa-solid fa-minus"></i></button>
                     <input id="quantity" type="number" min="1" max="10" value="1" readonly>
-                    <button type="button" onclick="changeQty(1)">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
+                    <button type="button" onclick="changeQty(1)"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
 
-
-
-            <!-- ============================================
-                        ACTION BUTTONS
-            ============================================ -->
 
             <div class="actions-nb">
 
@@ -234,11 +185,6 @@
             </div>
 
 
-
-            <!-- ============================================
-                        ✅ CUSTOMIZE BUTTON
-            ============================================ -->
-
             <a href="{{ url_for('customize', product_id=product.id) }}"
                class="customize-btn-nb">
                 <i class="fa-solid fa-palette"></i>
@@ -246,13 +192,7 @@
             </a>
 
 
-
-            <!-- ============================================
-                        TRUST BADGES
-            ============================================ -->
-
             <div class="trust-badges-nb">
-
                 <div class="trust-item-nb">
                     <i class="fa-solid fa-truck-fast"></i>
                     <div>
@@ -260,7 +200,6 @@
                         <span>On orders above ₹999</span>
                     </div>
                 </div>
-
                 <div class="trust-item-nb">
                     <i class="fa-solid fa-rotate-left"></i>
                     <div>
@@ -268,7 +207,6 @@
                         <span>7-day return policy</span>
                     </div>
                 </div>
-
                 <div class="trust-item-nb">
                     <i class="fa-solid fa-shield-halved"></i>
                     <div>
@@ -276,22 +214,12 @@
                         <span>100% safe & encrypted</span>
                     </div>
                 </div>
-
             </div>
 
 
-
-            <!-- ============================================
-                        ACCORDION — DETAILS
-            ============================================ -->
-
             <div class="accordion-nb">
-
                 <details class="acc-item-nb" open>
-                    <summary>
-                        <span>Product Details</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </summary>
+                    <summary><span>Product Details</span><i class="fa-solid fa-chevron-down"></i></summary>
                     <div class="acc-content-nb">
                         <ul>
                             <li>Premium quality fabric</li>
@@ -302,35 +230,271 @@
                         </ul>
                     </div>
                 </details>
-
                 <details class="acc-item-nb">
-                    <summary>
-                        <span>Shipping & Delivery</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </summary>
+                    <summary><span>Shipping &amp; Delivery</span><i class="fa-solid fa-chevron-down"></i></summary>
                     <div class="acc-content-nb">
                         <p>Free shipping on orders above ₹999. Standard delivery takes 3-5 business days across India.</p>
                     </div>
                 </details>
-
                 <details class="acc-item-nb">
-                    <summary>
-                        <span>Returns & Exchange</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </summary>
+                    <summary><span>Returns &amp; Exchange</span><i class="fa-solid fa-chevron-down"></i></summary>
                     <div class="acc-content-nb">
                         <p>7-day easy return and exchange. Products must be unused with original tags.</p>
                     </div>
                 </details>
-
             </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================================================
+                    REVIEWS SECTION
+================================================== -->
+
+<section class="reviews-section-nb" id="reviews">
+
+    <div class="reviews-header-nb">
+        <span class="section-tag-nb">Customer Feedback</span>
+        <h2>Reviews &amp; Ratings</h2>
+        <p>Real experiences from verified buyers</p>
+    </div>
+
+    <div class="reviews-container-nb">
+
+        <div class="reviews-left-nb">
+
+            <div class="rating-summary-nb">
+                <div class="summary-score-nb">
+                    <div class="summary-number-nb">{{ avg_rating }}</div>
+                    <div class="summary-stars-nb">
+                        {% set r = avg_rating|round|int %}
+                        {% for i in range(5) %}
+                            {% if i < r %}⭐{% else %}<span class="star-dim">⭐</span>{% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="summary-count-nb">
+                        Based on {{ review_count }} review{{ 's' if review_count != 1 else '' }}
+                    </div>
+                </div>
+
+                <div class="summary-bars-nb">
+                    {% for stars in [5, 4, 3, 2, 1] %}
+                        {% set count = rating_distribution[stars] %}
+                        {% set pct = (count / review_count * 100) if review_count > 0 else 0 %}
+                        <div class="bar-row-nb">
+                            <span class="bar-label-nb">{{ stars }} <i class="fa-solid fa-star"></i></span>
+                            <div class="bar-track-nb">
+                                <div class="bar-fill-nb" data-width="{{ pct }}"></div>
+                            </div>
+                            <span class="bar-count-nb">{{ count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated %}
+
+                {% if user_review %}
+                    <div class="user-review-box-nb">
+                        <div class="user-review-header-nb">
+                            <h3>Your Review</h3>
+                            {% if user_review.is_approved %}
+                                <span class="review-status-badge approved">
+                                    <i class="fa-solid fa-circle-check"></i> Published
+                                </span>
+                            {% else %}
+                                <span class="review-status-badge pending">
+                                    <i class="fa-solid fa-clock"></i> Pending Approval
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="user-review-stars-nb">
+                            {% for i in range(5) %}
+                                {% if i < user_review.rating %}⭐{% else %}<span class="star-dim">⭐</span>{% endif %}
+                            {% endfor %}
+                        </div>
+                        {% if user_review.title %}
+                            <h4 class="user-review-title-nb">{{ user_review.title }}</h4>
+                        {% endif %}
+                        <p class="user-review-comment-nb">{{ user_review.comment }}</p>
+
+                        <div class="user-review-actions-nb">
+                            <form method="POST"
+                                  action="{{ url_for('delete_review', review_id=user_review.id) }}"
+                                  onsubmit="return confirm('Delete your review?')"
+                                  class="inline-form-nb">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="review-btn-nb danger-nb">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                {% elif can_review %}
+                    <div class="write-review-box-nb">
+                        <h3><i class="fa-solid fa-pen"></i> Write Your Review</h3>
+                        <p class="write-review-sub-nb">
+                            <i class="fa-solid fa-circle-check icon-verified"></i>
+                            Verified purchase — your review helps other customers
+                        </p>
+
+                        <form method="POST"
+                              action="{{ url_for('submit_review', product_id=product.id) }}"
+                              enctype="multipart/form-data"
+                              class="review-form-nb">
+
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="order_id" value="{{ purchase_order_id or '' }}">
+
+                            <div class="form-group-review-nb">
+                                <label>Your Rating <span class="required">*</span></label>
+                                <div class="star-rating-input-nb">
+                                    <button type="button" class="star-btn-nb" data-value="1" onclick="setRating(1)"><i class="fa-regular fa-star"></i></button>
+                                    <button type="button" class="star-btn-nb" data-value="2" onclick="setRating(2)"><i class="fa-regular fa-star"></i></button>
+                                    <button type="button" class="star-btn-nb" data-value="3" onclick="setRating(3)"><i class="fa-regular fa-star"></i></button>
+                                    <button type="button" class="star-btn-nb" data-value="4" onclick="setRating(4)"><i class="fa-regular fa-star"></i></button>
+                                    <button type="button" class="star-btn-nb" data-value="5" onclick="setRating(5)"><i class="fa-regular fa-star"></i></button>
+                                    <input type="hidden" name="rating" id="ratingInput" value="5" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group-review-nb">
+                                <label>Title <span class="optional">(optional)</span></label>
+                                <input type="text"
+                                       name="title"
+                                       placeholder="e.g. Excellent quality!"
+                                       maxlength="150">
+                            </div>
+
+                            <div class="form-group-review-nb">
+                                <label>Your Review <span class="required">*</span></label>
+                                <textarea name="comment"
+                                          rows="4"
+                                          placeholder="Share your experience with this product..."
+                                          minlength="10"
+                                          maxlength="2000"
+                                          required></textarea>
+                                <small class="form-hint-nb">Minimum 10 characters</small>
+                            </div>
+
+                            <div class="form-group-review-nb">
+                                <label>Add a Photo <span class="optional">(optional)</span></label>
+                                <input type="file"
+                                       name="photo"
+                                       accept="image/*"
+                                       class="file-input-nb">
+                                <small class="form-hint-nb">JPG/PNG, max 5MB</small>
+                            </div>
+
+                            <button type="submit" class="submit-review-btn-nb">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                Submit Review
+                            </button>
+                        </form>
+                    </div>
+
+                {% else %}
+                    <div class="write-review-box-nb unverified-nb">
+                        <h3><i class="fa-solid fa-lock"></i> Only Verified Buyers Can Review</h3>
+                        <p class="write-review-sub-nb">
+                            Purchase this product to share your experience.
+                        </p>
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <div class="write-review-box-nb unverified-nb">
+                    <h3><i class="fa-solid fa-user"></i> Login to Review</h3>
+                    <p class="write-review-sub-nb">
+                        Please <a href="{{ url_for('login') }}" class="login-link-nb">login</a>
+                        to write a review.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <div class="reviews-right-nb">
+
+            {% if reviews and reviews|length > 0 %}
+
+                <div class="reviews-list-nb">
+                    {% for review in reviews %}
+                        <div class="review-card-nb">
+
+                            <div class="review-card-header-nb">
+                                <div class="review-avatar-nb">
+                                    {{ review.user_avatar }}
+                                </div>
+                                <div class="review-author-nb">
+                                    <div class="review-author-name-nb">
+                                        {{ review.user_name }}
+                                        {% if review.is_verified_purchase %}
+                                            <span class="verified-badge-nb" title="Verified Purchase">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                                Verified
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="review-date-nb">
+                                        {{ review.created_at[:10] }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="review-stars-nb">
+                                {% for i in range(5) %}
+                                    {% if i < review.rating %}⭐{% else %}<span class="star-dim">⭐</span>{% endif %}
+                                {% endfor %}
+                            </div>
+
+                            {% if review.title %}
+                                <h4 class="review-title-nb">{{ review.title }}</h4>
+                            {% endif %}
+
+                            <p class="review-comment-nb">{{ review.comment }}</p>
+
+                            {% if review.photo_url %}
+                                <div class="review-photo-nb">
+                                    {% if review.photo_url.startswith('http') %}
+                                        <img src="{{ review.photo_url }}" alt="Customer photo" loading="lazy">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename=review.photo_url) }}" alt="Customer photo" loading="lazy">
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                            <div class="review-footer-nb">
+                                <button type="button"
+                                        class="helpful-btn-nb"
+                                        data-review-id="{{ review.id }}"
+                                        onclick="markHelpful(this)">
+                                    <i class="fa-regular fa-thumbs-up"></i>
+                                    Helpful (<span class="helpful-count">{{ review.helpful_count }}</span>)
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <div class="no-reviews-nb">
+                    <div class="no-reviews-icon-nb">
+                        <i class="fa-solid fa-comment-dots"></i>
+                    </div>
+                    <h3>No Reviews Yet</h3>
+                    <p>Be the first to share your experience!</p>
+                </div>
+            {% endif %}
 
         </div>
 
     </div>
-
 </section>
-
 
 
 <!-- ==================================================
@@ -338,7 +502,6 @@
 ================================================== -->
 
 <div class="sticky-buy-nb">
-
     <div class="sticky-price-nb">
         <span>₹{{ product.price }}</span>
         {% if product.old_price and product.old_price > product.price %}
@@ -354,27 +517,22 @@
             data-image="{{ product.image }}">
         <i class="fa-solid fa-bag-shopping"></i> Add to Cart
     </button>
-
 </div>
 
 
-
 <!-- ==================================================
-                    RELATED PRODUCTS — ✅ lazy load
+                    RELATED PRODUCTS
 ================================================== -->
 
 {% if related_products %}
 <section class="related-nb">
-
     <div class="section-header-nb">
         <span class="section-tag-nb">You May Also Like</span>
         <h2>Related Products</h2>
     </div>
 
     <div class="related-grid-nb">
-
         {% for rp in related_products[:4] %}
-
         <div class="related-card-nb">
             <a href="/product/{{ rp.id }}">
                 <img src="{{ rp.image|product_image }}"
@@ -383,59 +541,53 @@
             </a>
             <h3><a href="/product/{{ rp.id }}">{{ rp.name }}</a></h3>
             <p>₹{{ rp.price }}
-                {% if rp.old_price %}
-                <span>₹{{ rp.old_price }}</span>
-                {% endif %}
+                {% if rp.old_price %}<span>₹{{ rp.old_price }}</span>{% endif %}
             </p>
         </div>
-
         {% endfor %}
-
     </div>
-
 </section>
 {% endif %}
 
 {% endblock %}
 
 
-
 {% block extra_scripts %}
 <script>
     /* ============ IMAGE GALLERY ============ */
     function changeImage(thumb) {
-        const imgSrc = thumb.dataset.img;
+        var imgSrc = thumb.dataset.img;
         if (imgSrc) {
             document.getElementById('main-image').src = imgSrc;
-            document.querySelectorAll('.thumb-nb').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.thumb-nb').forEach(function(t) {
+                t.classList.remove('active');
+            });
             thumb.classList.add('active');
         }
     }
 
     /* ============ COLOR SELECTOR ============ */
     function selectColor(el) {
-        document.querySelectorAll('.color-nb').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.color-nb').forEach(function(c) {
+            c.classList.remove('active');
+        });
         el.classList.add('active');
         document.getElementById('selected-color-nb').textContent = el.dataset.color;
     }
 
-    /* Default selected color */
-    document.addEventListener('DOMContentLoaded', function () {
-        const firstColor = document.querySelector('.color-nb');
-        if (firstColor) firstColor.classList.add('active');
-    });
-
     /* ============ SIZE SELECTOR ============ */
     function selectSize(btn) {
-        document.querySelectorAll('.size-btn-nb').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.size-btn-nb').forEach(function(b) {
+            b.classList.remove('active');
+        });
         btn.classList.add('active');
         document.getElementById('selected-size-nb').textContent = btn.dataset.size;
     }
 
     /* ============ QUANTITY ============ */
     function changeQty(delta) {
-        const input = document.getElementById('quantity');
-        let val = parseInt(input.value) || 1;
+        var input = document.getElementById('quantity');
+        var val = parseInt(input.value) || 1;
         val += delta;
         if (val < 1) val = 1;
         if (val > 10) val = 10;
@@ -444,13 +596,85 @@
 
     /* ============ BUY NOW ============ */
     function buyNow() {
-        const addCartBtn = document.querySelector('.add-cart');
+        var addCartBtn = document.querySelector('.add-cart');
         if (addCartBtn) {
             addToCart(addCartBtn);
-            setTimeout(function () {
-                window.location.href = "/cart";
+            setTimeout(function() {
+                window.location.href = '/cart';
             }, 500);
         }
     }
+
+    /* ============ STAR RATING INPUT ============ */
+    function setRating(value) {
+        var input = document.getElementById('ratingInput');
+        if (input) input.value = value;
+
+        document.querySelectorAll('.star-btn-nb').forEach(function(btn, idx) {
+            var star = btn.querySelector('i');
+            if (idx < value) {
+                star.classList.remove('fa-regular');
+                star.classList.add('fa-solid');
+                btn.classList.add('active');
+            } else {
+                star.classList.remove('fa-solid');
+                star.classList.add('fa-regular');
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    /* ============ MARK HELPFUL (AJAX) ============ */
+    function markHelpful(btn) {
+        var reviewId = btn.getAttribute('data-review-id');
+        if (!reviewId) return;
+
+        fetch('/review/' + reviewId + '/helpful', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.success) {
+                var countEl = btn.querySelector('.helpful-count');
+                if (countEl) countEl.textContent = data.count;
+                btn.disabled = true;
+                btn.classList.add('voted');
+            }
+        })
+        .catch(function(err) {
+            console.error('Helpful vote error:', err);
+        });
+    }
+
+    /* ============ APPLY BAR WIDTHS (from data-width) ============ */
+    function applyBarWidths() {
+        document.querySelectorAll('.bar-fill-nb[data-width]').forEach(function(el) {
+            var w = parseFloat(el.getAttribute('data-width')) || 0;
+            el.style.width = w + '%';
+        });
+    }
+
+    /* ============ INIT ============ */
+    document.addEventListener('DOMContentLoaded', function() {
+        var firstColor = document.querySelector('.color-nb');
+        if (firstColor) firstColor.classList.add('active');
+
+        if (document.getElementById('ratingInput')) {
+            setRating(5);
+        }
+
+        /* Apply bar widths from data attributes */
+        applyBarWidths();
+
+        /* Smooth scroll for reviews link */
+        document.querySelectorAll('a[href="#reviews"]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                var el = document.getElementById('reviews');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    });
 </script>
 {% endblock %}
