@@ -1440,7 +1440,7 @@
                 const fileName = `zenith-${productName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${side}.png`;
                 const file = new File([blob], fileName, { type: 'image/png' });
 
-                const shareText = `Check out my custom Zenith design! 🎨\n\n"${productName}" — ${side.toUpperCase()} view\n\nCreate your own at urbanwear-s9d8.onrender.com`;
+                const shareText = `Check out my custom Zenith design! 🎨\n\n"${productName}" — ${side.toUpperCase()} view\n\nCreate your own at Zenith-s9d8.onrender.com`;
 
                 /* ✅ Check Web Share API support */
                 if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {

@@ -1,5 +1,5 @@
 // ==================================================
-// Zenith JavaScript v16.0
+// Zenith JavaScript v16.1
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
 // + GLOBAL OFFER TIMER ✅
@@ -12,6 +12,7 @@
 // + COUPON SYNC (CART ↔ CHECKOUT) ✅
 // + COUPON CSS INJECTION (bypass cache) ✅
 // + REVIEWS CSS INJECTION (bypass cache) ✅
+// + MINI-CART SIDE DRAWER (TITAN STYLE) ✅ 🆕
 // ==================================================
 
 "use strict";
@@ -149,11 +150,13 @@ function findProduct(id, size = null, color = null, isCustomized = false) {
 
 function updateCartCount() {
     const counter = document.getElementById("cart-count");
-    if (!counter) return;
-    let total = 0;
-    cart.forEach(item => { total += Number(item.quantity) || 0; });
-    counter.textContent = total;
+    if (counter) {
+        let total = 0;
+        cart.forEach(item => { total += Number(item.quantity) || 0; });
+        counter.textContent = total;
+    }
     updateBottomNavBadges();
+    updateMiniCartCount();
 }
 
 
@@ -220,6 +223,9 @@ function addToCart(button) {
     if (size) message += ` (Size: ${size})`;
     if (color) message += ` (Color: ${color})`;
     showToast(message);
+
+    // 🆕 Titan-style: open mini-cart drawer
+    openMiniCart();
 }
 
 
@@ -452,6 +458,7 @@ function changeQuantityByIndex(index, change) {
     saveCart();
     updateCartCount();
     displayCart();
+    renderMiniCart(); // 🆕 keep drawer synced
 }
 
 
@@ -461,6 +468,209 @@ function removeItemByIndex(index) {
     saveCart();
     updateCartCount();
     displayCart();
+    renderMiniCart(); // 🆕 keep drawer synced
+}
+
+
+// ==================================================
+// 🆕 MINI-CART SIDE DRAWER (TITAN STYLE)
+// ==================================================
+
+function openMiniCart() {
+    const drawer = document.getElementById("minicartDrawer");
+    const overlay = document.getElementById("minicartOverlay");
+    if (!drawer || !overlay) return;
+
+    renderMiniCart();
+    drawer.classList.add("open");
+    overlay.classList.add("show");
+    document.body.classList.add("minicart-open");
+}
+
+
+function closeMiniCart() {
+    const drawer = document.getElementById("minicartDrawer");
+    const overlay = document.getElementById("minicartOverlay");
+    if (!drawer || !overlay) return;
+
+    drawer.classList.remove("open");
+    overlay.classList.remove("show");
+    document.body.classList.remove("minicart-open");
+}
+
+
+function goToCheckout() {
+    // If cart is empty, don't allow checkout
+    if (!cart || cart.length === 0) {
+        showToast("Your cart is empty.", "error");
+        return;
+    }
+    window.location.href = "/checkout";
+}
+
+
+function updateMiniCartCount() {
+    const countEl = document.getElementById("minicartCount");
+    if (!countEl) return;
+    let total = 0;
+    cart.forEach(item => { total += Number(item.quantity) || 0; });
+    countEl.textContent = `(${total})`;
+}
+
+
+function renderMiniCart() {
+    const container = document.getElementById("minicartItems");
+    const footer = document.getElementById("minicartFooter");
+    const subtotalEl = document.getElementById("minicartSubtotal");
+    if (!container) return;
+
+    container.innerHTML = "";
+    updateMiniCartCount();
+
+    // Empty state
+    if (!cart || cart.length === 0) {
+        container.innerHTML = `
+            <div class="minicart-empty">
+                <div class="minicart-empty-icon">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <h4>Your cart is empty</h4>
+                <p>Looks like you haven't added anything yet.</p>
+                <a href="/#products" class="minicart-empty-btn" onclick="closeMiniCart()">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    Start Shopping
+                </a>
+            </div>
+        `;
+        if (subtotalEl) subtotalEl.textContent = "0";
+        if (footer) footer.style.display = "none";
+        return;
+    }
+
+    if (footer) footer.style.display = "";
+
+    let subtotal = 0;
+
+    cart.forEach((item, index) => {
+        const price = Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 1;
+        const lineTotal = price * quantity;
+        subtotal += lineTotal;
+
+        // Customized color image
+        let itemImage = item.image;
+        if (item.is_customized && item.customization) {
+            const color = item.color || "white";
+            const colorImageMap = {
+                "white": "images/tshirts/tshirt-front.png",
+                "red": "images/tshirts/tshirt-red.png",
+                "green": "images/tshirts/tshirt-green.png",
+                "cream": "images/tshirts/tshirt-cream.png",
+                "pista": "images/tshirts/tshirt-pista.png",
+                "pink": "images/tshirts/tshirt-pink.png"
+            };
+            if (colorImageMap[color]) itemImage = colorImageMap[color];
+        }
+        const imgUrl = getImageUrl(itemImage);
+
+        // Variant chips
+        let variantLine = "";
+        if (item.size) variantLine += `<span class="minicart-variant">Size: ${escapeHTML(item.size)}</span>`;
+        if (item.color) variantLine += `<span class="minicart-variant">Color: ${escapeHTML(item.color)}</span>`;
+        if (item.is_customized) variantLine += `<span class="minicart-variant custom"><i class="fa-solid fa-palette"></i> Custom</span>`;
+
+        const row = document.createElement("div");
+        row.className = "minicart-item";
+        row.dataset.index = index;
+
+        row.innerHTML = `
+            <a href="/product/${Number(item.id)}" class="minicart-item-img-wrap" onclick="closeMiniCart()">
+                <img src="${escapeHTML(imgUrl)}" alt="${escapeHTML(item.name)}" loading="lazy">
+            </a>
+
+            <div class="minicart-item-info">
+                <h4 class="minicart-item-name">${escapeHTML(item.name)}</h4>
+                ${variantLine ? `<div class="minicart-item-variants">${variantLine}</div>` : ""}
+                <div class="minicart-item-price">₹${price.toLocaleString("en-IN")}</div>
+
+                <div class="minicart-item-controls">
+                    <div class="minicart-qty">
+                        <button type="button" class="minicart-qty-btn" data-action="decrease" data-index="${index}" aria-label="Decrease quantity">−</button>
+                        <span>${quantity}</span>
+                        <button type="button" class="minicart-qty-btn" data-action="increase" data-index="${index}" aria-label="Increase quantity">+</button>
+                    </div>
+                    <button type="button" class="minicart-remove" data-action="remove" data-index="${index}" aria-label="Remove item">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="minicart-line-total">₹${lineTotal.toLocaleString("en-IN")}</div>
+        `;
+
+        container.appendChild(row);
+    });
+
+    if (subtotalEl) subtotalEl.textContent = subtotal.toLocaleString("en-IN");
+}
+
+
+function registerMiniCart() {
+    const container = document.getElementById("minicartItems");
+    if (!container) return;
+
+    // Event delegation — qty +/- and remove
+    container.addEventListener("click", function(event) {
+        const btn = event.target.closest("button[data-action]");
+        if (!btn) return;
+        event.preventDefault();
+
+        const action = btn.dataset.action;
+        const index = Number(btn.dataset.index);
+        if (Number.isNaN(index) || index < 0 || index >= cart.length) return;
+
+        if (action === "increase") {
+            const newQty = Number(cart[index].quantity) + 1;
+            if (newQty > 10) {
+                showToast("Max 10 per item allowed.", "error");
+                return;
+            }
+            cart[index].quantity = newQty;
+            saveCart();
+            updateCartCount();
+            renderMiniCart();
+            if (document.getElementById("cart-items")) displayCart();
+        } else if (action === "decrease") {
+            const newQty = Number(cart[index].quantity) - 1;
+            if (newQty <= 0) {
+                cart.splice(index, 1);
+                showToast("Item removed from cart");
+            } else {
+                cart[index].quantity = newQty;
+            }
+            saveCart();
+            updateCartCount();
+            renderMiniCart();
+            if (document.getElementById("cart-items")) displayCart();
+        } else if (action === "remove") {
+            cart.splice(index, 1);
+            saveCart();
+            updateCartCount();
+            renderMiniCart();
+            if (document.getElementById("cart-items")) displayCart();
+            showToast("Item removed from cart");
+        }
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            const drawer = document.getElementById("minicartDrawer");
+            if (drawer && drawer.classList.contains("open")) {
+                closeMiniCart();
+            }
+        }
+    });
 }
 
 
@@ -621,7 +831,9 @@ function addCustomizedToCart() {
 
     saveCart();
     updateCartCount();
-    setTimeout(() => { window.location.href = "/cart"; }, 500);
+
+    // 🆕 Open mini-cart instead of redirect
+    setTimeout(() => { openMiniCart(); }, 300);
 }
 
 
@@ -890,6 +1102,9 @@ function addWishlistItemToCart(id) {
     saveCart();
     updateCartCount();
     showToast(`${product.name} added to cart!`);
+
+    // 🆕 Open mini-cart
+    openMiniCart();
 }
 
 
@@ -1336,6 +1551,9 @@ function addAllLookItems() {
         saveCart();
         updateCartCount();
         showToast(`${addedCount} items added to cart! 🛒`);
+
+        // 🆕 Open mini-cart
+        openMiniCart();
     }
 }
 
@@ -1346,7 +1564,7 @@ function addAllLookItems() {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v16.0 loaded — Coupon + Reviews sync ✅");
+    console.log("🚀 Zenith JS v16.1 loaded — Mini-Cart Drawer ✅");
 
     loadCart();
     loadWishlist();
@@ -1359,6 +1577,7 @@ document.addEventListener("DOMContentLoaded", function() {
     registerSizeButtons();
     registerColorButtons();
     registerBottomNav();
+    registerMiniCart(); // 🆕
 
     registerHeroCarousel();
     registerOfferTimer();
@@ -1366,6 +1585,7 @@ document.addEventListener("DOMContentLoaded", function() {
     updateCartCount();
     updateWishlistCount();
     updateBottomNavBadges();
+    renderMiniCart(); // 🆕
 
     if (document.getElementById("cart-items")) displayCart();
     if (document.getElementById("wishlist-items")) displayWishlist();

@@ -8,22 +8,11 @@
     <title>{% block title %}Zenith | Premium Fashion Store{% endblock %}</title>
 
     <!-- ================= CSS ================= -->
-    <!-- 1. Base — Variables, Reset, Typography, Common -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-
-    <!-- 2. Components — Header, Buttons, Cards, Forms -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-
-    <!-- 3. Pages — Homepage, Product, Cart, Checkout, Auth, etc. -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
-
-    <!-- 4. Filters — Products listing filters (price, size, color, sort) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/filters.css') }}">
-
-    <!-- 5. Customize — Design Studio (Color, Logo, Text, Font) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/customize.css') }}">
-
-    <!-- 6. Responsive — Media Queries (MUST be last) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 
     <!-- ================= GOOGLE FONTS ================= -->
@@ -36,7 +25,7 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- ================= HTML2CANVAS (for PNG download) ================= -->
+    <!-- ================= HTML2CANVAS ================= -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     {% block extra_head %}{% endblock %}
@@ -55,6 +44,55 @@
 
 <!-- ==================== MOBILE DRAWER ==================== -->
 {% include 'sections/mobile-drawer.html' %}
+
+
+<!-- ================================================== -->
+<!-- ✅ MINI-CART DRAWER (Titan Style) -->
+<!-- ================================================== -->
+
+<div class="minicart-overlay" id="minicartOverlay" onclick="closeMiniCart()"></div>
+
+<aside class="minicart-drawer" id="minicartDrawer">
+
+    <!-- Header -->
+    <div class="minicart-header">
+        <h3>
+            <i class="fa-solid fa-bag-shopping"></i>
+            Your Cart
+            <span id="minicartCount">(0)</span>
+        </h3>
+        <button type="button" class="minicart-close" onclick="closeMiniCart()" aria-label="Close cart">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- Items List -->
+    <div class="minicart-items" id="minicartItems">
+        <!-- JavaScript will render items here -->
+    </div>
+
+    <!-- Footer -->
+    <div class="minicart-footer" id="minicartFooter">
+        <div class="minicart-subtotal">
+            <span>Subtotal</span>
+            <strong>₹<span id="minicartSubtotal">0</span></strong>
+        </div>
+        <p class="minicart-tax-note">
+            <i class="fa-solid fa-circle-info"></i>
+            Shipping & taxes calculated at checkout
+        </p>
+        <a href="/cart" class="minicart-btn view-cart">
+            <i class="fa-solid fa-bag-shopping"></i>
+            View Cart
+        </a>
+        <button type="button" class="minicart-btn checkout" onclick="goToCheckout()">
+            <i class="fa-solid fa-lock"></i>
+            Checkout
+        </button>
+    </div>
+
+</aside>
+
 
 <!-- ==================== FLASH MESSAGES ==================== -->
 {% with messages = get_flashed_messages(with_categories=true) %}
