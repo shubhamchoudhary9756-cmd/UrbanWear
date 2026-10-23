@@ -1,10 +1,10 @@
 """
 Zenith — Email System
 Order confirmations, payment receipts, status updates, welcome emails
+✅ UPDATED: SendGrid API Integration (Bypasses Render SMTP block)
 """
 
-from flask import render_template_string, url_for
-from flask_mail import Message
+from flask import url_for
 from datetime import datetime
 
 # Ye import runtime pe inject honge (circular import avoid karne ke liye)
@@ -17,6 +17,16 @@ def init_email(mail_instance, app_instance):
     global mail, app
     mail = mail_instance
     app = app_instance
+
+
+# ==================================================
+# SENDGRID HELPER (Import from app.py locally to avoid circular import)
+# ==================================================
+
+def _send_via_sendgrid(to_email, subject, html_content):
+    # Ye function app.py mein defined hai
+    from app import send_email_via_sendgrid
+    return send_email_via_sendgrid(to_email, subject, html_content)
 
 
 # ==================================================
@@ -212,7 +222,7 @@ def _order_status_badge(status):
 
 def send_order_placed_email(order, user):
     """Send when COD order is placed"""
-    if not mail or not app:
+    if not app:
         return False
 
     try:
@@ -302,14 +312,11 @@ def send_order_placed_email(order, user):
                 </p>
             """
 
-            msg = Message(
-                subject=f"✅ Order Confirmed — #ZEN-{order.id:05d}",
-                recipients=[user.email],
-                html=_base_template(content)
-            )
-            mail.send(msg)
-            print(f"✅ Order placed email sent to {user.email}")
-            return True
+            subject = f"✅ Order Confirmed — #ZEN-{order.id:05d}"
+            html_content = _base_template(content)
+            
+            # Send via SendGrid
+            return _send_via_sendgrid(user.email, subject, html_content)
 
     except Exception as e:
         print(f"❌ Order placed email error: {e}")
@@ -322,7 +329,7 @@ def send_order_placed_email(order, user):
 
 def send_payment_success_email(order, user):
     """Send when Razorpay payment is verified"""
-    if not mail or not app:
+    if not app:
         return False
 
     try:
@@ -394,14 +401,11 @@ def send_payment_success_email(order, user):
                 </p>
             """
 
-            msg = Message(
-                subject=f"💳 Payment Received — #ZEN-{order.id:05d}",
-                recipients=[user.email],
-                html=_base_template(content)
-            )
-            mail.send(msg)
-            print(f"✅ Payment success email sent to {user.email}")
-            return True
+            subject = f"💳 Payment Received — #ZEN-{order.id:05d}"
+            html_content = _base_template(content)
+            
+            # Send via SendGrid
+            return _send_via_sendgrid(user.email, subject, html_content)
 
     except Exception as e:
         print(f"❌ Payment success email error: {e}")
@@ -414,7 +418,7 @@ def send_payment_success_email(order, user):
 
 def send_order_cancelled_email(order, user):
     """Send when order is cancelled (by user or admin)"""
-    if not mail or not app:
+    if not app:
         return False
 
     try:
@@ -480,14 +484,11 @@ def send_order_cancelled_email(order, user):
 
             """
 
-            msg = Message(
-                subject=f"Order Cancelled — #ZEN-{order.id:05d}",
-                recipients=[user.email],
-                html=_base_template(content)
-            )
-            mail.send(msg)
-            print(f"✅ Order cancelled email sent to {user.email}")
-            return True
+            subject = f"Order Cancelled — #ZEN-{order.id:05d}"
+            html_content = _base_template(content)
+            
+            # Send via SendGrid
+            return _send_via_sendgrid(user.email, subject, html_content)
 
     except Exception as e:
         print(f"❌ Order cancelled email error: {e}")
@@ -500,7 +501,7 @@ def send_order_cancelled_email(order, user):
 
 def send_status_update_email(order, user, old_status, new_status):
     """Send when admin updates order status"""
-    if not mail or not app:
+    if not app:
         return False
 
     # Skip email if no actual change
@@ -574,14 +575,11 @@ def send_status_update_email(order, user, old_status, new_status):
 
             """
 
-            msg = Message(
-                subject=f"Order Update — #ZEN-{order.id:05d} is now {new_status}",
-                recipients=[user.email],
-                html=_base_template(content)
-            )
-            mail.send(msg)
-            print(f"✅ Status update email sent to {user.email} ({old_status} → {new_status})")
-            return True
+            subject = f"Order Update — #ZEN-{order.id:05d} is now {new_status}"
+            html_content = _base_template(content)
+            
+            # Send via SendGrid
+            return _send_via_sendgrid(user.email, subject, html_content)
 
     except Exception as e:
         print(f"❌ Status update email error: {e}")
@@ -594,7 +592,7 @@ def send_status_update_email(order, user, old_status, new_status):
 
 def send_welcome_email(user):
     """Send when user signs up"""
-    if not mail or not app:
+    if not app:
         return False
 
     try:
@@ -641,14 +639,11 @@ def send_welcome_email(user):
                 </p>
             """
 
-            msg = Message(
-                subject="🎉 Welcome to Zenith — Here's 10% Off",
-                recipients=[user.email],
-                html=_base_template(content)
-            )
-            mail.send(msg)
-            print(f"✅ Welcome email sent to {user.email}")
-            return True
+            subject = "🎉 Welcome to Zenith — Here's 10% Off"
+            html_content = _base_template(content)
+            
+            # Send via SendGrid
+            return _send_via_sendgrid(user.email, subject, html_content)
 
     except Exception as e:
         print(f"❌ Welcome email error: {e}")
