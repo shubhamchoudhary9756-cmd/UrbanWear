@@ -195,6 +195,34 @@
         .step-label-nb { font-size: 10px; }
         .timeline-step-nb { width: auto; flex: 1; }
     }
+        /* Back Button Styling */
+    .back-btn-nb {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: transparent;
+        color: #1a1a1a;
+        border: 1.5px solid #1a1a1a;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+    .back-btn-nb:hover {
+        background: #1a1a1a;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    .back-btn-nb i {
+        transition: transform 0.3s ease;
+    }
+    .back-btn-nb:hover i {
+        transform: translateX(-4px); /* Hover pe arrow thoda left jayega */
+    }
 </style>
 
 <div class="order-details-page-nb">
@@ -326,11 +354,10 @@
 
     </div>
 
-    <div style="margin-top: 30px;">
-        <a href="{{ url_for('orders') }}" style="color: #c9a961; font-weight: 600; text-decoration: underline; font-size: 14px;">
+        <!-- ✅ Updated Back Button -->
+    <div style="margin-top: 40px; margin-bottom: 20px;">
+        <a href="{{ url_for('orders') }}" class="back-btn-nb">
             <i class="fa-solid fa-arrow-left"></i> Back to My Orders
         </a>
     </div>
-
-</div>
 {% endblock %}
