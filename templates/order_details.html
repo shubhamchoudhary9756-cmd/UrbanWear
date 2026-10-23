@@ -281,7 +281,8 @@
                             {% if item.color %}Color: {{ item.color }} | {% endif %}
                             Qty: {{ item.quantity }}
                         </div>
-                        <div class="order-item-price-nb">₹{{ (item.price * item.quantity)|int }}</div>
+                        <!-- ✅ CHANGED: |int to |inr -->
+                        <div class="order-item-price-nb">₹{{ (item.price * item.quantity)|inr }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -294,12 +295,14 @@
                 <div class="box-header-nb">Order Summary</div>
                 <div class="summary-row-nb">
                     <span>Subtotal</span>
-                    <span>₹{{ (order.total_amount + (order.discount_amount or 0))|int }}</span>
+                    <!-- ✅ CHANGED: |int to |inr -->
+                    <span>₹{{ (order.total_amount + (order.discount_amount or 0))|inr }}</span>
                 </div>
                 {% if order.discount_amount and order.discount_amount > 0 %}
                 <div class="summary-row-nb discount">
                     <span>Discount ({{ order.coupon_code }})</span>
-                    <span>- ₹{{ order.discount_amount|int }}</span>
+                    <!-- ✅ CHANGED: |int to |inr -->
+                    <span>- ₹{{ order.discount_amount|inr }}</span>
                 </div>
                 {% endif %}
                 <div class="summary-row-nb">
@@ -308,7 +311,8 @@
                 </div>
                 <div class="summary-row-nb total">
                     <span>Total Amount</span>
-                    <span>₹{{ order.total_amount|int }}</span>
+                    <!-- ✅ CHANGED: |int to |inr -->
+                    <span>₹{{ order.total_amount|inr }}</span>
                 </div>
             </div>
 

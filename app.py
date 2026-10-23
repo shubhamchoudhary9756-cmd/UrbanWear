@@ -14,6 +14,7 @@ Zenith - Flask E-Commerce Application
 + Review System: verified buyer reviews + admin moderation + auto rating update
 + ✅ Frontend Filters: price/size/color/category/sort/stock/sale
 + ✅ SendGrid Integration (Bypasses Render SMTP block)
++ ✅ Custom INR filter to remove .0 from prices
 """
 import warnings
 
@@ -269,7 +270,7 @@ def load_user(user_id):
 
 
 # ==================================================
-# JINJA FILTER — Smart Product Image URL
+# JINJA FILTERS
 # ==================================================
 
 @app.template_filter('product_image')
@@ -289,6 +290,18 @@ def product_image_filter(image_path):
         return image_path
 
     return url_for('static', filename=image_path)
+
+
+# ✅ NEW: INR Filter (Removes .0 from integers)
+@app.template_filter('inr')
+def inr_filter(value):
+    try:
+        val = float(value)
+        if val.is_integer():
+            return str(int(val))
+        return str(val)
+    except (ValueError, TypeError):
+        return str(value)
 
 
 # ==================================================

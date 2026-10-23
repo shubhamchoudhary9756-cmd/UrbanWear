@@ -202,7 +202,8 @@
                                 </div>
 
                                 <div class="order-item-price-nb">
-                                    <strong>₹{{ item.price * item.quantity }}</strong>
+                                    <!-- ✅ CHANGED: int to inr -->
+                                    <strong>₹{{ (item.price * item.quantity)|inr }}</strong>
                                 </div>
 
                             </div>
@@ -220,7 +221,8 @@
 
                         <div class="order-total-nb">
                             <span>Total Amount</span>
-                            <strong>₹{{ order.total_amount }}</strong>
+                            <!-- ✅ CHANGED: int to inr -->
+                            <strong>₹{{ order.total_amount|inr }}</strong>
                         </div>
 
                         <div class="order-actions-nb">
