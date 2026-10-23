@@ -24,10 +24,7 @@
 
     <div class="products-layout-nb">
 
-        <!-- ============================================ -->
-        <!-- FILTER SIDEBAR (Desktop) -->
-        <!-- ============================================ -->
-
+        <!-- FILTER SIDEBAR (Desktop + Mobile Drawer) -->
         <aside class="filters-sidebar-nb" id="filtersSidebar">
 
             <div class="filters-header-nb">
@@ -87,18 +84,10 @@
 
                     <!-- Quick price chips -->
                     <div class="price-chips-nb">
-                        <button type="button" class="price-chip-nb" data-min="0" data-max="999">
-                            Under ₹999
-                        </button>
-                        <button type="button" class="price-chip-nb" data-min="1000" data-max="1999">
-                            ₹1000 – ₹1999
-                        </button>
-                        <button type="button" class="price-chip-nb" data-min="2000" data-max="2999">
-                            ₹2000 – ₹2999
-                        </button>
-                        <button type="button" class="price-chip-nb" data-min="3000" data-max="">
-                            ₹3000+
-                        </button>
+                        <button type="button" class="price-chip-nb" data-min="0" data-max="999">Under ₹999</button>
+                        <button type="button" class="price-chip-nb" data-min="1000" data-max="1999">₹1000 – ₹1999</button>
+                        <button type="button" class="price-chip-nb" data-min="2000" data-max="2999">₹2000 – ₹2999</button>
+                        <button type="button" class="price-chip-nb" data-min="3000" data-max="">₹3000+</button>
                     </div>
                 </div>
 
@@ -134,8 +123,7 @@
 
                     <div class="filter-color-grid-nb">
                         {% for color in available_colors %}
-                            <label class="filter-color-option-nb"
-                                   title="{{ color|capitalize }}">
+                            <label class="filter-color-option-nb" title="{{ color|capitalize }}">
                                 <input type="checkbox"
                                        name="colors_multi"
                                        value="{{ color }}"
@@ -156,26 +144,18 @@
                     </h3>
 
                     <label class="filter-toggle-nb">
-                        <input type="checkbox"
-                               name="in_stock"
-                               value="1"
-                               {% if filter_state.in_stock %}checked{% endif %}>
+                        <input type="checkbox" name="in_stock" value="1" {% if filter_state.in_stock %}checked{% endif %}>
                         <span class="filter-toggle-slider-nb"></span>
                         <span class="filter-toggle-label-nb">
-                            <i class="fa-solid fa-box"></i>
-                            In Stock Only
+                            <i class="fa-solid fa-box"></i> In Stock Only
                         </span>
                     </label>
 
                     <label class="filter-toggle-nb">
-                        <input type="checkbox"
-                               name="on_sale"
-                               value="1"
-                               {% if filter_state.on_sale %}checked{% endif %}>
+                        <input type="checkbox" name="on_sale" value="1" {% if filter_state.on_sale %}checked{% endif %}>
                         <span class="filter-toggle-slider-nb"></span>
                         <span class="filter-toggle-label-nb">
-                            <i class="fa-solid fa-tag"></i>
-                            On Sale
+                            <i class="fa-solid fa-tag"></i> On Sale
                         </span>
                     </label>
                 </div>
@@ -186,14 +166,11 @@
                 <!-- ============ ACTIONS ============ -->
                 <div class="filters-actions-nb">
                     <button type="submit" class="filters-apply-btn-nb">
-                        <i class="fa-solid fa-check"></i>
-                        Apply Filters
+                        <i class="fa-solid fa-check"></i> Apply Filters
                     </button>
                     {% if active_filter_count > 0 %}
-                    <a href="{{ url_for('products') }}"
-                       class="filters-clear-btn-nb">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        Clear All
+                    <a href="{{ url_for('products') }}" class="filters-clear-btn-nb">
+                        <i class="fa-solid fa-rotate-left"></i> Clear All
                     </a>
                     {% endif %}
                 </div>
@@ -211,11 +188,8 @@
             <!-- Top bar — sort + mobile filter button + active chips -->
             <div class="products-toolbar-nb">
 
-                <button type="button"
-                        class="filters-toggle-btn-nb"
-                        id="filtersToggleBtn">
-                    <i class="fa-solid fa-sliders"></i>
-                    Filters
+                <button type="button" class="filters-toggle-btn-nb" id="filtersToggleBtn">
+                    <i class="fa-solid fa-sliders"></i> Filters
                     {% if active_filter_count > 0 %}
                         <span class="filters-count-badge">{{ active_filter_count }}</span>
                     {% endif %}
@@ -223,28 +197,15 @@
 
                 <div class="products-sort-nb">
                     <label for="sortSelect">
-                        <i class="fa-solid fa-arrow-down-wide-short"></i>
-                        Sort:
+                        <i class="fa-solid fa-arrow-down-wide-short"></i> Sort:
                     </label>
                     <select id="sortSelect" class="sort-select-nb">
-                        <option value="newest" {% if filter_state.sort == 'newest' or not filter_state.sort %}selected{% endif %}>
-                            Newest First
-                        </option>
-                        <option value="price_low" {% if filter_state.sort == 'price_low' %}selected{% endif %}>
-                            Price: Low → High
-                        </option>
-                        <option value="price_high" {% if filter_state.sort == 'price_high' %}selected{% endif %}>
-                            Price: High → Low
-                        </option>
-                        <option value="rating" {% if filter_state.sort == 'rating' %}selected{% endif %}>
-                            Top Rated
-                        </option>
-                        <option value="discount" {% if filter_state.sort == 'discount' %}selected{% endif %}>
-                            Biggest Discount
-                        </option>
-                        <option value="name_asc" {% if filter_state.sort == 'name_asc' %}selected{% endif %}>
-                            Name: A → Z
-                        </option>
+                        <option value="newest" {% if filter_state.sort == 'newest' or not filter_state.sort %}selected{% endif %}>Newest First</option>
+                        <option value="price_low" {% if filter_state.sort == 'price_low' %}selected{% endif %}>Price: Low → High</option>
+                        <option value="price_high" {% if filter_state.sort == 'price_high' %}selected{% endif %}>Price: High → Low</option>
+                        <option value="rating" {% if filter_state.sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                        <option value="discount" {% if filter_state.sort == 'discount' %}selected{% endif %}>Biggest Discount</option>
+                        <option value="name_asc" {% if filter_state.sort == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
                     </select>
                 </div>
 
@@ -266,27 +227,19 @@
                 {% endif %}
 
                 {% for s in filter_state.sizes %}
-                <span class="active-chip-nb">
-                    Size: {{ s|upper }}
-                </span>
+                <span class="active-chip-nb">Size: {{ s|upper }}</span>
                 {% endfor %}
 
                 {% for c in filter_state.colors %}
-                <span class="active-chip-nb">
-                    Color: {{ c|capitalize }}
-                </span>
+                <span class="active-chip-nb">Color: {{ c|capitalize }}</span>
                 {% endfor %}
 
                 {% if filter_state.in_stock %}
-                <span class="active-chip-nb">
-                    <i class="fa-solid fa-box"></i> In Stock
-                </span>
+                <span class="active-chip-nb"><i class="fa-solid fa-box"></i> In Stock</span>
                 {% endif %}
 
                 {% if filter_state.on_sale %}
-                <span class="active-chip-nb">
-                    <i class="fa-solid fa-tag"></i> On Sale
-                </span>
+                <span class="active-chip-nb"><i class="fa-solid fa-tag"></i> On Sale</span>
                 {% endif %}
 
                 <a href="{{ url_for('products') }}" class="active-chip-clear-nb">
@@ -346,8 +299,7 @@
                     <div class="product-info-nb">
 
                         <div class="product-rating-nb">
-                            <i class="fa-solid fa-star"></i>
-                            {{ product.rating }}
+                            <i class="fa-solid fa-star"></i> {{ product.rating }}
                         </div>
 
                         <h3 class="product-name-nb">
@@ -385,13 +337,11 @@
                 </p>
                 {% if active_filter_count > 0 %}
                     <a href="{{ url_for('products') }}" class="products-empty-btn-nb">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        Clear All Filters
+                        <i class="fa-solid fa-rotate-left"></i> Clear All Filters
                     </a>
                 {% else %}
                     <a href="/" class="products-empty-btn-nb">
-                        <i class="fa-solid fa-house"></i>
-                        Back to Home
+                        <i class="fa-solid fa-house"></i> Back to Home
                     </a>
                 {% endif %}
             </div>
@@ -410,7 +360,7 @@
 {% endblock %}
 
 
-{% block extra_js %}
+{% block extra_scripts %}
 <script>
 (function() {
     'use strict';
@@ -439,7 +389,6 @@
     if (closeBtn) closeBtn.addEventListener('click', closeFilters);
     if (backdrop) backdrop.addEventListener('click', closeFilters);
 
-    // ESC key closes drawer
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeFilters();
     });
@@ -453,18 +402,15 @@
         if (!form) return;
 
         ['sizes', 'colors'].forEach(function(field) {
-            // Remove old hidden inputs
             form.querySelectorAll('input[type="hidden"][name="' + field + '"]').forEach(function(el) {
                 el.remove();
             });
 
-            // Collect checked values
             const checked = form.querySelectorAll('input[name="' + field + '_multi"]:checked');
             if (checked.length === 0) return;
 
             const values = Array.from(checked).map(function(cb) { return cb.value; });
 
-            // Create hidden input with comma-separated values
             const hidden = document.createElement('input');
             hidden.type = 'hidden';
             hidden.name = field;
@@ -473,7 +419,6 @@
         });
     }
 
-    // Sync on form submit
     if (form) {
         form.addEventListener('submit', function() {
             syncMultiCheckboxes();
@@ -493,7 +438,6 @@
             if (minEl) minEl.value = min;
             if (maxEl) maxEl.value = max;
 
-            // Auto-submit form for quick UX
             if (form) {
                 syncMultiCheckboxes();
                 form.submit();
