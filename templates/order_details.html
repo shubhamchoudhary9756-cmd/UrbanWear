@@ -42,6 +42,7 @@
     .status-shipped { background: #d1ecf1; color: #0c5460; }
     .status-delivered { background: #d4edda; color: #155724; }
     .status-cancelled { background: #f8d7da; color: #721c24; }
+    .status-returned { background: #e2e3e5; color: #383d41; } /* NAYA: Returned status */
 
     /* TIMELINE CSS */
     .tracking-timeline-nb {
@@ -189,13 +190,54 @@
         line-height: 1.6;
     }
 
-    @media (max-width: 768px) {
-        .order-grid-nb { grid-template-columns: 1fr; }
-        .tracking-timeline-nb { padding: 30px 15px; }
-        .step-label-nb { font-size: 10px; }
-        .timeline-step-nb { width: auto; flex: 1; }
+    /* ✅ RETURN SECTION CSS */
+    .return-action-box {
+        margin-top: 30px;
+        padding: 20px;
+        background: #fff8e6;
+        border: 1px solid #f0e8d5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
     }
-        /* Back Button Styling */
+    .return-btn-nb {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: #dc3545;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .return-btn-nb:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+    .return-status-nb {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .return-status-nb.pending { background: #fff3cd; color: #856404; }
+    .return-status-nb.approved { background: #d4edda; color: #155724; }
+    .return-status-nb.rejected { background: #f8d7da; color: #721c24; }
+
+    /* Back Button Styling */
     .back-btn-nb {
         display: inline-flex;
         align-items: center;
@@ -221,7 +263,14 @@
         transition: transform 0.3s ease;
     }
     .back-btn-nb:hover i {
-        transform: translateX(-4px); /* Hover pe arrow thoda left jayega */
+        transform: translateX(-4px);
+    }
+
+    @media (max-width: 768px) {
+        .order-grid-nb { grid-template-columns: 1fr; }
+        .tracking-timeline-nb { padding: 30px 15px; }
+        .step-label-nb { font-size: 10px; }
+        .timeline-step-nb { width: auto; flex: 1; }
     }
 </style>
 
@@ -241,12 +290,11 @@
     </div>
 
     <!-- TRACKING TIMELINE -->
-    {% if order.status != 'cancelled' %}
+    {% if order.status not in ['cancelled', 'returned'] %}
     <div class="tracking-timeline-nb">
         <div class="timeline-steps-nb">
             
             <div class="timeline-line-nb">
-                <!-- Logic without inline style to prevent VS Code errors -->
                 {% if order.status == 'delivered' %}
                     <div class="timeline-line-fill-nb" style="width: 100%;"></div>
                 {% elif order.status == 'shipped' %}
@@ -258,37 +306,39 @@
                 {% endif %}
             </div>
 
-            <!-- Step 1: Pending -->
             <div class="timeline-step-nb active">
                 <div class="step-icon-nb"><i class="fa-solid fa-clipboard-check"></i></div>
                 <div class="step-label-nb">Order Placed</div>
                 <span class="step-date-nb">{{ order.created_at.strftime('%d %b') }}</span>
             </div>
 
-            <!-- Step 2: Processing -->
             <div class="timeline-step-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}active{% endif %}">
                 <div class="step-icon-nb"><i class="fa-solid fa-box-open"></i></div>
                 <div class="step-label-nb">Processing</div>
             </div>
 
-            <!-- Step 3: Shipped -->
             <div class="timeline-step-nb {% if order.status in ['shipped', 'delivered'] %}active{% endif %}">
                 <div class="step-icon-nb"><i class="fa-solid fa-truck-fast"></i></div>
                 <div class="step-label-nb">Shipped</div>
             </div>
 
-            <!-- Step 4: Delivered -->
             <div class="timeline-step-nb {% if order.status == 'delivered' %}active{% endif %}">
                 <div class="step-icon-nb"><i class="fa-solid fa-house-circle-check"></i></div>
                 <div class="step-label-nb">Delivered</div>
             </div>
         </div>
     </div>
-    {% else %}
+    {% elif order.status == 'cancelled' %}
     <div class="tracking-timeline-nb" style="border-color: #f8d7da; background: #fff5f5; text-align: center; padding: 40px;">
         <i class="fa-solid fa-circle-xmark" style="font-size: 40px; color: #dc3545; margin-bottom: 15px;"></i>
         <h3 style="color: #721c24; margin: 0 0 5px 0;">Order Cancelled</h3>
         <p style="color: #721c24; margin: 0; font-size: 14px;">This order was cancelled.</p>
+    </div>
+    {% elif order.status == 'returned' %}
+    <div class="tracking-timeline-nb" style="border-color: #e2e3e5; background: #f8f9fa; text-align: center; padding: 40px;">
+        <i class="fa-solid fa-rotate-left" style="font-size: 40px; color: #6c757d; margin-bottom: 15px;"></i>
+        <h3 style="color: #383d41; margin: 0 0 5px 0;">Order Returned</h3>
+        <p style="color: #383d41; margin: 0; font-size: 14px;">This order has been returned and refunded.</p>
     </div>
     {% endif %}
 
@@ -309,7 +359,6 @@
                             {% if item.color %}Color: {{ item.color }} | {% endif %}
                             Qty: {{ item.quantity }}
                         </div>
-                        <!-- ✅ CHANGED: |int to |inr -->
                         <div class="order-item-price-nb">₹{{ (item.price * item.quantity)|inr }}</div>
                     </div>
                 </div>
@@ -323,13 +372,11 @@
                 <div class="box-header-nb">Order Summary</div>
                 <div class="summary-row-nb">
                     <span>Subtotal</span>
-                    <!-- ✅ CHANGED: |int to |inr -->
                     <span>₹{{ (order.total_amount + (order.discount_amount or 0))|inr }}</span>
                 </div>
                 {% if order.discount_amount and order.discount_amount > 0 %}
                 <div class="summary-row-nb discount">
                     <span>Discount ({{ order.coupon_code }})</span>
-                    <!-- ✅ CHANGED: |int to |inr -->
                     <span>- ₹{{ order.discount_amount|inr }}</span>
                 </div>
                 {% endif %}
@@ -339,7 +386,6 @@
                 </div>
                 <div class="summary-row-nb total">
                     <span>Total Amount</span>
-                    <!-- ✅ CHANGED: |int to |inr -->
                     <span>₹{{ order.total_amount|inr }}</span>
                 </div>
             </div>
@@ -354,10 +400,41 @@
 
     </div>
 
-        <!-- ✅ Updated Back Button -->
+    <!-- ✅ RETURN SECTION -->
+    {% if order.status == 'delivered' and not order.return_status %}
+    <div class="return-action-box">
+        <div>
+            <h3 style="margin: 0 0 5px 0; color: #856404; font-size: 16px;">Not satisfied with the product?</h3>
+            <p style="margin: 0; color: #666; font-size: 13px;">You can return the item and get a refund.</p>
+        </div>
+        <a href="{{ url_for('return_order', order_id=order.id) }}" class="return-btn-nb">
+            <i class="fa-solid fa-rotate-left"></i> Return / Refund
+        </a>
+    </div>
+    {% elif order.return_status == 'pending' %}
+    <div class="return-action-box" style="background: #e6f4f9; border-color: #b8daff;">
+        <div>
+            <h3 style="margin: 0 0 5px 0; color: #004085; font-size: 16px;">Return Request Pending</h3>
+            <p style="margin: 0; color: #004085; font-size: 13px;">Admin is reviewing your return request.</p>
+        </div>
+        <span class="return-status-nb pending"><i class="fa-solid fa-clock"></i> Pending</span>
+    </div>
+    {% elif order.return_status == 'approved' %}
+    <div class="return-action-box" style="background: #d4edda; border-color: #c3e6cb;">
+        <div>
+            <h3 style="margin: 0 0 5px 0; color: #155724; font-size: 16px;">Return Approved</h3>
+            <p style="margin: 0; color: #155724; font-size: 13px;">Your refund has been processed successfully.</p>
+        </div>
+        <span class="return-status-nb approved"><i class="fa-solid fa-check-circle"></i> Approved</span>
+    </div>
+    {% endif %}
+
+    <!-- ✅ Updated Back Button -->
     <div style="margin-top: 40px; margin-bottom: 20px;">
         <a href="{{ url_for('orders') }}" class="back-btn-nb">
             <i class="fa-solid fa-arrow-left"></i> Back to My Orders
         </a>
     </div>
+
+</div>
 {% endblock %}

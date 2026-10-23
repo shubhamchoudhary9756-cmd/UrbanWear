@@ -15,6 +15,7 @@ Zenith - Flask E-Commerce Application
 + ✅ Frontend Filters: price/size/color/category/sort/stock/sale
 + ✅ SendGrid Integration (Bypasses Render SMTP block)
 + ✅ Custom INR filter to remove .0 from prices
++ ✅ Return & Refund System
 """
 import warnings
 
@@ -29,7 +30,7 @@ from flask import (
 )
 
 from config import Config
-from models import db, User, Order, OrderItem, Product, Coupon, Review, utc_now
+from models import db, User, Order, OrderItem, Product, Coupon, Review, ReturnRequest, utc_now
 
 from flask_login import (
     LoginManager,
@@ -1567,6 +1568,55 @@ def order_details(order_id):
 
 
 # ==================================================
+# ✅ RETURNS & REFUNDS — USER ROUTES
+# ==================================================
+
+@app.route("/order/<int:order_id>/return", methods=["GET", "POST"])
+@login_required
+def return_order(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.id:
+        abort(403)
+    
+    if order.status != "delivered":
+        flash("Only delivered orders can be returned.")
+        return redirect(url_for("orders"))
+
+    if order.return_status:
+        flash("Return already requested for this order.")
+        return redirect(url_for("order_details", order_id=order_id))
+
+    if request.method == "POST":
+        reason = sanitize_string(request.form.get("reason", ""), 255)
+        details = sanitize_string(request.form.get("details", ""), 500)
+        refund_details = sanitize_string(request.form.get("refund_account", ""), 255)
+
+        if not reason or not refund_details:
+            flash("Reason and Refund Details are required.")
+            return redirect(url_for("return_order", order_id=order_id))
+
+        # Update Order
+        order.return_status = "pending"
+        order.return_reason = f"{reason} - {details}"
+        order.refund_account_details = refund_details
+
+        # Create Return Request
+        new_return = ReturnRequest(
+            order_id=order.id,
+            user_id=current_user.id,
+            reason=reason,
+            details=details
+        )
+        db.session.add(new_return)
+        db.session.commit()
+
+        flash("Return request submitted successfully! Admin will review it shortly.")
+        return redirect(url_for("order_details", order_id=order_id))
+
+    return render_template("return_request.html", order=order)
+
+
+# ==================================================
 # REVIEWS — USER ROUTES
 # ==================================================
 
@@ -2632,6 +2682,31 @@ def admin_order_details(order_id):
 
 
 # ==================================================
+# ✅ ADMIN — RETURNS & REFUNDS
+# ==================================================
+
+@app.route("/admin/return/<int:order_id>/approve", methods=["POST"])
+@login_required
+@admin_required
+def admin_approve_return(order_id):
+    order = Order.query.get_or_404(order_id)
+    
+    if order.return_status != "pending":
+        flash("Invalid action.")
+        return redirect(url_for("admin_order_details", order_id=order_id))
+
+    order.return_status = "approved"
+    order.status = "returned"
+    
+    if order.return_request:
+        order.return_request.status = "approved"
+
+    db.session.commit()
+    flash(f"Return approved for Order #{order.id}. Refund marked as processed.")
+    return redirect(url_for("admin_order_details", order_id=order_id))
+
+
+# ==================================================
 # ERROR HANDLERS
 # ==================================================
 
@@ -2749,3 +2824,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     debug_mode = app.config.get("FLASK_ENV") != "production"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
+    

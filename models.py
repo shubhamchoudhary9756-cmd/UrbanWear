@@ -4,6 +4,7 @@ Zenith - Database Models
 + Coupon model for discount system
 + Review model for ratings & reviews system
 + ✅ Product sizes & colors for frontend filters
++ ✅ Return & Refund system
 """
 
 from flask_sqlalchemy import SQLAlchemy
@@ -257,6 +258,11 @@ class Order(db.Model):
     coupon_code = db.Column(db.String(50), nullable=True)
     discount_amount = db.Column(db.Float, default=0)
 
+    # ✅ RETURN FIELDS
+    return_status = db.Column(db.String(20), nullable=True) # pending, approved, rejected
+    return_reason = db.Column(db.String(255), nullable=True)
+    refund_account_details = db.Column(db.String(255), nullable=True)
+
     created_at = db.Column(db.DateTime, default=utc_now)
 
     # Relationships
@@ -289,6 +295,8 @@ class Order(db.Model):
             "shipping_address": self.shipping_address,
             "coupon_code": self.coupon_code,
             "discount_amount": self.discount_amount,
+            "return_status": self.return_status,
+            "return_reason": self.return_reason,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -519,3 +527,23 @@ class Review(db.Model):
                 else "?"
             ),
         }
+
+
+# ==================================================
+# ✅ RETURN REQUEST MODEL
+# ==================================================
+
+class ReturnRequest(db.Model):
+    __tablename__ = 'return_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    reason = db.Column(db.String(255), nullable=False)
+    details = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default="pending") # pending, approved, rejected
+    created_at = db.Column(db.DateTime, default=utc_now)
+
+    # Relationships
+    order = db.relationship('Order', backref='return_request')
+    user = db.relationship('User')
