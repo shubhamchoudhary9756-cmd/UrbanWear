@@ -13,6 +13,7 @@ Zenith - Flask E-Commerce Application
 + Email System: order confirmation + payment receipt + cancel + status + welcome
 + Review System: verified buyer reviews + admin moderation + auto rating update
 + ✅ Frontend Filters: price/size/color/category/sort/stock/sale
++ ✅ SendGrid Integration (Bypasses Render SMTP block)
 """
 import warnings
 
@@ -57,6 +58,7 @@ import json
 import os
 import uuid
 import razorpay
+import requests # ✅ NEW: SendGrid API ke liye
 from datetime import datetime, timedelta, timezone
 
 
@@ -118,6 +120,44 @@ db.init_app(app)
 # ==================================================
 
 mail = Mail(app)
+
+
+# ==================================================
+# SENDGRID API HELPER (Bypasses Render SMTP Block)
+# ==================================================
+
+def send_email_via_sendgrid(to_email, subject, html_content):
+    api_key = os.environ.get('SENDGRID_API_KEY')
+    if not api_key:
+        print("❌ SENDGRID_API_KEY is missing from environment variables!")
+        return False
+
+    # ⚠️ IMPORTANT: Yahan apni wo email daalo jo SendGrid pe verify ki hai
+    from_email = "shubhamchoudhary9756@gmail.com" 
+
+    url = "https://api.sendgrid.com/v3/mail/send"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "personalizations": [{"to": [{"email": to_email}]}],
+        "from": {"email": from_email, "name": "Zenith"},
+        "subject": subject,
+        "content": [{"type": "text/html", "value": html_content}]
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 202:
+            print(f"✅ Email sent to {to_email} via SendGrid")
+            return True
+        else:
+            print(f"❌ SendGrid Error ({response.status_code}): {response.text}")
+            return False
+    except Exception as e:
+        print(f"❌ SendGrid Request Failed: {e}")
+        return False
 
 
 # ==================================================
@@ -894,7 +934,7 @@ def logout():
 
 
 # ==================================================
-# FORGOT PASSWORD
+# FORGOT PASSWORD (UPDATED FOR SENDGRID) ✅
 # ==================================================
 
 @app.route("/forgot-password", methods=["GET", "POST"])
@@ -917,32 +957,31 @@ def forgot_password():
 
             reset_link = url_for("reset_password", token=token, _external=True)
 
-            try:
-                msg = Message(
-                    subject="Zenith - Password Reset Link",
-                    recipients=[email],
-                    html=f"""
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background: #faf8f5;">
-                        <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #c9a961;">
-                            <h1 style="color: #1a1a1a; font-family: Georgia, serif; margin: 0; font-size: 28px; letter-spacing: 3px;">ZENITH</h1>
-                            <p style="color: #c9a961; font-size: 12px; letter-spacing: 2px; margin: 5px 0 0 0;">WEAR THE PEAK</p>
-                        </div>
-                        <div style="padding: 40px 30px; background: #ffffff;">
-                            <h2 style="color: #1a1a1a; font-family: Georgia, serif; font-weight: 500;">Password Reset Request</h2>
-                            <p style="color: #555; line-height: 1.7; font-size: 15px;">Hi <strong>{user.full_name}</strong>,</p>
-                            <p style="color: #555; line-height: 1.7; font-size: 15px;">We received a request to reset your Zenith account password. Click the button below to create a new password.</p>
-                            <div style="text-align: center; margin: 35px 0;">
-                                <a href="{reset_link}" style="display: inline-block; padding: 16px 40px; background: #1a1a1a; color: #ffffff; text-decoration: none; letter-spacing: 1.5px; font-size: 13px; text-transform: uppercase; font-weight: 600;">Reset Password</a>
-                            </div>
-                            <p style="color: #999; font-size: 13px; line-height: 1.7;">This link will expire in <strong>1 hour</strong>.</p>
-                        </div>
-                        <div style="text-align: center; padding: 20px 0; color: #999; font-size: 12px;">© 2026 Zenith. All Rights Reserved.</div>
+            html_content = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background: #faf8f5;">
+                <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #c9a961;">
+                    <h1 style="color: #1a1a1a; font-family: Georgia, serif; margin: 0; font-size: 28px; letter-spacing: 3px;">ZENITH</h1>
+                    <p style="color: #c9a961; font-size: 12px; letter-spacing: 2px; margin: 5px 0 0 0;">WEAR THE PEAK</p>
+                </div>
+                <div style="padding: 40px 30px; background: #ffffff;">
+                    <h2 style="color: #1a1a1a; font-family: Georgia, serif; font-weight: 500;">Password Reset Request</h2>
+                    <p style="color: #555; line-height: 1.7; font-size: 15px;">Hi <strong>{user.full_name}</strong>,</p>
+                    <p style="color: #555; line-height: 1.7; font-size: 15px;">We received a request to reset your Zenith account password. Click the button below to create a new password.</p>
+                    <div style="text-align: center; margin: 35px 0;">
+                        <a href="{reset_link}" style="display: inline-block; padding: 16px 40px; background: #1a1a1a; color: #ffffff; text-decoration: none; letter-spacing: 1.5px; font-size: 13px; text-transform: uppercase; font-weight: 600;">Reset Password</a>
                     </div>
-                    """
-                )
-                mail.send(msg)
-            except Exception as e:
-                print(f"❌ Email Error: {e}")
+                    <p style="color: #999; font-size: 13px; line-height: 1.7;">This link will expire in <strong>1 hour</strong>.</p>
+                </div>
+                <div style="text-align: center; padding: 20px 0; color: #999; font-size: 12px;">© 2026 Zenith. All Rights Reserved.</div>
+            </div>
+            """
+
+            # ✅ Send via SendGrid API
+            send_email_via_sendgrid(
+                to_email=email,
+                subject="Zenith - Password Reset Link",
+                html_content=html_content
+            )
 
         flash("If this email is registered, a reset link has been sent.")
         return redirect(url_for("login"))
