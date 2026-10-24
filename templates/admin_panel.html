@@ -299,7 +299,7 @@
                                 </div>
 
                                 <div class="order-meta">
-                                    <span class="order-total">₹{{ order.total_amount }}</span>
+                                    <span class="order-total">₹{{ order.total_amount|inr }}</span>
                                     <span class="order-status {{ order.status }}">{{ order.status }}</span>
                                 </div>
 
@@ -567,7 +567,7 @@
                                 <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
 
                                 <td>
-                                    <span class="order-total-badge">₹{{ order.total_amount }}</span>
+                                    <span class="order-total-badge">₹{{ order.total_amount|inr }}</span>
                                 </td>
 
                                 <td>
@@ -576,12 +576,22 @@
                                     </span>
                                 </td>
 
-                                <td>
+                                <td style="display: flex; gap: 8px; align-items: center;">
                                     <a href="{{ url_for('admin_order_details', order_id=order.id) }}"
                                        class="admin-view-btn">
                                         <i class="fa-solid fa-eye"></i>
                                         View
                                     </a>
+
+                                    <!-- ✅ NAYA: RETURN APPROVE BUTTON (List page pe) -->
+                                    {% if order.return_status == 'pending' %}
+                                    <form method="POST" action="{{ url_for('admin_approve_return', order_id=order.id) }}" style="margin: 0;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="admin-view-btn" style="background: #28a745; border-color: #28a745; color: white; padding: 6px 10px;" onclick="return confirm('Approve this return?')">
+                                            <i class="fa-solid fa-rotate-left"></i> APPROVE
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                 </td>
 
                             </tr>
@@ -854,10 +864,10 @@
 
                                 <h3>{{ product.name }}</h3>
 
-                                <p class="product-price">₹{{ product.price }}</p>
+                                <p class="product-price">₹{{ product.price|inr }}</p>
 
                                 {% if product.old_price %}
-                                    <p class="product-old-price">₹{{ product.old_price }}</p>
+                                    <p class="product-old-price">₹{{ product.old_price|inr }}</p>
                                 {% endif %}
 
                                 <span class="product-category">{{ product.category }}</span>
@@ -984,10 +994,10 @@
 
                                 <h3 style="color: #999;">{{ product.name }}</h3>
 
-                                <p class="product-price" style="color: #999;">₹{{ product.price }}</p>
+                                <p class="product-price" style="color: #999;">₹{{ product.price|inr }}</p>
 
                                 {% if product.old_price %}
-                                    <p class="product-old-price" style="color: #bbb;">₹{{ product.old_price }}</p>
+                                    <p class="product-old-price" style="color: #bbb;">₹{{ product.old_price|inr }}</p>
                                 {% endif %}
 
                                 <span class="product-category" style="background: #f0f0f0; color: #999;">
