@@ -83,145 +83,97 @@
                 <div class="order-card-nb"
                      data-status="{{ order.status }}">
 
-                    <!-- ============================
-                            STATUS STRIP
-                    ============================ -->
-
+                    <!-- STATUS STRIP -->
                     <div class="order-status-strip-nb status-{{ order.status }}"></div>
 
-
-                    <!-- ============================
-                            HEADER
-                    ============================ -->
-
+                    <!-- HEADER -->
                     <div class="order-card-header-nb">
-
                         <div class="order-card-left-nb">
-
                             <div class="order-icon-nb">
                                 <i class="fa-solid fa-box"></i>
                             </div>
-
                             <div class="order-info-nb">
-
                                 <h3>Order #{{ order.id }}</h3>
-
                                 <span class="order-date-nb">
                                     <i class="fa-solid fa-calendar"></i>
                                     {{ order.created_at.strftime('%d %b %Y') }}
                                 </span>
-
                             </div>
-
                         </div>
-
                         <span class="order-status-pill-nb status-{{ order.status }}">
                             <i class="fa-solid fa-circle"></i>
                             {{ order.status|upper }}
                         </span>
-
                     </div>
 
-
-                    <!-- ============================
-                            TIMELINE (Progress)
-                    ============================ -->
-
-                    {% if order.status not in ['cancelled'] %}
-
+                    <!-- TIMELINE -->
+                    {% if order.status not in ['cancelled', 'returned'] %}
                     <div class="order-timeline-nb">
-
                         <div class="timeline-step-nb {% if order.status in ['pending', 'processing', 'shipped', 'delivered'] %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Placed</span>
                         </div>
-
                         <div class="timeline-line-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}done-nb{% endif %}"></div>
-
                         <div class="timeline-step-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Processing</span>
                         </div>
-
                         <div class="timeline-line-nb {% if order.status in ['shipped', 'delivered'] %}done-nb{% endif %}"></div>
-
                         <div class="timeline-step-nb {% if order.status in ['shipped', 'delivered'] %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Shipped</span>
                         </div>
-
                         <div class="timeline-line-nb {% if order.status == 'delivered' %}done-nb{% endif %}"></div>
-
                         <div class="timeline-step-nb {% if order.status == 'delivered' %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Delivered</span>
                         </div>
-
                     </div>
-
-                    {% else %}
-
+                    {% elif order.status == 'cancelled' %}
                     <div class="order-cancelled-banner-nb">
                         <i class="fa-solid fa-ban"></i>
                         <span>This order was cancelled</span>
                     </div>
-
+                    {% elif order.status == 'returned' %}
+                    <div class="order-cancelled-banner-nb" style="background: #f8f9fa; color: #6c757d;">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>This order has been returned</span>
+                    </div>
                     {% endif %}
 
 
-                    <!-- ============================
-                            ITEMS PREVIEW
-                    ============================ -->
-
+                    <!-- ITEMS PREVIEW -->
                     <div class="order-items-nb">
-
                         {% for item in order.items %}
-
                             <div class="order-item-row-nb">
-
                                 <div class="order-item-left-nb">
-
                                     <div class="order-item-icon-nb">
                                         <i class="fa-solid fa-cube"></i>
                                     </div>
-
                                     <div class="order-item-info-nb">
-
                                         <span class="order-item-name-nb">
                                             {{ item.product_name }}
                                         </span>
-
                                         <span class="order-item-meta-nb">
                                             Qty: {{ item.quantity }}
                                             {% if item.size %} • Size: {{ item.size }}{% endif %}
                                             {% if item.color %} • Color: {{ item.color }}{% endif %}
                                         </span>
-
                                     </div>
-
                                 </div>
-
                                 <div class="order-item-price-nb">
-                                    <!-- ✅ CHANGED: int to inr -->
                                     <strong>₹{{ (item.price * item.quantity)|inr }}</strong>
                                 </div>
-
                             </div>
-
                         {% endfor %}
-
                     </div>
 
 
-                    <!-- ============================
-                            FOOTER
-                    ============================ -->
-
+                    <!-- FOOTER -->
                     <div class="order-card-footer-nb">
 
                         <div class="order-total-nb">
                             <span>Total Amount</span>
-                            <!-- ✅ CHANGED: int to inr -->
                             <strong>₹{{ order.total_amount|inr }}</strong>
                         </div>
 
@@ -229,28 +181,39 @@
 
                             <a href="{{ url_for('order_details', order_id=order.id) }}"
                                class="order-view-btn-nb">
-
                                 <i class="fa-solid fa-eye"></i>
                                 View Details
-
                             </a>
 
-                            {% if order.status in ['pending', 'processing'] %}
+                            <!-- ✅ RETURN BUTTON LOGIC -->
+                            {% if order.status == 'delivered' and not order.return_status %}
+                                <a href="{{ url_for('return_order', order_id=order.id) }}" class="order-cancel-btn-nb" style="background: #fff3cd; color: #856404; border-color: #ffeeba;">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                    Return / Refund
+                                </a>
+                            {% endif %}
 
+                            {% if order.return_status == 'pending' %}
+                                <span class="order-status-pill-nb" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 8px 12px; border-radius: 4px; font-size: 12px;">
+                                    <i class="fa-solid fa-clock"></i> Return Pending
+                                </span>
+                            {% elif order.return_status == 'approved' %}
+                                <span class="order-status-pill-nb" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 8px 12px; border-radius: 4px; font-size: 12px;">
+                                    <i class="fa-solid fa-check-circle"></i> Returned
+                                </span>
+                            {% endif %}
+
+                            {% if order.status in ['pending', 'processing'] %}
                                 <form method="POST"
                                       action="{{ url_for('cancel_order', order_id=order.id) }}"
                                       onsubmit="return confirm('Are you sure you want to cancel this order?')"
                                       style="display: inline;">
-
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
                                     <button type="submit" class="order-cancel-btn-nb">
                                         <i class="fa-solid fa-ban"></i>
                                         Cancel
                                     </button>
-
                                 </form>
-
                             {% endif %}
 
                         </div>
@@ -266,28 +229,20 @@
 
     {% else %}
 
-        <!-- ============================================
-                        EMPTY STATE
-        ============================================ -->
-
+        <!-- EMPTY STATE -->
         <div class="orders-empty-nb">
-
             <div class="orders-empty-icon-nb">
                 <i class="fa-solid fa-box-open"></i>
             </div>
-
             <h2>No Orders Yet</h2>
-
             <p>
                 You haven't placed any orders yet.
                 Start exploring our collection and place your first order!
             </p>
-
             <a href="/#products" class="orders-empty-btn-nb">
                 <i class="fa-solid fa-bag-shopping"></i>
                 Start Shopping
             </a>
-
         </div>
 
     {% endif %}
