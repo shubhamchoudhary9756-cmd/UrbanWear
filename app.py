@@ -1522,7 +1522,10 @@ def order_success(order_id):
 def orders():
     user_orders = Order.query.options(
         joinedload(Order.items)
-    ).filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+    ).filter(
+        Order.user_id == current_user.id,
+        Order.status != 'cancelled'  # ✅ NAYA: Cancelled orders hide karo
+    ).order_by(Order.created_at.desc()).all()
     return render_template("orders.html", orders=user_orders)
 
 
@@ -2885,4 +2888,3 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     debug_mode = app.config.get("FLASK_ENV") != "production"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
-    

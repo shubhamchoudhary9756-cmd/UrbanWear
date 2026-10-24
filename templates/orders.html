@@ -62,12 +62,7 @@
                 <span>{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</span>
             </button>
 
-            <button type="button"
-                    class="order-filter-btn-nb"
-                    data-filter="cancelled">
-                Cancelled
-                <span>{{ orders|selectattr('status', 'equalto', 'cancelled')|list|length }}</span>
-            </button>
+            <!-- ❌ CANCELLED TAB REMOVED -->
 
         </div>
 
@@ -290,9 +285,8 @@
                         show = ["pending", "processing", "shipped"].includes(status);
                     } else if (filter === "completed") {
                         show = status === "delivered";
-                    } else if (filter === "cancelled") {
-                        show = status === "cancelled";
-                    }
+                    } 
+                    // ❌ Cancelled filter removed
 
                     if (show) {
                         card.style.display = "";
