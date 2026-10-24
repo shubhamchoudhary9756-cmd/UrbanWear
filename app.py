@@ -2749,10 +2749,33 @@ def initialize_database():
         try:
             db.create_all()
             print("✅ Database tables ready!")
+            
+            # ✅ TEMPORARY PATCH: Add missing columns if they don't exist
+            from sqlalchemy import text
+            try:
+                db.session.execute(text("ALTER TABLE orders ADD COLUMN IF NOT EXISTS return_status VARCHAR(20);"))
+                db.session.execute(text("ALTER TABLE orders ADD COLUMN IF NOT EXISTS return_reason VARCHAR(255);"))
+                db.session.execute(text("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_account_details VARCHAR(255);"))
+                db.session.execute(text("""
+                    CREATE TABLE IF NOT EXISTS return_requests (
+                        id SERIAL PRIMARY KEY,
+                        order_id INTEGER REFERENCES orders(id),
+                        user_id INTEGER REFERENCES users(id),
+                        reason VARCHAR(255) NOT NULL,
+                        details TEXT,
+                        status VARCHAR(20) DEFAULT 'pending',
+                        created_at TIMESTAMP
+                    );
+                """))
+                db.session.commit()
+                print("✅ Return columns & table patched!")
+            except Exception as patch_err:
+                db.session.rollback()
+                print(f"⚠️ Patch skipped: {patch_err}")
+
         except Exception as e:
             print(f"❌ DB create error: {e}")
             return
-
         # Admin user
         try:
             admin_email = app.config.get("ADMIN_EMAIL", "admin@zenith.com")
@@ -2824,4 +2847,3 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     debug_mode = app.config.get("FLASK_ENV") != "production"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
-    
