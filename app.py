@@ -16,6 +16,7 @@ Zenith - Flask E-Commerce Application
 + ✅ SendGrid Integration (Bypasses Render SMTP block)
 + ✅ Custom INR filter to remove .0 from prices
 + ✅ Return & Refund System
++ ✅ Admin Returns Tab
 """
 import warnings
 
@@ -1868,6 +1869,8 @@ def admin_panel():
     except Exception:
         pending_reviews_count = 0
 
+    pending_returns_count = Order.query.filter_by(return_status="pending").count()
+
     return render_template(
         "admin_panel.html", active_tab="dashboard",
         total_orders=total_orders, total_users=total_users,
@@ -1881,6 +1884,26 @@ def admin_panel():
         top_products=top_products, low_stock_products=low_stock_products,
         recent_orders=recent_orders, recent_users=recent_users,
         pending_reviews_count=pending_reviews_count,
+        pending_returns_count=pending_returns_count,
+    )
+
+
+# ==================================================
+# ✅ ADMIN — RETURNS
+# ==================================================
+
+@app.route("/admin/returns")
+@login_required
+@admin_required
+def admin_returns_tab():
+    pending_returns = Order.query.filter_by(return_status='pending').order_by(Order.created_at.desc()).all()
+    pending_returns_count = len(pending_returns)
+
+    return render_template(
+        "admin_panel.html", 
+        active_tab="returns",
+        pending_returns=pending_returns,
+        pending_returns_count=pending_returns_count
     )
 
 
@@ -1944,6 +1967,8 @@ def admin_orders_tab():
         "cancelled": Order.query.filter_by(status="cancelled").count(),
     }
 
+    pending_returns_count = Order.query.filter_by(return_status="pending").count()
+
     return render_template(
         "admin_panel.html", active_tab="orders",
         orders=orders_page, search_q=search_q,
@@ -1951,6 +1976,7 @@ def admin_orders_tab():
         current_page=page, total_pages=total_pages,
         total_count=total_count, per_page=per_page,
         status_counts=status_counts, valid_statuses=valid_statuses,
+        pending_returns_count=pending_returns_count,
     )
 
 
@@ -2005,6 +2031,8 @@ def admin_products_tab():
     active_count = Product.query.filter_by(is_active=True).count()
     deleted_count = Product.query.filter_by(is_active=False).count()
 
+    pending_returns_count = Order.query.filter_by(return_status="pending").count()
+
     return render_template(
         "admin_panel.html", active_tab="products",
         products=products_page,
@@ -2014,6 +2042,7 @@ def admin_products_tab():
         search_q=search_q, category_filter=category_filter, sort_by=sort_by,
         current_page=page, total_pages=total_pages,
         total_count=total_count, per_page=per_page,
+        pending_returns_count=pending_returns_count,
     )
 
 
@@ -2072,6 +2101,8 @@ def admin_users_tab():
         ).group_by(Order.user_id).all()
         order_counts = {uid: cnt for uid, cnt in rows}
 
+    pending_returns_count = Order.query.filter_by(return_status="pending").count()
+
     return render_template(
         "admin_panel.html", active_tab="users",
         users=users_page, search_q=search_q,
@@ -2081,6 +2112,7 @@ def admin_users_tab():
         total_users_all=total_users_all,
         admin_count=admin_count, regular_count=regular_count,
         order_counts=order_counts,
+        pending_returns_count=pending_returns_count,
     )
 
 
@@ -2142,6 +2174,8 @@ def admin_coupons_tab():
         Coupon.expiry_date.isnot(None), Coupon.expiry_date < now
     ).count()
 
+    pending_returns_count = Order.query.filter_by(return_status="pending").count()
+
     return render_template(
         "admin_panel.html", active_tab="coupons",
         coupons=coupons_page, search_q=search_q,
@@ -2152,6 +2186,7 @@ def admin_coupons_tab():
         active_count=active_count,
         inactive_count=inactive_count,
         expired_count=expired_count,
+        pending_returns_count=pending_returns_count,
     )
 
 
@@ -2369,6 +2404,8 @@ def admin_reviews_tab():
     approved_count = Review.query.filter_by(is_approved=True).count()
     avg_all = db.session.query(db.func.avg(Review.rating)).scalar() or 0
 
+    pending_returns_count = Order.query.filter_by(return_status="pending").count()
+
     return render_template(
         "admin_panel.html",
         active_tab="reviews",
@@ -2385,6 +2422,7 @@ def admin_reviews_tab():
         pending_count=pending_count,
         approved_count=approved_count,
         avg_all=round(float(avg_all), 1),
+        pending_returns_count=pending_returns_count,
     )
 
 
@@ -2693,7 +2731,7 @@ def admin_approve_return(order_id):
     
     if order.return_status != "pending":
         flash("Invalid action.")
-        return redirect(url_for("admin_order_details", order_id=order_id))
+        return redirect(url_for("admin_returns_tab"))
 
     order.return_status = "approved"
     order.status = "returned"
@@ -2703,7 +2741,7 @@ def admin_approve_return(order_id):
 
     db.session.commit()
     flash(f"Return approved for Order #{order.id}. Refund marked as processed.")
-    return redirect(url_for("admin_order_details", order_id=order_id))
+    return redirect(url_for("admin_returns_tab"))
 
 
 # ==================================================
@@ -2847,3 +2885,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     debug_mode = app.config.get("FLASK_ENV") != "production"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
+    

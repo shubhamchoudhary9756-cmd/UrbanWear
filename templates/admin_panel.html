@@ -720,6 +720,119 @@
 
 
 <!-- ============================================ -->
+<!-- ✅ RETURNS TAB (NEW) -->
+<!-- ============================================ -->
+
+{% if active_tab == 'returns' %}
+
+    <div class="admin-content">
+
+        <div class="admin-content-header">
+            <h1>
+                <i class="fa-solid fa-rotate-left"></i>
+                Return Requests
+            </h1>
+            <p>Manage customer return & refund requests</p>
+        </div>
+
+        {% if pending_returns and pending_returns|length > 0 %}
+
+            <div class="admin-orders-table">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Reason</th>
+                            <th>Refund Details</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for order in pending_returns %}
+
+                            <tr>
+                                <td>
+                                    <span class="order-id-badge">#{{ order.id }}</span>
+                                </td>
+
+                                <td>
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">
+                                            {{ order.user.full_name[0]|upper }}
+                                        </div>
+                                        <div>
+                                            <div>{{ order.user.full_name }}</div>
+                                            <small style="color: #999; font-size: 11px;">
+                                                {{ order.user.email }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+
+                                <td>
+                                    <span style="font-size: 13px; color: #666;">
+                                        {{ order.return_reason }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span style="font-size: 13px; font-weight: 600; color: #1a1a1a;">
+                                        {{ order.refund_account_details }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="{{ url_for('admin_order_details', order_id=order.id) }}" class="admin-view-btn">
+                                            <i class="fa-solid fa-eye"></i> View
+                                        </a>
+
+                                        <form method="POST" action="{{ url_for('admin_approve_return', order_id=order.id) }}" style="margin: 0;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="admin-view-btn" style="background: #28a745; border-color: #28a745; color: white;" onclick="return confirm('Approve this return?')">
+                                                <i class="fa-solid fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-orders">
+                <div class="empty-orders-icon">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </div>
+                <h2>No Pending Returns</h2>
+                <p>There are no return requests at the moment.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+
+
+<!-- ============================================ -->
 <!-- PRODUCTS TAB -->
 <!-- ============================================ -->
 
