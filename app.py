@@ -17,6 +17,7 @@ Zenith - Flask E-Commerce Application
 + ✅ Custom INR filter to remove .0 from prices
 + ✅ Return & Refund System
 + ✅ Admin Returns Tab
++ ✅ Color-wise Product Images
 """
 import warnings
 
@@ -2509,6 +2510,8 @@ def admin_add_product():
         # ✅ NEW: sizes + colors + brand
         sizes = sanitize_string(request.form.get("sizes", ""), 255)
         colors = sanitize_string(request.form.get("colors", ""), 255)
+        # ✅ NEW: Color Images JSON
+        color_images_json = sanitize_string(request.form.get("color_images", ""), 2000)
         brand = sanitize_string(request.form.get("brand", "Zenith"), 100)
 
         image = save_uploaded_file(request.files.get("image_file")) or sanitize_string(request.form.get("image", ""), 500)
@@ -2533,6 +2536,7 @@ def admin_add_product():
                 description=description, category=category,
                 subcategory=subcategory, stock=max(0, stock),
                 sizes=sizes, colors=colors, brand=brand or "Zenith",
+                color_images=color_images_json or None,
                 is_active=True
             )
             db.session.add(new_product)
@@ -2576,6 +2580,8 @@ def admin_edit_product(product_id):
             # ✅ NEW: sizes + colors + brand
             product.sizes = sanitize_string(request.form.get("sizes", ""), 255)
             product.colors = sanitize_string(request.form.get("colors", ""), 255)
+            # ✅ NEW: Color Images JSON
+            product.color_images = sanitize_string(request.form.get("color_images", ""), 2000) or None
             product.brand = sanitize_string(request.form.get("brand", "Zenith"), 100) or "Zenith"
 
             for field in ["image", "image2", "image3", "image4"]:

@@ -166,8 +166,12 @@ class Product(db.Model):
     def color_list(self):
         """Return list of colors from comma-separated string"""
         if not self.colors:
-            return []
-        return [c.strip() for c in self.colors.split(",") if c.strip()]
+            return []        
+            return [c.strip() for c in self.colors.split(",") if c.strip()]
+        
+        # ✅ NEW: Color-wise images mapping (JSON format)
+        # e.g. '{"black": "images/products/black-tshirt.jpg", "white": "..."}'
+        color_images = db.Column(db.Text, nullable=True) 
 
     @property
     def review_count(self):

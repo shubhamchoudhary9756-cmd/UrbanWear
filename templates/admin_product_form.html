@@ -101,6 +101,35 @@
                 </p>
             </div>
 
+            <!-- ✅ NAYA: Sizes + Colors + Brand -->
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="sizes">Sizes</label>
+                    <input type="text" id="sizes" name="sizes"
+                           value="{{ product.sizes if product and product.sizes else '' }}"
+                           placeholder="S,M,L,XL,XXL">
+                    <p class="form-hint-small"><i class="fa-solid fa-info-circle"></i> Comma-separated</p>
+                </div>
+                <div class="form-group half">
+                    <label for="colors">Colors</label>
+                    <input type="text" id="colors" name="colors"
+                           value="{{ product.colors if product and product.colors else '' }}"
+                           placeholder="white,black,blue">
+                    <p class="form-hint-small"><i class="fa-solid fa-info-circle"></i> Comma-separated</p>
+                </div>
+            </div>
+
+            <!-- ✅ NAYA: Color Images JSON -->
+            <div class="form-group">
+                <label for="color_images">Color Images (JSON format) <span class="optional-badge">Optional</span></label>
+                <textarea id="color_images" name="color_images" rows="3"
+                          placeholder='{"white": "images/products/white-tshirt.jpg", "black": "images/products/black-tshirt.jpg"}' style="font-family: monospace;">{{ product.color_images if product and product.color_images else '' }}</textarea>
+                <p class="form-hint-small">
+                    <i class="fa-solid fa-info-circle"></i>
+                    Format: <code>{"color_name": "image_path"}</code>. Provide valid JSON.
+                </p>
+            </div>
+
             <div class="form-group">
                 <label for="rating">Rating (0-5)</label>
                 <input type="number" id="rating" name="rating" step="0.1" min="0" max="5"

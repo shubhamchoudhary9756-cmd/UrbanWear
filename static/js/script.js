@@ -1,18 +1,20 @@
 // ==================================================
-// Zenith JavaScript v16.1
+// Zenith JavaScript v16.3
 // CART + WISHLIST + MOBILE DRAWER + SEARCH + BADGES
 // + HERO CAROUSEL (SWIPE FIXED ✅)
 // + GLOBAL OFFER TIMER ✅
 // + SHOP THE LOOK ✅
-// + CUSTOMIZATION STUDIO ✅ (COLOR + LOGO + TEXT + FONT)
+// + CUSTOMIZATION STUDIO ✅
 // + COLOR-SPECIFIC IMAGES ✅
 // + CART HORIZONTAL COMPACT LAYOUT ✅
 // + QUICK ADD — CAPTURE PHASE FIX ✅
-// + LAZY LOADING FOR CART & WISHLIST IMAGES ✅
-// + COUPON SYNC (CART ↔ CHECKOUT) ✅
-// + COUPON CSS INJECTION (bypass cache) ✅
-// + REVIEWS CSS INJECTION (bypass cache) ✅
-// + MINI-CART SIDE DRAWER (TITAN STYLE) ✅ 🆕
+// + LAZY LOADING ✅
+// + COUPON SYNC ✅
+// + COUPON CSS INJECTION ✅
+// + REVIEWS CSS INJECTION ✅
+// + MINI-CART SIDE DRAWER (TITAN STYLE) ✅
+// + RECENTLY VIEWED PRODUCTS ✅
+// + DYNAMIC COLOR IMAGES 🆕
 // ==================================================
 
 "use strict";
@@ -224,7 +226,6 @@ function addToCart(button) {
     if (color) message += ` (Color: ${color})`;
     showToast(message);
 
-    // 🆕 Titan-style: open mini-cart drawer
     openMiniCart();
 }
 
@@ -458,7 +459,7 @@ function changeQuantityByIndex(index, change) {
     saveCart();
     updateCartCount();
     displayCart();
-    renderMiniCart(); // 🆕 keep drawer synced
+    renderMiniCart();
 }
 
 
@@ -468,12 +469,12 @@ function removeItemByIndex(index) {
     saveCart();
     updateCartCount();
     displayCart();
-    renderMiniCart(); // 🆕 keep drawer synced
+    renderMiniCart();
 }
 
 
 // ==================================================
-// 🆕 MINI-CART SIDE DRAWER (TITAN STYLE)
+// MINI-CART SIDE DRAWER (TITAN STYLE)
 // ==================================================
 
 function openMiniCart() {
@@ -500,7 +501,6 @@ function closeMiniCart() {
 
 
 function goToCheckout() {
-    // If cart is empty, don't allow checkout
     if (!cart || cart.length === 0) {
         showToast("Your cart is empty.", "error");
         return;
@@ -527,7 +527,6 @@ function renderMiniCart() {
     container.innerHTML = "";
     updateMiniCartCount();
 
-    // Empty state
     if (!cart || cart.length === 0) {
         container.innerHTML = `
             <div class="minicart-empty">
@@ -557,7 +556,6 @@ function renderMiniCart() {
         const lineTotal = price * quantity;
         subtotal += lineTotal;
 
-        // Customized color image
         let itemImage = item.image;
         if (item.is_customized && item.customization) {
             const color = item.color || "white";
@@ -573,7 +571,6 @@ function renderMiniCart() {
         }
         const imgUrl = getImageUrl(itemImage);
 
-        // Variant chips
         let variantLine = "";
         if (item.size) variantLine += `<span class="minicart-variant">Size: ${escapeHTML(item.size)}</span>`;
         if (item.color) variantLine += `<span class="minicart-variant">Color: ${escapeHTML(item.color)}</span>`;
@@ -619,7 +616,6 @@ function registerMiniCart() {
     const container = document.getElementById("minicartItems");
     if (!container) return;
 
-    // Event delegation — qty +/- and remove
     container.addEventListener("click", function(event) {
         const btn = event.target.closest("button[data-action]");
         if (!btn) return;
@@ -662,7 +658,6 @@ function registerMiniCart() {
         }
     });
 
-    // Close on Escape
     document.addEventListener("keydown", function(event) {
         if (event.key === "Escape") {
             const drawer = document.getElementById("minicartDrawer");
@@ -675,7 +670,7 @@ function registerMiniCart() {
 
 
 // ==================================================
-// COUPON HELPERS — CART ↔ CHECKOUT SYNC
+// COUPON HELPERS
 // ==================================================
 
 function clearCouponIfCartEmpty() {
@@ -832,7 +827,6 @@ function addCustomizedToCart() {
     saveCart();
     updateCartCount();
 
-    // 🆕 Open mini-cart instead of redirect
     setTimeout(() => { openMiniCart(); }, 300);
 }
 
@@ -1103,7 +1097,6 @@ function addWishlistItemToCart(id) {
     updateCartCount();
     showToast(`${product.name} added to cart!`);
 
-    // 🆕 Open mini-cart
     openMiniCart();
 }
 
@@ -1552,7 +1545,6 @@ function addAllLookItems() {
         updateCartCount();
         showToast(`${addedCount} items added to cart! 🛒`);
 
-        // 🆕 Open mini-cart
         openMiniCart();
     }
 }
@@ -1564,7 +1556,7 @@ function addAllLookItems() {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    console.log("🚀 Zenith JS v16.1 loaded — Mini-Cart Drawer ✅");
+    console.log("🚀 Zenith JS v16.3 loaded — Dynamic Colors ✅");
 
     loadCart();
     loadWishlist();
@@ -1577,7 +1569,7 @@ document.addEventListener("DOMContentLoaded", function() {
     registerSizeButtons();
     registerColorButtons();
     registerBottomNav();
-    registerMiniCart(); // 🆕
+    registerMiniCart();
 
     registerHeroCarousel();
     registerOfferTimer();
@@ -1585,19 +1577,23 @@ document.addEventListener("DOMContentLoaded", function() {
     updateCartCount();
     updateWishlistCount();
     updateBottomNavBadges();
-    renderMiniCart(); // 🆕
+    renderMiniCart();
 
     if (document.getElementById("cart-items")) displayCart();
     if (document.getElementById("wishlist-items")) displayWishlist();
 
     const clearBtn = document.getElementById("clear-wishlist");
     if (clearBtn) clearBtn.addEventListener("click", clearWishlist);
+
+    if (document.getElementById("recently-viewed-container")) {
+        trackRecentlyViewed();
+        displayRecentlyViewed();
+    }
 });
 
 
 // ==================================================
 // COUPON DROPDOWN — JAVASCRIPT CSS INJECTION
-// Bypass CSS file caching issue ✅
 // ==================================================
 
 (function injectCouponStyles() {
@@ -1831,7 +1827,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // ==================================================
 // REVIEWS — JAVASCRIPT CSS INJECTION
-// Bypass CSS file caching/override issue ✅
 // ==================================================
 
 (function injectReviewsStyles() {
@@ -2014,7 +2009,83 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // ==================================================
-// APPLY BAR WIDTHS AFTER RENDER (for review distribution bars)
+// RECENTLY VIEWED — SCRIPT TAG SE DATA READ KARO
+// ==================================================
+
+function trackRecentlyViewed() {
+    const scriptTag = document.getElementById('product-data-script');
+    if (!scriptTag) return;
+    
+    let product = null;
+    try {
+        product = JSON.parse(scriptTag.textContent);
+    } catch (e) {
+        console.error("Product data parse error", e);
+        return;
+    }
+
+    if (product) {
+        let recentlyViewed = JSON.parse(localStorage.getItem('zenith_recently_viewed')) || [];
+        
+        recentlyViewed = recentlyViewed.filter(item => Number(item.id) !== Number(product.id));
+        
+        recentlyViewed.unshift({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            rating: product.rating
+        });
+
+        if (recentlyViewed.length > 6) {
+            recentlyViewed = recentlyViewed.slice(0, 6);
+        }
+
+        localStorage.setItem('zenith_recently_viewed', JSON.stringify(recentlyViewed));
+    }
+}
+
+function displayRecentlyViewed() {
+    const container = document.getElementById("recently-viewed-container");
+    if (!container) return;
+
+    let recentlyViewed = JSON.parse(localStorage.getItem('zenith_recently_viewed')) || [];
+    
+    const scriptTag = document.getElementById('product-data-script');
+    if (scriptTag) {
+        try {
+            const currentProduct = JSON.parse(scriptTag.textContent);
+            recentlyViewed = recentlyViewed.filter(item => Number(item.id) !== Number(currentProduct.id));
+        } catch (e) {}
+    }
+
+    if (recentlyViewed.length === 0) {
+        container.closest('.recently-viewed-section').style.display = 'none';
+        return;
+    }
+
+    container.innerHTML = "";
+    
+    recentlyViewed.forEach(product => {
+        const imageUrl = getImageUrl(product.image);
+        const card = document.createElement("div");
+        card.className = "recent-card-nb";
+        card.innerHTML = `
+            <a href="/product/${product.id}" class="recent-img-wrap">
+                <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(product.name)}" loading="lazy">
+            </a>
+            <div class="recent-info">
+                <h4><a href="/product/${product.id}">${escapeHTML(product.name)}</a></h4>
+                <div class="recent-price">₹${Number(product.price).toLocaleString("en-IN")}</div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+
+// ==================================================
+// APPLY BAR WIDTHS AFTER RENDER
 // ==================================================
 
 document.addEventListener("DOMContentLoaded", function() {

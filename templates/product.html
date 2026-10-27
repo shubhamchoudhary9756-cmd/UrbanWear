@@ -4,6 +4,16 @@
 
 {% block content %}
 
+<script id="product-data-script" type="application/json">
+    {
+        "id": {{ product.id }},
+        "name": "{{ product.name|e }}",
+        "price": {{ product.price }},
+        "image": "{{ product.image }}",
+        "rating": {{ product.rating }}
+    }
+</script>
+
 <!-- ==================================================
                     BREADCRUMB
 ================================================== -->
@@ -92,11 +102,11 @@
             </div>
 
             <div class="price-nb">
-                <span class="current-price-nb">₹{{ product.price }}</span>
+                <span class="current-price-nb">₹{{ product.price|inr }}</span>
                 {% if product.old_price and product.old_price > product.price %}
-                    <span class="old-price-nb">₹{{ product.old_price }}</span>
+                    <span class="old-price-nb">₹{{ product.old_price|inr }}</span>
                     <span class="save-badge-nb">
-                        Save ₹{{ product.old_price - product.price }}
+                        Save ₹{{ (product.old_price - product.price)|inr }}
                     </span>
                 {% endif %}
             </div>
@@ -108,22 +118,24 @@
 
             <div class="option-block-nb">
                 <h3 class="option-title-nb">
-                    Color: <span id="selected-color-nb">Black</span>
+                    Color: <span id="selected-color-nb">{{ product.color_list[0]|capitalize if product.color_list else 'Black' }}</span>
                 </h3>
 
-                <div class="color-options-nb">
-                    <span class="color-nb black-nb" data-color="Black" title="Black" onclick="selectColor(this)"></span>
-                    <span class="color-nb white-nb" data-color="White" title="White" onclick="selectColor(this)"></span>
-                    <span class="color-nb blue-nb" data-color="Blue" title="Blue" onclick="selectColor(this)"></span>
-                    <span class="color-nb gold-nb" data-color="Gold" title="Gold" onclick="selectColor(this)"></span>
+                <div class="color-options-nb" id="color-options-container">
+                    <!-- JS will populate these -->
                 </div>
+                
+                <!-- Yahan JSON data store kar rahe hain color images ke liye -->
+                <script id="color-images-data" type="application/json">
+                    {{ product.color_images if product.color_images else '{}' }}
+                </script>
             </div>
 
 
             <div class="option-block-nb">
                 <div class="size-header-nb">
                     <h3 class="option-title-nb">
-                        Select Size: <span id="selected-size-nb">M</span>
+                        Select Size: <span id="selected-size-nb">{{ product.size_list[0]|upper if product.size_list else 'M' }}</span>
                     </h3>
                     <button type="button" class="size-guide-nb">
                         <i class="fa-solid fa-ruler"></i> Size Guide
@@ -131,11 +143,9 @@
                 </div>
 
                 <div class="size-options-nb">
-                    <button type="button" class="size-btn-nb" data-size="S" onclick="selectSize(this)">S</button>
-                    <button type="button" class="size-btn-nb active" data-size="M" onclick="selectSize(this)">M</button>
-                    <button type="button" class="size-btn-nb" data-size="L" onclick="selectSize(this)">L</button>
-                    <button type="button" class="size-btn-nb" data-size="XL" onclick="selectSize(this)">XL</button>
-                    <button type="button" class="size-btn-nb" data-size="XXL" onclick="selectSize(this)">XXL</button>
+                    {% for size in product.size_list %}
+                        <button type="button" class="size-btn-nb {% if loop.first %}active{% endif %}" data-size="{{ size }}" onclick="selectSize(this)">{{ size }}</button>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -503,9 +513,9 @@
 
 <div class="sticky-buy-nb">
     <div class="sticky-price-nb">
-        <span>₹{{ product.price }}</span>
+        <span>₹{{ product.price|inr }}</span>
         {% if product.old_price and product.old_price > product.price %}
-            <del>₹{{ product.old_price }}</del>
+            <del>₹{{ product.old_price|inr }}</del>
         {% endif %}
     </div>
 
@@ -540,14 +550,21 @@
                      loading="lazy">
             </a>
             <h3><a href="/product/{{ rp.id }}">{{ rp.name }}</a></h3>
-            <p>₹{{ rp.price }}
-                {% if rp.old_price %}<span>₹{{ rp.old_price }}</span>{% endif %}
+            <p>₹{{ rp.price|inr }}
+                {% if rp.old_price %}<span>₹{{ rp.old_price|inr }}</span>{% endif %}
             </p>
         </div>
         {% endfor %}
     </div>
 </section>
 {% endif %}
+
+
+<!-- 🆕 RECENTLY VIEWED SECTION (MOVED HERE) -->
+<section class="recently-viewed-section" style="padding: 40px 8%; background: #faf8f5; border-top: 1px solid #e8e2d9;">
+    <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 20px; color: #1a1a1a;">Recently Viewed</h2>
+    <div id="recently-viewed-container" class="recent-viewed-grid-nb"></div>
+</section>
 
 {% endblock %}
 
@@ -566,13 +583,25 @@
         }
     }
 
-    /* ============ COLOR SELECTOR ============ */
+    /* ============ COLOR SELECTOR (WITH IMAGE CHANGE) ============ */
     function selectColor(el) {
         document.querySelectorAll('.color-nb').forEach(function(c) {
             c.classList.remove('active');
         });
         el.classList.add('active');
         document.getElementById('selected-color-nb').textContent = el.dataset.color;
+
+        // Image change logic
+        const newImageUrl = el.dataset.image;
+        const mainImage = document.getElementById('main-image');
+        
+        if (newImageUrl && mainImage) {
+            mainImage.style.opacity = '0.5';
+            setTimeout(() => {
+                mainImage.src = newImageUrl;
+                mainImage.style.opacity = '1';
+            }, 150);
+        }
     }
 
     /* ============ SIZE SELECTOR ============ */
@@ -655,19 +684,65 @@
         });
     }
 
+    /* ============ INITIALIZE COLORS ============ */
+    function initColors() {
+        const container = document.getElementById('color-options-container');
+        if (!container) return;
+        
+        const colorImagesData = document.getElementById('color-images-data');
+        let colorImages = {};
+        try {
+            if (colorImagesData) colorImages = JSON.parse(colorImagesData.textContent);
+        } catch(e) { console.error("Color images parse error", e); }
+
+        // Default colors agar backend se color_list nahi aayi hai
+        const defaultColors = ["black", "white", "blue", "gold"];
+        // Humare pass Jinja mein product.colors string hai
+        const productColors = "{{ product.colors }}".toLowerCase().split(',').map(s => s.trim()).filter(s => s);
+        
+        const colors = productColors.length > 0 ? productColors : defaultColors;
+        let first = true;
+
+        colors.forEach(color => {
+            const colorLower = color.toLowerCase();
+            let imgUrl = '';
+            
+            if (colorImages && colorImages[colorLower]) {
+                // Agar json mein image hai, toh usko use karo
+                let path = colorImages[colorLower];
+                if (!path.startsWith('http') && !path.startsWith('/')) {
+                    path = '/static/' + path;
+                }
+                imgUrl = path;
+            }
+            
+            const span = document.createElement('span');
+            span.className = `color-nb ${colorLower}-nb`;
+            span.dataset.color = color.charAt(0).toUpperCase() + color.slice(1);
+            if (imgUrl) span.dataset.image = imgUrl;
+            span.title = span.dataset.color;
+            
+            if (first) {
+                span.classList.add('active');
+                document.getElementById('selected-color-nb').textContent = span.dataset.color;
+                first = false;
+            }
+            
+            span.onclick = function() { selectColor(this); };
+            container.appendChild(span);
+        });
+    }
+
     /* ============ INIT ============ */
     document.addEventListener('DOMContentLoaded', function() {
-        var firstColor = document.querySelector('.color-nb');
-        if (firstColor) firstColor.classList.add('active');
+        initColors();
 
         if (document.getElementById('ratingInput')) {
             setRating(5);
         }
 
-        /* Apply bar widths from data attributes */
         applyBarWidths();
 
-        /* Smooth scroll for reviews link */
         document.querySelectorAll('a[href="#reviews"]').forEach(function(link) {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
