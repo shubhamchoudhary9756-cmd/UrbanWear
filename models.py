@@ -5,6 +5,7 @@ Zenith - Database Models
 + Review model for ratings & reviews system
 + ✅ Product sizes & colors for frontend filters
 + ✅ Return & Refund system
++ ✅ Added refund_amount, status timestamps to ReturnRequest
 """
 
 from flask_sqlalchemy import SQLAlchemy
@@ -120,6 +121,10 @@ class Product(db.Model):
 
     stock = db.Column(db.Integer, default=10)
     is_active = db.Column(db.Boolean, default=True)
+    
+    # ✅ NEW: Color-wise images mapping (JSON format)
+    # e.g. '{"black": "images/products/black-tshirt.jpg", "white": "..."}'
+    color_images = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, default=utc_now)
 
@@ -166,12 +171,8 @@ class Product(db.Model):
     def color_list(self):
         """Return list of colors from comma-separated string"""
         if not self.colors:
-            return []        
-            return [c.strip() for c in self.colors.split(",") if c.strip()]
-        
-        # ✅ NEW: Color-wise images mapping (JSON format)
-        # e.g. '{"black": "images/products/black-tshirt.jpg", "white": "..."}'
-        color_images = db.Column(db.Text, nullable=True) 
+            return []
+        return [c.strip() for c in self.colors.split(",") if c.strip()]
 
     @property
     def review_count(self):
@@ -233,6 +234,7 @@ class Product(db.Model):
             "brand": self.brand or "Zenith",
             "stock": self.stock,
             "is_active": self.is_active,
+            "color_images": self.color_images,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -545,9 +547,23 @@ class ReturnRequest(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     reason = db.Column(db.String(255), nullable=False)
     details = db.Column(db.Text, nullable=True)
-    status = db.Column(db.String(20), default="pending") # pending, approved, rejected
+    
+    # ✅ Status: pending, approved, picked, refunded, rejected
+    status = db.Column(db.String(20), default="pending")
+    
+    # ✅ NAYA: Refund Amount Column
+    refund_amount = db.Column(db.Float, nullable=True)
+    
+    # ✅ NAYA: Timestamps for Workflow Tracking
+    approved_at = db.Column(db.DateTime, nullable=True)
+    picked_at = db.Column(db.DateTime, nullable=True)
+    refunded_at = db.Column(db.DateTime, nullable=True)
+    
     created_at = db.Column(db.DateTime, default=utc_now)
 
     # Relationships
     order = db.relationship('Order', backref='return_request')
     user = db.relationship('User')
+
+    def __repr__(self):
+        return f"<ReturnRequest #{self.id} - Order #{self.order_id} - {self.status}>"

@@ -1,6 +1,8 @@
 /* ==========================================================
    ZENITH — PRODUCTS FILTERS STYLES (Mobile-First)
    Filters sidebar + toolbar + active chips + mobile drawer
+   NOTE: .color-swatch-nb → .filter-color-swatch-nb renamed
+   NOTE: Font = 'Inter' (matches base.css --font-body)
    ========================================================== */
 
 /* ============================================
@@ -63,7 +65,7 @@
 }
 
 .filters-header-nb h2 {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 1.5px;
@@ -130,7 +132,7 @@
 }
 
 .filter-title-nb {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -191,7 +193,7 @@
     outline: none;
     padding: 10px 4px;
     font-size: 13px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #1a1a1a;
     font-weight: 500;
     box-sizing: border-box;
@@ -231,7 +233,7 @@
     border: 1px solid #ececec;
     color: #555;
     font-size: 11px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 500;
     padding: 6px 10px;
     border-radius: 3px;
@@ -281,7 +283,7 @@
     border: 1px solid #e0e0e0;
     color: #555;
     font-size: 12px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 500;
     border-radius: 3px;
     transition: all 0.2s ease;
@@ -335,7 +337,7 @@
     pointer-events: none;
 }
 
-.color-swatch-nb {
+.filter-color-swatch-nb {
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -347,13 +349,13 @@
     box-sizing: border-box;
 }
 
-.filter-color-option-nb input:checked ~ .color-swatch-nb {
+.filter-color-option-nb input:checked ~ .filter-color-swatch-nb {
     box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #c9a961;
 }
 
 .color-name-nb {
     font-size: 12px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #555;
     font-weight: 500;
 }
@@ -364,24 +366,24 @@
 }
 
 /* Color variations */
-.color-swatch-white { background: #ffffff; }
-.color-swatch-black { background: #1a1a1a; border-color: #1a1a1a; }
-.color-swatch-red { background: #dc3545; border-color: #dc3545; }
-.color-swatch-green { background: #28a745; border-color: #28a745; }
-.color-swatch-blue { background: #007bff; border-color: #007bff; }
-.color-swatch-navy { background: #001f3f; border-color: #001f3f; }
-.color-swatch-pink { background: #e83e8c; border-color: #e83e8c; }
-.color-swatch-pista { background: #c1d9a6; border-color: #c1d9a6; }
-.color-swatch-cream { background: #f5f0e1; border-color: #e8e0c9; }
-.color-swatch-gold { background: #c9a961; border-color: #c9a961; }
-.color-swatch-grey { background: #8a8a8a; border-color: #8a8a8a; }
-.color-swatch-gray { background: #8a8a8a; border-color: #8a8a8a; }
-.color-swatch-brown { background: #8b4513; border-color: #8b4513; }
-.color-swatch-yellow { background: #ffc107; border-color: #ffc107; }
-.color-swatch-purple { background: #6f42c1; border-color: #6f42c1; }
-.color-swatch-orange { background: #fd7e14; border-color: #fd7e14; }
+.filter-color-swatch-white { background: #ffffff; }
+.filter-color-swatch-black { background: #1a1a1a; border-color: #1a1a1a; }
+.filter-color-swatch-red { background: #dc3545; border-color: #dc3545; }
+.filter-color-swatch-green { background: #28a745; border-color: #28a745; }
+.filter-color-swatch-blue { background: #007bff; border-color: #007bff; }
+.filter-color-swatch-navy { background: #001f3f; border-color: #001f3f; }
+.filter-color-swatch-pink { background: #e83e8c; border-color: #e83e8c; }
+.filter-color-swatch-pista { background: #c1d9a6; border-color: #c1d9a6; }
+.filter-color-swatch-cream { background: #f5f0e1; border-color: #e8e0c9; }
+.filter-color-swatch-gold { background: #c9a961; border-color: #c9a961; }
+.filter-color-swatch-grey { background: #8a8a8a; border-color: #8a8a8a; }
+.filter-color-swatch-gray { background: #8a8a8a; border-color: #8a8a8a; }
+.filter-color-swatch-brown { background: #8b4513; border-color: #8b4513; }
+.filter-color-swatch-yellow { background: #ffc107; border-color: #ffc107; }
+.filter-color-swatch-purple { background: #6f42c1; border-color: #6f42c1; }
+.filter-color-swatch-orange { background: #fd7e14; border-color: #fd7e14; }
 
-.color-swatch-nb:not([class*="color-swatch-"]) {
+.filter-color-swatch-nb:not([class*="filter-color-swatch-"]) {
     background: #ddd;
 }
 
@@ -443,7 +445,7 @@
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #555;
     font-weight: 500;
     transition: color 0.2s;
@@ -488,7 +490,7 @@
     background: #1a1a1a;
     color: #ffffff;
     border: none;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 1.5px;
@@ -518,7 +520,7 @@
     background: transparent;
     color: #999;
     border: 1px solid #e0e0e0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 1px;
@@ -533,9 +535,7 @@
     border-color: #dc3545;
     color: #dc3545;
     background: #fff5f5;
-}
-
-/* ============================================
+}/* ============================================
    PRODUCTS TOOLBAR
    ============================================ */
 
@@ -561,7 +561,7 @@
     background: #ffffff;
     border: 1px solid #e0e0e0;
     color: #1a1a1a;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -590,7 +590,7 @@
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 500;
     color: #666;
     letter-spacing: 0.5px;
@@ -613,7 +613,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 3px;
     padding: 10px 36px 10px 14px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 500;
     color: #1a1a1a;
@@ -630,7 +630,7 @@
 }
 
 .products-count-nb {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 500;
     color: #999;
@@ -663,7 +663,7 @@
     background: #ffffff;
     border: 1px solid #e8dfc4;
     border-radius: 20px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     font-weight: 500;
     color: #6b5a2e;
@@ -685,7 +685,7 @@
     background: transparent;
     border: 1px dashed #dc3545;
     border-radius: 20px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     font-weight: 600;
     color: #dc3545;
@@ -832,7 +832,7 @@
         gap: 6px;
     }
 
-    .color-swatch-nb {
+    .filter-color-swatch-nb {
         width: 18px;
         height: 18px;
     }
@@ -979,3 +979,7 @@
         padding: 8px 12px;
     }
 }
+
+/* ============================================
+   END — filters.css v2.0 (CLEAN)
+   ============================================ */

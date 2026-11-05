@@ -128,7 +128,8 @@
                                        name="colors_multi"
                                        value="{{ color }}"
                                        {% if color in filter_state.colors %}checked{% endif %}>
-                                <span class="color-swatch-nb color-swatch-{{ color }}"></span>
+                                <!-- ✅ FIXED CLASS HERE -->
+                                <span class="filter-color-swatch-nb filter-color-swatch-{{ color }}"></span>
                                 <span class="color-name-nb">{{ color|capitalize }}</span>
                             </label>
                         {% endfor %}
@@ -307,9 +308,10 @@
                         </h3>
 
                         <p class="product-price-nb">
-                            ₹{{ product.price }}
+                            <!-- ✅ FIXED INR FILTER HERE -->
+                            ₹{{ product.price|inr }}
                             {% if product.old_price and product.old_price > product.price %}
-                                <span>₹{{ product.old_price }}</span>
+                                <span>₹{{ product.old_price|inr }}</span>
                             {% endif %}
                         </p>
 

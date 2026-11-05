@@ -37,6 +37,7 @@
 
     <div class="product-nb-grid">
 
+        <!-- LEFT: GALLERY -->
         <div class="gallery-nb">
 
             <div class="thumbnails-nb">
@@ -47,7 +48,8 @@
                          onclick="changeImage(this)">
                         <img src="{{ img|product_image }}"
                              alt="{{ product.name }} thumbnail"
-                             loading="lazy">
+                             loading="lazy"
+                             style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                     {% endfor %}
                 {% else %}
@@ -56,7 +58,8 @@
                          onclick="changeImage(this)">
                         <img src="{{ product.image|product_image }}"
                              alt="{{ product.name }}"
-                             loading="lazy">
+                             loading="lazy"
+                             style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                 {% endif %}
             </div>
@@ -74,7 +77,8 @@
                 </span>
                 {% endif %}
 
-                <button type="button" class="zoom-hint-nb" aria-label="Hover to zoom">
+                <!-- Agar zoom feature abhi nahi hai, to isko hide kar diya hai -->
+                <button type="button" class="zoom-hint-nb" aria-label="Hover to zoom" style="display: none;">
                     <i class="fa-solid fa-magnifying-glass-plus"></i>
                 </button>
             </div>
@@ -82,6 +86,7 @@
         </div>
 
 
+        <!-- RIGHT: INFO -->
         <div class="info-nb">
 
             <span class="cat-tag-nb">{{ product.category }}</span>
@@ -116,6 +121,7 @@
             <p class="desc-nb">{{ product.description }}</p>
 
 
+            <!-- COLOR SELECTOR -->
             <div class="option-block-nb">
                 <h3 class="option-title-nb">
                     Color: <span id="selected-color-nb">{{ product.color_list[0]|capitalize if product.color_list else 'Black' }}</span>
@@ -125,13 +131,14 @@
                     <!-- JS will populate these -->
                 </div>
                 
-                <!-- Yahan JSON data store kar rahe hain color images ke liye -->
+                <!-- Yahan JSON data store kar rahe hain color images ke liye (Safe parsing) -->
                 <script id="color-images-data" type="application/json">
-                    {{ product.color_images if product.color_images else '{}' }}
+                    {{ product.color_images if product.color_images else '{}' | safe }}
                 </script>
             </div>
 
 
+            <!-- SIZE SELECTOR -->
             <div class="option-block-nb">
                 <div class="size-header-nb">
                     <h3 class="option-title-nb">
@@ -150,6 +157,7 @@
             </div>
 
 
+            <!-- QUANTITY -->
             <div class="option-block-nb">
                 <h3 class="option-title-nb">Quantity</h3>
                 <div class="qty-nb">
@@ -160,6 +168,7 @@
             </div>
 
 
+            <!-- ACTIONS -->
             <div class="actions-nb">
 
                 <button type="button"
@@ -195,6 +204,7 @@
             </div>
 
 
+            <!-- CUSTOMIZE LINK -->
             <a href="{{ url_for('customize', product_id=product.id) }}"
                class="customize-btn-nb">
                 <i class="fa-solid fa-palette"></i>
@@ -202,6 +212,7 @@
             </a>
 
 
+            <!-- TRUST BADGES -->
             <div class="trust-badges-nb">
                 <div class="trust-item-nb">
                     <i class="fa-solid fa-truck-fast"></i>
@@ -227,6 +238,7 @@
             </div>
 
 
+            <!-- ACCORDION -->
             <div class="accordion-nb">
                 <details class="acc-item-nb" open>
                     <summary><span>Product Details</span><i class="fa-solid fa-chevron-down"></i></summary>
@@ -560,7 +572,10 @@
 {% endif %}
 
 
-<!-- 🆕 RECENTLY VIEWED SECTION (MOVED HERE) -->
+<!-- ==================================================
+                    RECENTLY VIEWED SECTION
+================================================== -->
+
 <section class="recently-viewed-section" style="padding: 40px 8%; background: #faf8f5; border-top: 1px solid #e8e2d9;">
     <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 20px; color: #1a1a1a;">Recently Viewed</h2>
     <div id="recently-viewed-container" class="recent-viewed-grid-nb"></div>

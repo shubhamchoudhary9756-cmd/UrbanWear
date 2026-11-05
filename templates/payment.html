@@ -20,14 +20,11 @@
     <div class="payment-container">
 
         <div class="payment-header">
-
             <h1>
                 <i class="fa-solid fa-lock"></i>
                 Secure Payment
             </h1>
-
             <p>Complete your payment to place the order</p>
-
         </div>
 
 
@@ -64,11 +61,8 @@
 
 
             <div class="payment-amount-box">
-
                 <span class="payment-amount-label">Total Amount</span>
-
-                <span class="payment-amount-value">₹{{ order.total_amount }}</span>
-
+                <span class="payment-amount-value">₹{{ order.total_amount|inr }}</span>
             </div>
 
 
@@ -79,15 +73,13 @@
                     data-amount="{{ order.total_amount }}">
 
                 <i class="fa-solid fa-credit-card"></i>
-                Pay Now ₹{{ order.total_amount }}
+                Pay Now ₹{{ order.total_amount|inr }}
 
             </button>
 
             <p class="payment-note">
-
                 <i class="fa-solid fa-shield-halved"></i>
                 Your payment is 100% secure and encrypted
-
             </p>
 
         </div>
@@ -104,15 +96,13 @@
     const RAZORPAY_KEY_ID = "{{ razorpay_key_id }}";
 
     // ==================================================
-    // PAYMENT FAILED HANDLER — Backend ko notify karta hai
+    // PAYMENT FAILED HANDLER (Notify Backend)
     // ==================================================
     async function notifyPaymentFailed(orderId) {
         try {
             const res = await fetch("/payment/failed/" + orderId, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
+                headers: { "Content-Type": "application/json" }
             });
             const data = await res.json();
             console.log("Payment failed handler:", data);
@@ -134,15 +124,11 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 
         try {
+            // 1. Create Razorpay Order
             const response = await fetch("/payment/create-order", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    amount: amount,
-                    order_id: orderId
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: amount, order_id: orderId })
             });
 
             const data = await response.json();
@@ -154,6 +140,7 @@
                 return;
             }
 
+            // 2. Razorpay Options
             const options = {
                 key: RAZORPAY_KEY_ID,
                 amount: data.amount,
@@ -163,11 +150,10 @@
                 order_id: data.order_id,
 
                 handler: async function(response) {
+                    // 3. Verify Payment on Backend
                     const verifyResponse = await fetch("/payment/verify", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_order_id: response.razorpay_order_id,
@@ -181,7 +167,6 @@
                     if (verifyData.status === "success") {
                         window.location.href = "/payment-success/" + orderId;
                     } else {
-                        // ✅ Signature verify fail — order cancel karo
                         await notifyPaymentFailed(orderId);
                         window.location.href = "/payment-failure/" + orderId;
                     }
@@ -193,21 +178,15 @@
                     contact: "{{ current_user.phone }}"
                 },
 
-                theme: {
-                    color: "#c9a961"
-                },
+                theme: { color: "#c9a961" },
 
                 modal: {
-                    // ✅ Agar user popup band kare bina payment (X button / outside click)
+                    // Agar user popup band kare bina payment
                     ondismiss: async function() {
-                        // Order cancel + stock restore
                         const result = await notifyPaymentFailed(orderId);
-
-                        // Agar order cancel hua (payment nahi hua tha) → failure page
                         if (result && result.status === "cancelled") {
                             window.location.href = "/payment-failure/" + orderId;
                         } else {
-                            // Already paid tha ya kuch aur — bas button reset
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pay Now ₹' + amount;
                         }
@@ -217,14 +196,10 @@
 
             const rzp = new Razorpay(options);
 
-            // ✅ Payment fail hua (card decline, timeout, etc.)
+            // Payment fail hua (card decline, timeout, etc.)
             rzp.on("payment.failed", async function(response) {
                 console.error("Payment failed:", response.error);
-
-                // Order cancel + stock restore
                 await notifyPaymentFailed(orderId);
-
-                // Failure page par redirect
                 window.location.href = "/payment-failure/" + orderId;
             });
 

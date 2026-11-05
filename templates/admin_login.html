@@ -2,31 +2,29 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Admin Login | Zenith</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
 
 <body>
-
 
 <!-- ==================================================
                     ADMIN LOGIN
@@ -45,22 +43,17 @@
         <p>Access the Zenith admin panel</p>
 
 
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages() %}
-
             {% if messages %}
-
                 <div class="flash-messages">
-
                     {% for message in messages %}
-
-                        <p>{{ message }}</p>
-
+                        <div class="flash-message flash-error">
+                            {{ message }}
+                        </div>
                     {% endfor %}
-
                 </div>
-
             {% endif %}
-
         {% endwith %}
 
 
@@ -70,86 +63,51 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="form-group">
-
                 <label for="email">Email Address</label>
-
                 <input type="email"
                        id="email"
                        name="email"
                        placeholder="admin@zenith.com"
                        required>
-
             </div>
 
 
             <div class="form-group">
-
                 <label for="password">Password</label>
-
                 <input type="password"
                        id="password"
                        name="password"
                        placeholder="Enter admin password"
                        required>
-
             </div>
 
 
             <div class="remember-row">
-
                 <label>
-
                     <input type="checkbox" name="remember">
-
                     Remember Me
-
                 </label>
-
             </div>
 
 
             <button type="submit" class="admin-login-btn">
-
                 <i class="fa-solid fa-lock"></i>
                 Sign In as Admin
-
             </button>
 
         </form>
 
 
         <div class="admin-login-footer">
-
             <a href="{{ url_for('login') }}">
                 <i class="fa-solid fa-user"></i>
                 User Login
             </a>
-
         </div>
 
     </div>
 
 </section>
-
-
-
-<!-- ==================================================
-                    FOOTER
-================================================== -->
-
-<footer class="footer">
-
-    <div class="footer-bottom">
-
-        <p class="copyright">
-
-            © 2026 Zenith. All Rights Reserved.
-
-        </p>
-
-    </div>
-
-</footer>
 
 </body>
 

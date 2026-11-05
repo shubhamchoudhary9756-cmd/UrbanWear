@@ -1,222 +1,8 @@
 /* =====================================================
-   Zenith — RESPONSIVE CSS v5.5
-   Complete • No Warnings • No Duplicates
-   Product Grids → Horizontal Carousel
-   Cart → Horizontal Compact Layout (Flat Structure)
-   Quick Add → Always Visible (Fixed Overflow) ✅
+   Zenith — RESPONSIVE CSS v5.7 FINAL
+   Complete • No Duplicates • Braces Balanced
+   Cart base CSS → pages.css
 ===================================================== */
-
-
-/* =====================================================
-   0. CART ITEM — DESKTOP BASE (Mobile par override hoga)
-===================================================== */
-
-.cart-item {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: #ffffff;
-    border: 1px solid #e8e2d9;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-}
-
-.cart-item .cart-item-img,
-.cart-item > img {
-    width: 90px;
-    height: 90px;
-    min-width: 90px;
-    max-width: 90px;
-    padding: 8px;
-    background: #f5f1ea;
-    object-fit: contain;
-    flex-shrink: 0;
-    display: block;
-}
-
-.cart-info {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.cart-info h3 {
-    font-size: 16px;
-    line-height: 1.3;
-    margin: 0 0 6px 0;
-    font-family: 'Playfair Display', serif;
-    font-weight: 500;
-    color: #1a1a1a;
-}
-
-.cart-price {
-    font-size: 14px;
-    color: #c9a961;
-    font-weight: 600;
-    margin: 0 0 6px 0;
-}
-
-.cart-variants {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 6px;
-}
-
-.cart-variants span {
-    font-size: 11px;
-    padding: 3px 8px;
-    background: #f5f1ea;
-    border-radius: 3px;
-    color: #555;
-    white-space: nowrap;
-}
-
-.cart-variants strong {
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.cart-quantity-desktop {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.cart-quantity-desktop button {
-    width: 32px;
-    height: 32px;
-    border: 1.5px solid #e8e2d9;
-    background: #fff;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-    color: #1a1a1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.cart-quantity-desktop button:hover {
-    background: #c9a961;
-    border-color: #c9a961;
-    color: #fff;
-}
-
-.cart-quantity-desktop span {
-    min-width: 28px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.cart-subtotal-desktop {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1a1a1a;
-    min-width: 90px;
-    text-align: right;
-    flex-shrink: 0;
-}
-
-.remove-btn-desktop {
-    width: 38px;
-    height: 38px;
-    border: 1.5px solid #e8e2d9;
-    background: transparent;
-    color: #dc3545;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-}
-
-.remove-btn-desktop:hover {
-    background: #dc3545;
-    border-color: #dc3545;
-    color: #ffffff;
-}
-
-.remove-btn-desktop i {
-    font-size: 14px;
-}
-
-.cart-item-controls-mobile {
-    display: none;
-}
-
-.cart-customization-nb {
-    margin-top: 8px;
-}
-
-.cart-custom-badge-nb {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: #c9a961;
-    background: #faf8f5;
-    padding: 3px 8px;
-    border-radius: 3px;
-    margin-bottom: 4px;
-}
-
-.cart-custom-badge-nb i { font-size: 10px; }
-
-.cart-custom-side-nb {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px;
-    margin-top: 4px;
-}
-
-.cart-custom-label-nb {
-    font-size: 10px;
-    font-weight: 700;
-    color: #777;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.cart-custom-tag-nb {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    color: #555;
-    background: #f5f1ea;
-    padding: 2px 7px;
-    border-radius: 3px;
-    white-space: nowrap;
-}
-
-.cart-custom-tag-nb i { color: #c9a961; font-size: 9px; }
-
-.cart-custom-font-nb {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    color: #777;
-    background: #f5f1ea;
-    padding: 2px 7px;
-    border-radius: 3px;
-    margin-top: 4px;
-}
-
-.cart-custom-font-nb i { color: #c9a961; font-size: 9px; }
 
 
 /* =====================================================
@@ -234,7 +20,7 @@
 
     .mega-inner { grid-template-columns: 1fr 1fr; gap: 40px; padding: 30px 6%; }
     .mega-image { display: none; }
-    .mega-menu { top: 90px; }
+    .mega-menu { top: 100px; } /* FIX: header 100px hai */
 
     .offer-timer-inner { grid-template-columns: 1fr; gap: 30px; text-align: center; }
     .offer-timer-left { text-align: center; }
@@ -319,7 +105,8 @@
 
 
 /* =====================================================
-   2. MOBILE — max-width: 768px
+   2. MOBILE — max-width: 768px (PART A)
+   Global + Header + Bottom Nav + Hero + Sections
 ===================================================== */
 
 @media (max-width: 768px) {
@@ -633,6 +420,12 @@
     .section-header-nb h2 { font-size: 28px !important; line-height: 1.15; word-wrap: break-word; overflow-wrap: break-word; }
     .section-header-nb p { font-size: 13px !important; padding: 0 5%; word-wrap: break-word; }
     .section-tag-nb { font-size: 10px !important; letter-spacing: 2px; }
+}/* =====================================================
+   2. MOBILE — max-width: 768px (PART B1)
+   Product Grids → Quick Add → Categories → Product Page
+===================================================== */
+
+@media (max-width: 768px) {
 
     /* ============================================
        PRODUCT GRIDS — HORIZONTAL CAROUSEL
@@ -676,7 +469,6 @@
         width: 0;
     }
 
-    /* ✅ CARD — overflow visible taaki quick-add bahar na kate */
     .product-card-nb,
     .product-listing-card,
     .related-card-nb,
@@ -820,15 +612,9 @@
         line-height: 1 !important;
     }
 
-    /* ============================================
-       ✅ QUICK ADD — v5.5 FIXED
-    ============================================ */
+    /* QUICK ADD FIXED */
+    .product-card-nb { overflow: visible !important; }
 
-    .product-card-nb {
-        overflow: visible !important;
-    }
-
-    /* IMAGE WRAPPER — overflow visible + flex column */
     .product-card-nb .product-img-wrap-nb {
         display: flex !important;
         flex-direction: column !important;
@@ -847,7 +633,6 @@
         display: block;
     }
 
-    /* QUICK ADD WRAPPER — static, full width */
     .product-card-nb .product-quick-actions-nb {
         opacity: 1 !important;
         transform: translateY(0) !important;
@@ -861,7 +646,6 @@
         margin: 0;
     }
 
-    /* QUICK ADD BUTTON — full width dark */
     .product-card-nb .quick-add-cart-nb,
     .product-card-nb .add-cart {
         display: flex !important;
@@ -889,7 +673,7 @@
         color: #1a1a1a !important;
     }
 
-    /* CATEGORIES — Grid (not carousel) */
+    /* CATEGORIES */
     .categories { padding: 50px 5% !important; }
     .category-container { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
     .category-card { aspect-ratio: 3/4; }
@@ -910,141 +694,6 @@
     .cat-content-nb { padding: 18px 14px; }
     .cat-content-nb h3 { font-size: 18px; margin-bottom: 6px; }
     .cat-content-nb span { font-size: 10px; letter-spacing: 1.2px; }
-
-    /* SALE BANNER */
-    .sale-banner { width: 94%; height: 280px; margin: 40px auto; }
-    .sale-overlay { padding: 20px; }
-    .sale-overlay h2 { font-size: 28px; margin-bottom: 12px; }
-    .sale-overlay p { font-size: 13px; margin-bottom: 22px; }
-    .sale-btn { padding: 12px 28px; font-size: 11px; letter-spacing: 1.2px; }
-
-    /* FEATURES */
-    .features { padding: 50px 5% !important; }
-    .feature-container { grid-template-columns: 1fr !important; gap: 20px; }
-    .feature-box { padding: 22px 18px; border-left: none !important; border-bottom: 1px solid var(--border-light); }
-    .feature-box:last-child { border-bottom: none; }
-    .feature-box i { font-size: 28px; margin-bottom: 14px; }
-    .feature-box h3 { font-size: 16px; margin-bottom: 8px; }
-    .feature-box p { font-size: 13px; }
-
-    .features-nb { padding: 50px 5% !important; }
-    .feature-grid-nb { grid-template-columns: 1fr !important; gap: 20px; }
-    .feature-item-nb { padding: 0; }
-    .feature-item-nb i { width: 42px; height: 42px; font-size: 20px; }
-    .feature-item-nb h4 { font-size: 15px; }
-    .feature-item-nb p { font-size: 12px; }
-
-    /* REVIEWS */
-    .reviews { padding: 50px 5% !important; }
-    .review-container { grid-template-columns: 1fr !important; gap: 15px; }
-    .review-card { padding: 25px 20px; }
-    .review-card img { width: 70px; height: 70px; }
-    .review-card h3 { font-size: 16px; }
-    .review-card p { font-size: 13px; }
-
-    .reviews-nb { padding: 50px 0 !important; overflow-x: hidden; }
-    .review-grid-nb {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-        padding: 0 5% !important;
-        max-width: 100% !important;
-    }
-    .review-card-nb { max-width: 100%; padding: 25px 20px; word-wrap: break-word; }
-    .review-card-nb > p { font-size: 13px; word-wrap: break-word; }
-
-    /* NEWSLETTER */
-    .newsletter { padding: 50px 5% !important; }
-    .newsletter h2 { font-size: 24px; margin-bottom: 12px; }
-    .newsletter p { font-size: 13px; margin-bottom: 25px; }
-    .newsletter-form { flex-direction: column; border: none; background: transparent; gap: 10px; }
-    .newsletter-form input { width: 100%; min-width: 0; padding: 14px 16px; font-size: 13px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); }
-    .newsletter-form button { width: 100%; padding: 14px; font-size: 11px; letter-spacing: 1.2px; }
-
-    .newsletter-nb { padding: 50px 5% !important; overflow-x: hidden; }
-    .newsletter-inner-nb { width: 100%; max-width: 100%; }
-    .newsletter-nb h2 { font-size: 26px; word-wrap: break-word; }
-    .newsletter-form-nb { flex-direction: column; border: none; background: transparent; gap: 10px; max-width: 100%; }
-    .newsletter-form-nb input { width: 100%; padding: 14px 18px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(201, 169, 97, 0.3); }
-    .newsletter-form-nb button { width: 100%; justify-content: center; padding: 14px; }
-
-    /* FOOTER */
-    .footer { padding: 50px 5% 100px !important; margin-bottom: 0 !important; overflow-x: hidden; }
-    .footer-container { grid-template-columns: 1fr !important; gap: 30px; max-width: 100%; }
-    .footer-box { max-width: 100%; }
-    .footer-box h3 { font-size: 12px; margin-bottom: 15px; }
-    .footer-box p, .footer-box ul li a { font-size: 13px; word-wrap: break-word; }
-    .footer hr { margin: 30px 0 18px; }
-    .copyright { font-size: 11px; }
-    .social-icons { gap: 10px; }
-    .social-icons a { width: 36px; height: 36px; font-size: 13px; }
-    .footer .zenith-logo-official { align-items: center !important; text-align: center; max-width: 100%; }
-    .footer .zenith-brand-name { font-size: 32px !important; letter-spacing: 10px !important; }
-    .footer .zenith-mountain-icon { width: 100px !important; height: 50px !important; }
-
-    /* OFFER TIMER */
-    .offer-timer-nb { padding: 40px 5% !important; overflow-x: hidden; }
-    .offer-timer-inner { display: flex !important; flex-direction: column !important; gap: 22px !important; text-align: center; max-width: 100%; }
-    .offer-timer-left { text-align: center; }
-    .offer-timer-title { font-size: 26px; }
-    .offer-timer-tag { font-size: 9px; letter-spacing: 2px; padding: 5px 12px; }
-    .offer-timer-desc { font-size: 13px; }
-    .offer-timer-clock { justify-content: center; flex-wrap: wrap; gap: 6px; }
-    .timer-box-nb { min-width: 60px; height: 65px; padding: 8px 10px; }
-    .timer-box-nb span { font-size: 24px; }
-    .timer-box-nb small { font-size: 9px; letter-spacing: 1.5px; }
-    .timer-sep { font-size: 22px; }
-    .offer-timer-btn { width: 100%; justify-content: center; padding: 14px 28px; font-size: 11px; letter-spacing: 1.5px; }
-
-    /* SEASON COLLECTION */
-    .season-collection-nb { padding: 50px 5% !important; overflow-x: hidden; }
-    .season-collection-inner { display: flex !important; flex-direction: column !important; gap: 12px; height: auto !important; max-width: 100%; }
-    .season-large-nb { height: 400px; width: 100%; }
-    .season-large-content-nb { padding: 30px 25px; }
-    .season-tag-nb { font-size: 9px; padding: 5px 12px; letter-spacing: 2px; margin-bottom: 14px; }
-    .season-title-nb { font-size: 32px; margin-bottom: 10px; }
-    .season-desc-nb { font-size: 14px; margin-bottom: 18px; }
-    .season-btn-nb { font-size: 11px; letter-spacing: 1.5px; }
-    .season-small-grid-nb { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px; height: auto !important; width: 100%; }
-    .season-small-nb { height: 180px; }
-    .season-small-content-nb { padding: 20px 18px; }
-    .season-small-content-nb h3 { font-size: 18px; margin-bottom: 6px; }
-    .season-small-content-nb span { font-size: 10px; letter-spacing: 1.5px; }
-
-    /* SHOP THE LOOK */
-    .shop-look-nb { padding: 50px 5% !important; overflow-x: hidden; }
-    .shop-look-inner { display: flex !important; flex-direction: column !important; gap: 25px !important; max-width: 100%; }
-    .shop-look-image-nb { height: 400px; width: 100%; }
-    .shop-look-badge-nb { bottom: 20px; left: 20px; padding: 8px 14px; font-size: 10px; letter-spacing: 1.5px; }
-    .shop-look-heading-nb { font-size: 18px; margin-bottom: 10px; padding-bottom: 10px; }
-    .shop-look-heading-nb i { font-size: 16px; }
-    .shop-look-item-nb { padding: 12px; gap: 12px; }
-    .shop-look-item-img-nb { width: 65px; height: 65px; }
-    .shop-look-item-info-nb h4 { font-size: 13px; margin-bottom: 4px; }
-    .shop-look-item-info-nb p { font-size: 13px; gap: 6px; }
-    .shop-look-item-info-nb p del { font-size: 11px; }
-    .shop-look-add-nb { width: 36px; height: 36px; font-size: 12px; }
-    .shop-look-total-nb { flex-direction: column; align-items: stretch; padding: 20px; }
-    .shop-look-total-price-nb { flex-direction: row; justify-content: space-between; align-items: center; }
-    .shop-look-total-price-nb strong { font-size: 22px; }
-    .shop-look-add-all-nb { width: 100%; justify-content: center; padding: 14px 20px; font-size: 11px; }
-
-    /* BRAND STORY */
-    .brand-story-nb { padding: 60px 5% !important; overflow-x: hidden; }
-    .brand-story-inner { display: flex !important; flex-direction: column !important; gap: 35px; max-width: 100%; }
-    .brand-story-image-nb { height: 400px; width: 100%; }
-    .brand-story-content-nb { width: 100%; max-width: 100%; }
-    .brand-story-badge-nb { width: 75px; height: 75px; top: 20px; left: 20px; }
-    .brand-story-badge-nb span { font-size: 8px; }
-    .brand-story-badge-nb strong { font-size: 16px; }
-    .brand-story-tag-nb { font-size: 10px; letter-spacing: 2px; margin-bottom: 18px; }
-    .brand-story-title-nb { font-size: 34px; margin-bottom: 22px; word-wrap: break-word; overflow-wrap: break-word; }
-    .brand-story-desc-nb { font-size: 14px; line-height: 1.7; margin-bottom: 15px; }
-    .brand-story-desc-nb:last-of-type { margin-bottom: 30px; }
-    .brand-story-stats-nb { gap: 25px; padding: 22px 0; margin-bottom: 30px; flex-wrap: wrap; }
-    .brand-stat-nb strong { font-size: 24px; }
-    .brand-stat-nb span { font-size: 9px; letter-spacing: 1px; }
-    .brand-story-btn-nb { width: 100%; justify-content: center; padding: 16px 24px; font-size: 11px; }
 
     /* PRODUCT PAGE */
     .breadcrumb-nb { padding: 14px 5%; font-size: 11px; }
@@ -1102,6 +751,12 @@
     .sticky-price-nb span { font-size: 18px; font-weight: 700; color: #1a1a1a; }
     .sticky-price-nb del { font-size: 12px; color: #999; }
     .sticky-cart-nb { flex: 1; padding: 14px 18px; font-size: 11px; letter-spacing: 1.5px; }
+}/* =====================================================
+   2. MOBILE — max-width: 768px (PART B2)
+   Cart → Wishlist → Orders → Checkout → Auth → Profile
+===================================================== */
+
+@media (max-width: 768px) {
 
     /* ============================================
        CART PAGE — HORIZONTAL COMPACT LAYOUT
@@ -1138,7 +793,7 @@
     .cart-summary-col-nb { position: static !important; order: 2; width: 100%; }
     .cart-items-col-nb { order: 1; width: 100%; }
 
-    /* ✅ HORIZONTAL COMPACT CART ITEM */
+    /* HORIZONTAL COMPACT CART ITEM */
     .cart-item {
         display: flex !important;
         flex-direction: row !important;
@@ -1531,3 +1186,145 @@
     .profile-stats-nb { flex-direction: row; padding: 15px 12px; gap: 8px; flex-wrap: wrap; }
     .profile-stat-item-nb { flex: 1; flex-direction: column; text-align: center; gap: 8px; padding: 8px 4px; }
 }
+
+
+/* =====================================================
+   3. SMALL MOBILE — max-width: 480px
+===================================================== */
+
+@media (max-width: 480px) {
+
+    body { font-size: 13px; }
+
+    .main-header { height: 64px !important; min-height: 64px !important; max-height: 64px !important; padding: 0 3% !important; }
+    .main-header .hamburger-menu { width: 38px; height: 38px; font-size: 20px; }
+    .main-header .zenith-header-mountain { width: 38px; height: 19px; }
+    .main-header .zenith-header-text { font-size: 12px; letter-spacing: 3.5px; }
+    .main-header .header-icons .icon-btn { width: 38px; height: 38px; font-size: 17px; }
+
+    .mobile-bottom-nav { height: 56px; }
+    .bottom-nav-item i { font-size: 18px; }
+    .bottom-nav-item span:not(.bottom-nav-badge) { font-size: 9px; }
+
+    .hero-carousel { height: 70vh !important; min-height: 460px !important; }
+    .hero-slide-title { font-size: 30px !important; }
+    .hero-slide-sub { font-size: 13px !important; }
+    .hero-slide-btn { padding: 12px 22px !important; font-size: 10px !important; }
+
+    section { padding: 40px 4% !important; }
+    .section-header h2, .section-header-nb h2 { font-size: 22px !important; }
+
+    .product-card-nb,
+    .product-listing-card,
+    .related-card-nb,
+    .wishlist-card-nb,
+    .admin-product-card,
+    .card {
+        min-width: 200px !important;
+        max-width: 200px !important;
+        width: 200px !important;
+    }
+
+    .related-card-nb { min-width: 160px !important; max-width: 160px !important; width: 160px !important; }
+    .admin-product-card { min-width: 180px !important; max-width: 180px !important; width: 180px !important; }
+
+    .product-name-nb, .product-listing-title { font-size: 13px !important; }
+    .product-price-nb, .product-listing-price { font-size: 14px !important; }
+
+    .title-nb { font-size: 22px !important; }
+    .current-price-nb { font-size: 21px; }
+    .old-price-nb { font-size: 14px; }
+    .desc-nb { font-size: 13px; }
+    .size-btn-nb { min-width: 44px; height: 44px; font-size: 11px; }
+    .color-nb { width: 30px; height: 30px; }
+    .add-cart-btn-nb, .buy-now-btn-nb { padding: 14px 16px; font-size: 11px; }
+    .wishlist-btn-nb { height: 46px; }
+    .acc-item-nb summary { padding: 14px 16px; font-size: 11px; }
+    .acc-content-nb { padding: 0 16px 16px; font-size: 12px; }
+
+    .cart-nb { padding: 25px 4% 100px !important; }
+    .cart-header-nb h1 { font-size: 22px; }
+    .cart-item { padding: 10px !important; gap: 8px !important; }
+    .cart-item .cart-item-img, .cart-item > img { width: 70px !important; height: 70px !important; min-width: 70px !important; max-width: 70px !important; padding: 5px !important; }
+    .cart-info h3 { font-size: 12px !important; }
+    .cart-price { font-size: 11px !important; }
+    .cart-item-controls-mobile .cart-quantity button { width: 24px !important; height: 24px !important; font-size: 11px !important; }
+    .cart-item-controls-mobile .cart-quantity span { min-width: 20px !important; font-size: 11px !important; }
+    .cart-item-controls-mobile .cart-subtotal { font-size: 13px !important; }
+    .cart-item-controls-mobile .remove-btn { width: 28px !important; height: 28px !important; }
+
+    .wishlist-nb, .orders-nb, .profile-nb { padding: 30px 4% 100px !important; }
+    .wishlist-header-nb h1, .orders-header-nb h1 { font-size: 22px; }
+
+    .checkout-nb { padding: 25px 4% 100px !important; }
+    .checkout-header-nb h1 { font-size: 22px; }
+    .checkout-box-nb { padding: 18px 16px; }
+    .checkout-summary-nb { padding: 18px 16px; }
+    .checkout-grand-total-nb strong { font-size: 20px; }
+
+    .auth-image-nb { min-height: 180px; padding: 25px 20px; }
+    .auth-image-content-nb h2 { font-size: 24px; }
+    .auth-form-wrap-nb { padding: 30px 4% 50px !important; }
+    .auth-title-nb { font-size: 21px; }
+    .auth-brand-nb { font-size: 18px; letter-spacing: 6px; padding-left: 6px; }
+
+    .footer { padding: 40px 4% 90px !important; }
+    .footer .zenith-brand-name { font-size: 26px !important; letter-spacing: 8px !important; }
+    .footer .zenith-mountain-icon { width: 85px !important; height: 42px !important; }
+
+    .sticky-buy-nb { padding: 10px 12px; gap: 8px; }
+    .sticky-price-nb span { font-size: 16px; }
+    .sticky-cart-nb { padding: 12px 14px; font-size: 10px; }
+}
+
+
+/* =====================================================
+   4. TOUCH DEVICES — hover states off
+===================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+
+    .product-card-nb .product-quick-actions-nb {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        position: static !important;
+    }
+
+    .product-card-nb .wishlist-btn-nb {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .bottom-nav-item:hover,
+    .main-header .header-icons .icon-btn:hover,
+    .main-header .hamburger-menu:hover {
+        background: transparent;
+        color: inherit;
+    }
+
+    .cart-quantity-desktop button:hover,
+    .remove-btn-desktop:hover {
+        background: #fff;
+        border-color: #e8e2d9;
+        color: #1a1a1a;
+    }
+
+    .cart-item:hover {
+        border-color: #e8e2d9;
+        box-shadow: none;
+    }
+
+    .add-cart-btn-nb:hover,
+    .buy-now-btn-nb:hover,
+    .place-order-btn-nb:hover,
+    .checkout-btn-nb:hover {
+        transform: none;
+        filter: none;
+    }
+}
+
+
+/* =====================================================
+   END — responsive.css v5.7 FINAL
+   Cart base CSS → pages.css
+===================================================== */

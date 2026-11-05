@@ -1,7 +1,9 @@
 /* =====================================================
-   Zenith — COMPONENTS CSS v1.2
+   Zenith — COMPONENTS CSS v2.0 (CLEAN)
    Buttons, Header, Mega Menu, Drawer, Search, Cards, Forms
-   (No cart-specific styles — those live in pages.css + responsive.css)
+   NOTE: No cart-specific styles — those live in pages.css + responsive.css
+   NOTE: .bottom-nav-badge → responsive.css (mobile only)
+   NOTE: .auth-divider-nb → pages.css (auth-specific)
 ===================================================== */
 
 
@@ -127,7 +129,6 @@
     gap: 20px;
 }
 
-/* Fix: icons apni jagah pe rahein, upar float na karein */
 .icon-btn {
     color: var(--text-primary);
     font-size: 17px;
@@ -147,7 +148,6 @@
     color: var(--accent-gold);
 }
 
-/* Fix: badge positioning */
 .cart-icon, .wishlist-header-icon {
     position: relative;
 }
@@ -420,10 +420,7 @@
 
 .search-overlay .search-submit:hover {
     background: var(--accent-gold);
-}
-
-
-/* =====================================================
+}/* =====================================================
    8. MOBILE DRAWER
 ===================================================== */
 
@@ -561,47 +558,11 @@
 
 
 /* =====================================================
-   9. BOTTOM NAV BADGES
+   9. BOTTOM NAV BADGE
+   NOTE: Full styling in responsive.css (mobile only)
 ===================================================== */
 
-.bottom-nav-item {
-    position: relative;
-}
-
-.bottom-nav-badge {
-    position: absolute;
-    top: 6px;
-    right: 50%;
-    transform: translateX(15px);
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    border-radius: 8px;
-    background: var(--accent-gold);
-    color: var(--bg-white);
-    font-size: 9px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    line-height: 1;
-    border: 1.5px solid var(--bg-white);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.bottom-nav-badge.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.bottom-nav-badge:empty,
-.bottom-nav-badge[data-count="0"] {
-    opacity: 0;
-    visibility: hidden;
-}
+/* .bottom-nav-badge — REMOVED (moved to responsive.css) */
 
 
 /* =====================================================
@@ -842,32 +803,11 @@
 
 
 /* =====================================================
-   12. DIVIDER
+   12. AUTH DIVIDER
+   NOTE: Full styling in pages.css (auth-specific)
 ===================================================== */
 
-.auth-divider-nb {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin: 25px 0 20px;
-}
-
-.auth-divider-nb::before,
-.auth-divider-nb::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: #e8e2d9;
-}
-
-.auth-divider-nb span {
-    font-size: 11px;
-    color: #999;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
+/* .auth-divider-nb — REMOVED (moved to pages.css) */
 
 
 /* =====================================================
@@ -1053,7 +993,7 @@
     color: #1a1a1a;
 }
 
-/* ITEM ROW (Matching script.js logic) */
+/* ITEM ROW */
 .minicart-item {
     display: flex;
     gap: 16px;
@@ -1312,9 +1252,12 @@
         padding: 20px 22px;
     }
 }
+
+
 /* =====================================================
-   RECENTLY VIEWED PRODUCTS
+   14. RECENTLY VIEWED PRODUCTS
 ===================================================== */
+
 .recent-viewed-grid-nb {
     display: flex;
     gap: 20px;
@@ -1327,6 +1270,7 @@
 .recent-viewed-grid-nb::-webkit-scrollbar {
     height: 4px;
 }
+
 .recent-viewed-grid-nb::-webkit-scrollbar-thumb {
     background: #c9a961;
     border-radius: 4px;
@@ -1390,3 +1334,7 @@
     color: #c9a961;
     font-weight: 700;
 }
+
+/* =====================================================
+   END — components.css v2.0 (CLEAN)
+===================================================== */

@@ -1,6 +1,7 @@
 /* =====================================================
-   Zenith — BASE CSS v1.2
+   Zenith — BASE CSS v2.0 (CLEANED)
    Foundation: Variables, Reset, Typography, Common
+   Unused tokens removed • Structure organized
 ===================================================== */
 
 
@@ -25,9 +26,6 @@
     /* Accent — Gold */
     --accent-gold: #c9a961;
     --accent-gold-dark: #b3945a;
-    --gold-bright: #D4AF37;
-    --gold-light: #F4E5A1;
-    --gold-dark: #B8945A;
 
     /* Borders */
     --border-light: #e8e2d9;
@@ -43,7 +41,6 @@
     --container-max: 1400px;
 
     /* Transitions */
-    --transition-fast: .2s ease;
     --transition: .3s ease;
     --transition-slow: .5s ease;
 }
@@ -437,6 +434,11 @@ section {
     color: #dc3545;
 }
 
+/* Prevent empty toast from showing as a white box */
+.zenith-toast:empty {
+    display: none !important;
+}
+
 
 /* =====================================================
    8. ANNOUNCEMENT BAR (Scrolling)
@@ -453,7 +455,7 @@ section {
     font-weight: 500;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    z-index: 10; /* Fix: prevent overlapping issue */
+    z-index: 10;
 }
 
 .announcement-track {
@@ -541,7 +543,7 @@ section {
 
 
 /* =====================================================
-   11. 🆕 HEADER BADGE & ICON FIXES (White Circle Problem)
+   11. HEADER BADGE & ICON FIXES
 ===================================================== */
 
 /* Fix the white circle */
@@ -566,7 +568,7 @@ section {
     line-height: 1 !important;
     z-index: 10 !important;
     border: 1.5px solid var(--bg-primary) !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Fix the icon container so it doesn't float */
@@ -578,7 +580,6 @@ section {
     justify-content: center !important;
 }
 
-/* Prevent empty toast from showing as a white box */
-#zenith-toast:empty {
-    display: none !important;
-}
+/* =====================================================
+   END — base.css v2.0 (CLEANED)
+===================================================== */

@@ -128,7 +128,7 @@
                 </form>
 
 
-                <!-- ============ SOCIAL LOGIN — TEMPORARILY HIDDEN (Future use)
+                <!-- SOCIAL LOGIN — TEMPORARILY HIDDEN (Future use)
                 <div class="auth-divider-nb">
                     <span>or continue with</span>
                 </div>
@@ -168,7 +168,10 @@
 
 </section>
 
+{% endblock %}
 
+
+{% block extra_scripts %}
 <script>
     function togglePasswordNB(inputId, btn) {
         const input = document.getElementById(inputId);
@@ -187,5 +190,4 @@
         }
     }
 </script>
-
 {% endblock %}

@@ -30,7 +30,7 @@
 
             <div class="status-row">
                 <span>Amount</span>
-                <strong>₹{{ order.total_amount }}</strong>
+                <strong>₹{{ order.total_amount|inr }}</strong>
             </div>
 
             <div class="status-row">
@@ -42,10 +42,8 @@
 
 
         <div class="failure-message">
-
             <i class="fa-solid fa-circle-info"></i>
             Don't worry! No amount has been deducted from your account.
-
         </div>
 
 

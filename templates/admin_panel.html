@@ -5,154 +5,124 @@
 {% block content %}
 
 <!-- ============================================ -->
-<!-- DASHBOARD TAB — Enhanced -->
+<!-- DASHBOARD TAB -->
 <!-- ============================================ -->
 
 {% if active_tab is not defined or active_tab == 'dashboard' %}
 
     <div class="admin-content">
-
         <div class="admin-content-header">
-            <h1>
-                <i class="fa-solid fa-gauge-high"></i>
-                Dashboard
-            </h1>
+            <h1><i class="fa-solid fa-gauge-high"></i> Dashboard</h1>
             <p>Welcome back, {{ current_user.full_name }}!</p>
         </div>
 
-
+        <!-- STATS GRID -->
         <div class="stats-grid">
-
             <div class="stat-card red">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></div>
                 <div class="stat-content">
                     <span class="stat-value">₹{{ "%.0f"|format(total_revenue) }}</span>
                     <span class="stat-label">Total Revenue</span>
                 </div>
             </div>
-
             <div class="stat-card blue">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-box"></i>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
                 <div class="stat-content">
                     <span class="stat-value">{{ total_orders }}</span>
                     <span class="stat-label">Total Orders</span>
                 </div>
             </div>
-
             <div class="stat-card green">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-users"></i>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
                 <div class="stat-content">
                     <span class="stat-value">{{ total_users }}</span>
                     <span class="stat-label">Total Users</span>
                 </div>
             </div>
-
             <div class="stat-card yellow">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-tags"></i>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-tags"></i></div>
                 <div class="stat-content">
                     <span class="stat-value">{{ total_products if total_products else 0 }}</span>
                     <span class="stat-label">Products</span>
                 </div>
             </div>
-
         </div>
 
+        <!-- PENDING ACTIONS WIDGET -->
+        <div class="pending-actions-widget">
+            <div class="pending-actions-header">
+                <h3><i class="fa-solid fa-bell"></i> Pending Actions</h3>
+                <span class="pending-actions-badge">
+                    {{ (pending_orders or 0) + (pending_returns_count or 0) + (pending_reviews_count or 0) }} Total
+                </span>
+            </div>
+            <div class="pending-actions-grid">
+                <a href="{{ url_for('admin_orders_tab', status='pending') }}" class="pending-action-card {% if pending_orders > 0 %}has-items{% endif %}">
+                    <!-- ✅ WRAPPED IN SPAN -->
+                    <div class="pending-action-icon orders"><span><i class="fa-solid fa-box"></i></span></div>
+                    <div class="pending-action-content">
+                        <span class="pending-action-count">{{ pending_orders or 0 }}</span>
+                        <span class="pending-action-label">Pending Orders</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right pending-action-arrow"></i>
+                </a>
+                <a href="{{ url_for('admin_returns_tab') }}" class="pending-action-card {% if pending_returns_count > 0 %}has-items{% endif %}">
+                    <!-- ✅ WRAPPED IN SPAN -->
+                    <div class="pending-action-icon returns"><span><i class="fa-solid fa-rotate-left"></i></span></div>
+                    <div class="pending-action-content">
+                        <span class="pending-action-count">{{ pending_returns_count or 0 }}</span>
+                        <span class="pending-action-label">Pending Returns</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right pending-action-arrow"></i>
+                </a>
+                <a href="{{ url_for('admin_reviews_tab', status='pending') }}" class="pending-action-card {% if pending_reviews_count > 0 %}has-items{% endif %}">
+                    <!-- ✅ WRAPPED IN SPAN (FIXED WHITE BOX) -->
+                    <div class="pending-action-icon reviews"><span><i class="fa-solid fa-star"></i></span></div>
+                    <div class="pending-action-content">
+                        <span class="pending-action-count">{{ pending_reviews_count or 0 }}</span>
+                        <span class="pending-action-label">Unapproved Reviews</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right pending-action-arrow"></i>
+                </a>
+            </div>
+        </div>
 
+        <!-- QUICK STATS -->
         <div class="dashboard-quick-stats">
-
             <div class="quick-stat-card">
-                <div class="quick-stat-header">
-                    <span class="quick-stat-tag">Today</span>
-                    <i class="fa-solid fa-calendar-day"></i>
-                </div>
+                <div class="quick-stat-header"><span class="quick-stat-tag">Today</span><i class="fa-solid fa-calendar-day"></i></div>
                 <div class="quick-stat-body">
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">Orders</span>
-                        <span class="quick-stat-value">{{ today_orders }}</span>
-                    </div>
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">Revenue</span>
-                        <span class="quick-stat-value gold">₹{{ "%.0f"|format(today_revenue) }}</span>
-                    </div>
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">New Users</span>
-                        <span class="quick-stat-value">{{ today_users }}</span>
-                    </div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">Orders</span><span class="quick-stat-value">{{ today_orders }}</span></div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">Revenue</span><span class="quick-stat-value gold">₹{{ "%.0f"|format(today_revenue) }}</span></div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">New Users</span><span class="quick-stat-value">{{ today_users }}</span></div>
                 </div>
             </div>
-
             <div class="quick-stat-card">
-                <div class="quick-stat-header">
-                    <span class="quick-stat-tag">Last 7 Days</span>
-                    <i class="fa-solid fa-calendar-week"></i>
-                </div>
+                <div class="quick-stat-header"><span class="quick-stat-tag">Last 7 Days</span><i class="fa-solid fa-calendar-week"></i></div>
                 <div class="quick-stat-body">
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">Orders</span>
-                        <span class="quick-stat-value">{{ week_orders }}</span>
-                    </div>
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">Revenue</span>
-                        <span class="quick-stat-value gold">₹{{ "%.0f"|format(week_revenue) }}</span>
-                    </div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">Orders</span><span class="quick-stat-value">{{ week_orders }}</span></div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">Revenue</span><span class="quick-stat-value gold">₹{{ "%.0f"|format(week_revenue) }}</span></div>
                 </div>
             </div>
-
             <div class="quick-stat-card">
-                <div class="quick-stat-header">
-                    <span class="quick-stat-tag">Last 30 Days</span>
-                    <i class="fa-solid fa-calendar-days"></i>
-                </div>
+                <div class="quick-stat-header"><span class="quick-stat-tag">Last 30 Days</span><i class="fa-solid fa-calendar-days"></i></div>
                 <div class="quick-stat-body">
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">Orders</span>
-                        <span class="quick-stat-value">{{ month_orders }}</span>
-                    </div>
-                    <div class="quick-stat-item">
-                        <span class="quick-stat-label">Revenue</span>
-                        <span class="quick-stat-value gold">₹{{ "%.0f"|format(month_revenue) }}</span>
-                    </div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">Orders</span><span class="quick-stat-value">{{ month_orders }}</span></div>
+                    <div class="quick-stat-item"><span class="quick-stat-label">Revenue</span><span class="quick-stat-value gold">₹{{ "%.0f"|format(month_revenue) }}</span></div>
                 </div>
             </div>
-
         </div>
 
-
+        <!-- CHARTS -->
         <div class="dashboard-charts-grid">
-
             <div class="dashboard-chart-card">
-                <div class="card-header">
-                    <h3>
-                        <i class="fa-solid fa-chart-line"></i>
-                        Revenue — Last 7 Days
-                    </h3>
-                </div>
-                <div class="chart-wrap">
-                    <canvas id="revenueChart"
-                            data-labels='{{ revenue_chart_labels|tojson }}'
-                            data-values='{{ revenue_chart_data|tojson }}'></canvas>
-                </div>
+                <div class="card-header"><h3><i class="fa-solid fa-chart-line"></i> Revenue — Last 7 Days</h3></div>
+                <div class="chart-wrap"><canvas id="revenueChart" data-labels='{{ revenue_chart_labels|tojson }}' data-values='{{ revenue_chart_data|tojson }}'></canvas></div>
             </div>
-
             <div class="dashboard-chart-card">
-                <div class="card-header">
-                    <h3>
-                        <i class="fa-solid fa-chart-pie"></i>
-                        Order Status
-                    </h3>
-                </div>
+                <div class="card-header"><h3><i class="fa-solid fa-chart-pie"></i> Order Status</h3></div>
                 <div class="status-breakdown">
-
                     {% set total_status = order_status_breakdown.values()|sum %}
-
                     {% for status, count in order_status_breakdown.items() %}
                         <div class="status-breakdown-row">
                             <div class="status-breakdown-left">
@@ -162,252 +132,129 @@
                             <div class="status-breakdown-right">
                                 <span class="status-count">{{ count }}</span>
                                 {% if total_status > 0 %}
-                                    <span class="status-pct">
-                                        {{ "%.0f"|format((count / total_status * 100)) }}%
-                                    </span>
+                                    <span class="status-pct">{{ "%.0f"|format((count / total_status * 100)) }}%</span>
                                 {% else %}
                                     <span class="status-pct">0%</span>
                                 {% endif %}
                             </div>
                         </div>
                     {% endfor %}
-
                 </div>
             </div>
-
         </div>
 
-
+        <!-- LOW STOCK -->
         {% if low_stock_products %}
-
         <div class="dashboard-section-card">
-
             <div class="card-header">
-                <h3>
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    Low Stock Alerts
-                    <span class="header-count">{{ low_stock_products|length }}</span>
-                </h3>
-                <a href="{{ url_for('admin_products_tab') }}?sort=stock_low" class="view-all-btn">
-                    View All
-                </a>
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> Low Stock Alerts <span class="header-count">{{ low_stock_products|length }}</span></h3>
+                <a href="{{ url_for('admin_products_tab') }}?sort=stock_low" class="view-all-btn">View All</a>
             </div>
-
             <div class="low-stock-list">
-
                 {% for p in low_stock_products %}
                     <div class="low-stock-item">
-
-                        <div class="low-stock-img">
-                            <img src="{{ p.image|product_image }}" alt="{{ p.name }}">
-                        </div>
-
+                        <div class="low-stock-img"><img src="{{ p.image|product_image }}" alt="{{ p.name }}"></div>
                         <div class="low-stock-info">
                             <span class="low-stock-name">{{ p.name }}</span>
                             <span class="low-stock-cat">{{ p.category }}</span>
                         </div>
-
-                        <div class="low-stock-right">
-                            <span class="low-stock-qty {% if p.stock <= 3 %}critical{% endif %}">
-                                {{ p.stock }} left
-                            </span>
-                        </div>
-
+                        <div class="low-stock-right"><span class="low-stock-qty {% if p.stock <= 3 %}critical{% endif %}">{{ p.stock }} left</span></div>
                     </div>
                 {% endfor %}
-
             </div>
-
         </div>
-
         {% endif %}
 
-
+        <!-- TOP PRODUCTS -->
         {% if top_products %}
-
         <div class="dashboard-section-card">
-
-            <div class="card-header">
-                <h3>
-                    <i class="fa-solid fa-trophy"></i>
-                    Top Selling Products
-                </h3>
-            </div>
-
+            <div class="card-header"><h3><i class="fa-solid fa-trophy"></i> Top Selling Products</h3></div>
             <div class="top-products-list">
-
                 {% set max_qty = top_products[0].qty if top_products else 1 %}
-
                 {% for tp in top_products %}
                     <div class="top-product-item">
-
-                        <div class="top-product-rank">
-                            #{{ loop.index }}
-                        </div>
-
+                        <div class="top-product-rank">#{{ loop.index }}</div>
                         <div class="top-product-info">
                             <span class="top-product-name">{{ tp.name }}</span>
-                            <span class="top-product-meta">
-                                {{ tp.qty }} sold · ₹{{ "%.0f"|format(tp.revenue) }}
-                            </span>
+                            <span class="top-product-meta">{{ tp.qty }} sold · ₹{{ "%.0f"|format(tp.revenue) }}</span>
                         </div>
-
                         <div class="top-product-bar">
                             {% if max_qty > 0 %}
-                                <div class="top-product-bar-fill"
-                                     data-width="{{ (tp.qty / max_qty * 100) }}"></div>
+                                <div class="top-product-bar-fill" data-width="{{ (tp.qty / max_qty * 100) }}"></div>
                             {% else %}
                                 <div class="top-product-bar-fill" data-width="0"></div>
                             {% endif %}
                         </div>
-
                     </div>
                 {% endfor %}
-
             </div>
-
         </div>
-
         {% endif %}
 
-
+        <!-- RECENT ORDERS & QUICK ACTIONS -->
         <div class="dashboard-grid">
-
             <div class="recent-orders-card">
-
                 <div class="card-header">
-                    <h3>
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                        Recent Orders
-                    </h3>
-                    <a href="{{ url_for('admin_orders_tab') }}" class="view-all-btn">
-                        View All
-                    </a>
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Orders</h3>
+                    <a href="{{ url_for('admin_orders_tab') }}" class="view-all-btn">View All</a>
                 </div>
-
                 {% if recent_orders %}
-
                     <div class="recent-orders-list">
-
                         {% for order in recent_orders %}
-
                             <div class="recent-order-item">
-
                                 <div class="order-info">
                                     <span class="order-id">#{{ order.id }}</span>
                                     <span class="order-customer">{{ order.user.full_name }}</span>
                                 </div>
-
                                 <div class="order-meta">
                                     <span class="order-total">₹{{ order.total_amount|inr }}</span>
                                     <span class="order-status {{ order.status }}">{{ order.status }}</span>
                                 </div>
-
                             </div>
-
                         {% endfor %}
-
                     </div>
-
                 {% else %}
-
                     <p class="no-data">No recent orders.</p>
-
                 {% endif %}
-
             </div>
-
 
             <div class="quick-actions-card">
-
-                <div class="card-header">
-                    <h3>
-                        <i class="fa-solid fa-bolt"></i>
-                        Quick Actions
-                    </h3>
-                </div>
-
+                <div class="card-header"><h3><i class="fa-solid fa-bolt"></i> Quick Actions</h3></div>
                 <div class="quick-actions-list">
-
-                    <a href="{{ url_for('admin_orders_tab') }}" class="quick-action-btn">
-                        <i class="fa-solid fa-box"></i>
-                        Manage Orders
-                    </a>
-
-                    <a href="{{ url_for('admin_products_tab') }}" class="quick-action-btn">
-                        <i class="fa-solid fa-tags"></i>
-                        Manage Products
-                    </a>
-
-                    <a href="{{ url_for('admin_users_tab') }}" class="quick-action-btn">
-                        <i class="fa-solid fa-users"></i>
-                        Manage Users
-                    </a>
-
-                    <a href="{{ url_for('admin_add_coupon') }}" class="quick-action-btn">
-                        <i class="fa-solid fa-ticket"></i>
-                        Add Coupon
-                    </a>
-
-                    <a href="{{ url_for('admin_add_product') }}" class="quick-action-btn">
-                        <i class="fa-solid fa-plus"></i>
-                        Add New Product
-                    </a>
-
+                    <a href="{{ url_for('admin_orders_tab') }}" class="quick-action-btn"><i class="fa-solid fa-box"></i> Manage Orders</a>
+                    <a href="{{ url_for('admin_products_tab') }}" class="quick-action-btn"><i class="fa-solid fa-tags"></i> Manage Products</a>
+                    <a href="{{ url_for('admin_users_tab') }}" class="quick-action-btn"><i class="fa-solid fa-users"></i> Manage Users</a>
+                    <a href="{{ url_for('admin_add_coupon') }}" class="quick-action-btn"><i class="fa-solid fa-ticket"></i> Add Coupon</a>
+                    <a href="{{ url_for('admin_add_product') }}" class="quick-action-btn"><i class="fa-solid fa-plus"></i> Add New Product</a>
                 </div>
-
             </div>
-
         </div>
 
-
+        <!-- RECENT SIGNUPS -->
         {% if recent_users %}
-
         <div class="dashboard-section-card" style="margin-top: 25px;">
-
             <div class="card-header">
-                <h3>
-                    <i class="fa-solid fa-user-plus"></i>
-                    Recent Signups
-                </h3>
-                <a href="{{ url_for('admin_users_tab') }}" class="view-all-btn">
-                    View All
-                </a>
+                <h3><i class="fa-solid fa-user-plus"></i> Recent Signups</h3>
+                <a href="{{ url_for('admin_users_tab') }}" class="view-all-btn">View All</a>
             </div>
-
             <div class="recent-signups-list">
-
                 {% for u in recent_users %}
                     <div class="recent-signup-item">
-
-                        <div class="customer-avatar">
-                            {{ u.full_name[0]|upper }}
-                        </div>
-
+                        <div class="customer-avatar">{{ u.full_name[0]|upper }}</div>
                         <div class="recent-signup-info">
                             <span class="recent-signup-name">{{ u.full_name }}</span>
                             <span class="recent-signup-email">{{ u.email }}</span>
                         </div>
-
-                        <div class="recent-signup-date">
-                            {{ u.created_at.strftime('%d %b %Y') }}
-                        </div>
-
+                        <div class="recent-signup-date">{{ u.created_at.strftime('%d %b %Y') }}</div>
                     </div>
                 {% endfor %}
-
             </div>
-
         </div>
-
         {% endif %}
 
     </div>
 
 {% endif %}
-
-
-
 <!-- ============================================ -->
 <!-- ORDERS TAB -->
 <!-- ============================================ -->
@@ -415,175 +262,104 @@
 {% if active_tab == 'orders' %}
 
     <div class="admin-content">
-
         <div class="admin-content-header">
-            <h1>
-                <i class="fa-solid fa-box"></i>
-                Orders
-            </h1>
+            <h1><i class="fa-solid fa-box"></i> Orders</h1>
             <p>Manage all orders</p>
         </div>
 
-
-        <form method="GET"
-              action="{{ url_for('admin_orders_tab') }}"
-              class="admin-filter-bar">
-
+        <!-- Filter Bar -->
+        <form method="GET" action="{{ url_for('admin_orders_tab') }}" class="admin-filter-bar">
             <div class="admin-search-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                       name="q"
-                       value="{{ search_q|default('') }}"
-                       placeholder="Search order ID / customer name / email..."
-                       autocomplete="off">
+                <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="Search order ID / customer name / email..." autocomplete="off">
                 {% if search_q %}
-                <a href="{{ url_for('admin_orders_tab', status=status_filter, sort=sort_by) }}"
-                   class="admin-search-clear"
-                   title="Clear search">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
+                <a href="{{ url_for('admin_orders_tab', status=status_filter, sort=sort_by) }}" class="admin-search-clear" title="Clear search"><i class="fa-solid fa-xmark"></i></a>
                 {% endif %}
             </div>
-
             <select name="status" class="admin-filter-select">
                 <option value="">All Statuses</option>
                 {% for s in valid_statuses %}
-                    <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>
-                        {{ s|capitalize }}
-                    </option>
+                    <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s|capitalize }}</option>
                 {% endfor %}
             </select>
-
             <select name="sort" class="admin-filter-select">
-                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
-                    Newest First
-                </option>
-                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
-                    Oldest First
-                </option>
-                <option value="amount_high" {% if sort_by == 'amount_high' %}selected{% endif %}>
-                    Amount: High → Low
-                </option>
-                <option value="amount_low" {% if sort_by == 'amount_low' %}selected{% endif %}>
-                    Amount: Low → High
-                </option>
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="amount_high" {% if sort_by == 'amount_high' %}selected{% endif %}>Amount: High → Low</option>
+                <option value="amount_low" {% if sort_by == 'amount_low' %}selected{% endif %}>Amount: Low → High</option>
             </select>
-
-            <button type="submit" class="admin-filter-btn">
-                <i class="fa-solid fa-filter"></i>
-                Apply
-            </button>
-
+            <button type="submit" class="admin-filter-btn"><i class="fa-solid fa-filter"></i> Apply</button>
             {% if search_q or status_filter or (sort_by and sort_by != 'newest') %}
-            <a href="{{ url_for('admin_orders_tab') }}"
-               class="admin-filter-reset">
-                <i class="fa-solid fa-rotate-left"></i>
-                Reset
-            </a>
+            <a href="{{ url_for('admin_orders_tab') }}" class="admin-filter-reset"><i class="fa-solid fa-rotate-left"></i> Reset</a>
             {% endif %}
-
         </form>
 
-
+        <!-- Status Tabs -->
         <div class="order-status-tabs">
-
-            <a href="{{ url_for('admin_orders_tab', q=search_q, sort=sort_by) }}"
-               class="order-status-tab {% if not status_filter %}active{% endif %}">
-
-                <i class="fa-solid fa-list"></i>
-                All
-                <span class="status-tab-count">{{ status_counts.all }}</span>
-
+            <a href="{{ url_for('admin_orders_tab', q=search_q, sort=sort_by) }}" class="order-status-tab {% if not status_filter %}active{% endif %}">
+                <i class="fa-solid fa-list"></i> All <span class="status-tab-count">{{ status_counts.all }}</span>
             </a>
-
             {% for s in valid_statuses %}
-
-                <a href="{{ url_for('admin_orders_tab', q=search_q, sort=sort_by, status=s) }}"
-                   class="order-status-tab status-{{ s }} {% if status_filter == s %}active{% endif %}">
-
-                    {% if s == 'pending' %}
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    {% elif s == 'processing' %}
-                        <i class="fa-solid fa-gear"></i>
-                    {% elif s == 'shipped' %}
-                        <i class="fa-solid fa-truck-fast"></i>
-                    {% elif s == 'delivered' %}
-                        <i class="fa-solid fa-circle-check"></i>
-                    {% elif s == 'cancelled' %}
-                        <i class="fa-solid fa-circle-xmark"></i>
+                <a href="{{ url_for('admin_orders_tab', q=search_q, sort=sort_by, status=s) }}" class="order-status-tab status-{{ s }} {% if status_filter == s %}active{% endif %}">
+                    {% if s == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
+                    {% elif s == 'processing' %}<i class="fa-solid fa-gear"></i>
+                    {% elif s == 'shipped' %}<i class="fa-solid fa-truck-fast"></i>
+                    {% elif s == 'delivered' %}<i class="fa-solid fa-circle-check"></i>
+                    {% elif s == 'cancelled' %}<i class="fa-solid fa-circle-xmark"></i>
                     {% endif %}
-
-                    {{ s|capitalize }}
-                    <span class="status-tab-count">{{ status_counts[s] }}</span>
-
+                    {{ s|capitalize }} <span class="status-tab-count">{{ status_counts[s] }}</span>
                 </a>
-
             {% endfor %}
-
         </div>
 
-
+        <!-- Orders Table -->
         {% if orders and orders|length > 0 %}
-
             <div class="admin-orders-table">
-
                 <table>
-
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
                         {% for order in orders %}
-
                             <tr>
-
-                                <td>
-                                    <span class="order-id-badge">#{{ order.id }}</span>
-                                </td>
-
+                                <td><span class="order-id-badge">#{{ order.id }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">
-                                            {{ order.user.full_name[0]|upper }}
-                                        </div>
+                                        <div class="customer-avatar">{{ order.user.full_name[0]|upper }}</div>
                                         <div>
                                             <div>{{ order.user.full_name }}</div>
-                                            <small style="color: #999; font-size: 11px;">
-                                                {{ order.user.email }}
-                                            </small>
+                                            <small style="color: #999; font-size: 11px;">{{ order.user.email }}</small>
                                         </div>
                                     </div>
                                 </td>
-
                                 <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
-
+                                <td><span class="order-total-badge">₹{{ order.total_amount|inr }}</span></td>
                                 <td>
-                                    <span class="order-total-badge">₹{{ order.total_amount|inr }}</span>
+                                    <span class="order-status {{ order.status }}">{{ order.status }}</span>
                                 </td>
+                                <td style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <a href="{{ url_for('admin_order_details', order_id=order.id) }}" class="admin-view-btn"><i class="fa-solid fa-eye"></i> View</a>
 
-                                <td>
-                                    <span class="order-status {{ order.status }}">
-                                        {{ order.status }}
-                                    </span>
-                                </td>
+                                    <form method="POST" action="{{ url_for('admin_update_order_status', order_id=order.id) }}" style="margin: 0; display: flex; align-items: center; gap: 4px;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="return_q" value="{{ search_q|default('') }}">
+                                        <input type="hidden" name="return_status" value="{{ status_filter|default('') }}">
+                                        <input type="hidden" name="return_sort" value="{{ sort_by|default('newest') }}">
+                                        <input type="hidden" name="return_page" value="{{ current_page|default(1) }}">
+                                        
+                                        <select name="status" class="admin-status-dropdown status-{{ order.status }}" 
+                                                onchange="if(this.value === 'cancelled' && !confirm('Cancel this order? Stock will be restored.')) { this.value = '{{ order.status }}'; return; } this.form.submit();" 
+                                                title="Update order status">
+                                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>⏳ Pending</option>
+                                            <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>⚙️ Processing</option>
+                                            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>🚚 Shipped</option>
+                                            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>✅ Delivered</option>
+                                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>❌ Cancelled</option>
+                                        </select>
+                                    </form>
 
-                                <td style="display: flex; gap: 8px; align-items: center;">
-                                    <a href="{{ url_for('admin_order_details', order_id=order.id) }}"
-                                       class="admin-view-btn">
-                                        <i class="fa-solid fa-eye"></i>
-                                        View
-                                    </a>
-
-                                    <!-- ✅ NAYA: RETURN APPROVE BUTTON (List page pe) -->
                                     {% if order.return_status == 'pending' %}
                                     <form method="POST" action="{{ url_for('admin_approve_return', order_id=order.id) }}" style="margin: 0;">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -593,243 +369,211 @@
                                     </form>
                                     {% endif %}
                                 </td>
-
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
-
         {% else %}
-
             <div class="empty-orders">
-
-                <div class="empty-orders-icon">
-                    <i class="fa-solid fa-inbox"></i>
-                </div>
-
-                <h2>
-                    {% if search_q or status_filter %}
-                        No Matching Orders
-                    {% else %}
-                        No Orders Yet
-                    {% endif %}
-                </h2>
-
-                <p>
-                    {% if search_q or status_filter %}
-                        Try different search terms or clear filters.
-                    {% else %}
-                        No orders have been placed yet.
-                    {% endif %}
-                </p>
-
+                <div class="empty-orders-icon"><i class="fa-solid fa-inbox"></i></div>
+                <h2>{% if search_q or status_filter %}No Matching Orders{% else %}No Orders Yet{% endif %}</h2>
+                <p>{% if search_q or status_filter %}Try different search terms or clear filters.{% else %}No orders have been placed yet.{% endif %}</p>
                 {% if search_q or status_filter %}
-                    <a href="{{ url_for('admin_orders_tab') }}"
-                       class="admin-view-btn"
-                       style="margin-top: 20px; padding: 14px 30px;">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        Clear Filters
-                    </a>
+                    <a href="{{ url_for('admin_orders_tab') }}" class="admin-view-btn" style="margin-top: 20px; padding: 14px 30px;"><i class="fa-solid fa-rotate-left"></i> Clear Filters</a>
                 {% endif %}
-
             </div>
-
         {% endif %}
 
-
+        <!-- Pagination -->
         {% if total_pages is defined and total_pages > 1 %}
-
         <div class="admin-pagination">
-
             <div class="admin-pagination-info">
-                Showing
-                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
-                –
-                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
-                of
-                <strong>{{ total_count }}</strong>
-                orders
+                Showing <strong>{{ (current_page - 1) * per_page + 1 }}</strong> – <strong>{{ [current_page * per_page, total_count]|min }}</strong> of <strong>{{ total_count }}</strong> orders
             </div>
-
             <div class="admin-pagination-controls">
-
                 {% if current_page > 1 %}
-                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page-1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </a>
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page-1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-left"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
                 {% endif %}
-
                 {% set start_page = [1, current_page - 2]|max %}
                 {% set end_page = [total_pages, start_page + 4]|min %}
                 {% set start_page = [1, end_page - 4]|max %}
-
                 {% if start_page > 1 %}
-                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=1) }}"
-                       class="admin-page-btn">1</a>
-                    {% if start_page > 2 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=1) }}" class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}<span class="admin-page-dots">…</span>{% endif %}
                 {% endif %}
-
                 {% for p in range(start_page, end_page + 1) %}
-                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=p) }}"
-                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
-                        {{ p }}
-                    </a>
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=p) }}" class="admin-page-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
                 {% endfor %}
-
                 {% if end_page < total_pages %}
-                    {% if end_page < total_pages - 1 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
-                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=total_pages) }}"
-                       class="admin-page-btn">{{ total_pages }}</a>
+                    {% if end_page < total_pages - 1 %}<span class="admin-page-dots">…</span>{% endif %}
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=total_pages) }}" class="admin-page-btn">{{ total_pages }}</a>
                 {% endif %}
-
                 {% if current_page < total_pages %}
-                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page+1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </a>
+                    <a href="{{ url_for('admin_orders_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page+1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-right"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
                 {% endif %}
-
             </div>
-
         </div>
-
         {% endif %}
-
     </div>
-
 {% endif %}
 
 
-
 <!-- ============================================ -->
-<!-- ✅ RETURNS TAB (NEW) -->
+<!-- ✅ RETURNS TAB — MULTI-STEP WORKFLOW         -->
 <!-- ============================================ -->
 
 {% if active_tab == 'returns' %}
 
     <div class="admin-content">
-
         <div class="admin-content-header">
-            <h1>
-                <i class="fa-solid fa-rotate-left"></i>
-                Return Requests
-            </h1>
+            <h1><i class="fa-solid fa-rotate-left"></i> Return Requests</h1>
             <p>Manage customer return & refund requests</p>
         </div>
 
+        <!-- ✅ SECTION 1: PENDING RETURNS -->
         {% if pending_returns and pending_returns|length > 0 %}
-
+        <div class="returns-section">
+            <div class="returns-section-header pending">
+                <h3><i class="fa-solid fa-hourglass-half"></i> Pending Approval</h3>
+                <span class="badge-count">{{ pending_returns|length }}</span>
+            </div>
             <div class="admin-orders-table">
-
                 <table>
-
                     <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Reason</th>
-                            <th>Refund Details</th>
-                            <th>Actions</th>
-                        </tr>
+                        <tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Reason</th><th>Refund Details</th><th>Refund ₹ & Actions</th></tr>
                     </thead>
-
                     <tbody>
-
-                        {% for order in pending_returns %}
-
+                        {% for ret in pending_returns %}
                             <tr>
-                                <td>
-                                    <span class="order-id-badge">#{{ order.id }}</span>
-                                </td>
-
+                                <td><span class="order-id-badge">#{{ ret.order.id }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">
-                                            {{ order.user.full_name[0]|upper }}
-                                        </div>
+                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper }}</div>
                                         <div>
-                                            <div>{{ order.user.full_name }}</div>
-                                            <small style="color: #999; font-size: 11px;">
-                                                {{ order.user.email }}
-                                            </small>
+                                            <div>{{ ret.user.full_name }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email }}</small>
                                         </div>
                                     </div>
                                 </td>
-
-                                <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
-
+                                <td>{{ ret.created_at.strftime('%d %b %Y') }}</td>
+                                <td><span style="font-size: 13px; color: #666;">{{ ret.reason }}</span></td>
+                                <td><span style="font-size: 13px; font-weight: 600; color: #1a1a1a;">{{ ret.order.refund_account_details if ret.order else 'N/A' }}</span></td>
                                 <td>
-                                    <span style="font-size: 13px; color: #666;">
-                                        {{ order.return_reason }}
-                                    </span>
+                                    <form method="POST" action="{{ url_for('admin_approve_return', order_id=ret.order.id) }}" style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="number" name="refund_amount" placeholder="₹ Amount" required min="1" style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px;">
+                                        <a href="{{ url_for('admin_order_details', order_id=ret.order.id) }}" class="admin-view-btn"><i class="fa-solid fa-eye"></i> View</a>
+                                        <button type="submit" class="admin-view-btn" style="background: #28a745; border-color: #28a745; color: white;" onclick="return confirm('Approve this return?')"><i class="fa-solid fa-check"></i> Approve</button>
+                                    </form>
                                 </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
 
+        <!-- ✅ SECTION 2: APPROVED (WAITING FOR PICKUP) -->
+        {% if approved_returns and approved_returns|length > 0 %}
+        <div class="returns-section">
+            <div class="returns-section-header approved">
+                <h3><i class="fa-solid fa-check-circle"></i> Approved — Waiting for Pickup</h3>
+                <span class="badge-count">{{ approved_returns|length }}</span>
+            </div>
+            <div class="admin-orders-table">
+                <table>
+                    <thead>
+                        <tr><th>Order ID</th><th>Customer</th><th>Approved On</th><th>Reason</th><th>Refund ₹</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for ret in approved_returns %}
+                            <tr>
+                                <td><span class="order-id-badge">#{{ ret.order.id }}</span></td>
                                 <td>
-                                    <span style="font-size: 13px; font-weight: 600; color: #1a1a1a;">
-                                        {{ order.refund_account_details }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <div style="display: flex; gap: 8px;">
-                                        <a href="{{ url_for('admin_order_details', order_id=order.id) }}" class="admin-view-btn">
-                                            <i class="fa-solid fa-eye"></i> View
-                                        </a>
-
-                                        <form method="POST" action="{{ url_for('admin_approve_return', order_id=order.id) }}" style="margin: 0;">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button type="submit" class="admin-view-btn" style="background: #28a745; border-color: #28a745; color: white;" onclick="return confirm('Approve this return?')">
-                                                <i class="fa-solid fa-check"></i> Approve
-                                            </button>
-                                        </form>
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper }}</div>
+                                        <div>
+                                            <div>{{ ret.user.full_name }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email }}</small>
+                                        </div>
                                     </div>
                                 </td>
-
+                                <td>{{ ret.approved_at.strftime('%d %b %Y') if ret.approved_at else '—' }}</td>
+                                <td><span style="font-size: 13px; color: #666;">{{ ret.reason }}</span></td>
+                                <td><span class="coupon-discount-badge">₹{{ "%.0f"|format(ret.refund_amount or 0) }}</span></td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin_pick_return', order_id=ret.order.id) }}" style="margin: 0;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="admin-view-btn" style="background: #3498db; border: none; color: white;" onclick="return confirm('Mark this return as Picked?')"><i class="fa-solid fa-truck"></i> Mark Picked</button>
+                                    </form>
+                                </td>
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
+        </div>
+        {% endif %}
 
-        {% else %}
+        <!-- ✅ SECTION 3: PICKED (WAITING FOR REFUND) -->
+        {% if picked_returns and picked_returns|length > 0 %}
+        <div class="returns-section">
+            <div class="returns-section-header picked">
+                <h3><i class="fa-solid fa-truck"></i> Picked — Ready for Refund</h3>
+                <span class="badge-count">{{ picked_returns|length }}</span>
+            </div>
+            <div class="admin-orders-table">
+                <table>
+                    <thead>
+                        <tr><th>Order ID</th><th>Customer</th><th>Picked On</th><th>Refund Details</th><th>Refund ₹</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for ret in picked_returns %}
+                            <tr>
+                                <td><span class="order-id-badge">#{{ ret.order.id }}</span></td>
+                                <td>
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper }}</div>
+                                        <div>
+                                            <div>{{ ret.user.full_name }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ ret.picked_at.strftime('%d %b %Y') if ret.picked_at else '—' }}</td>
+                                <td><span style="font-size: 13px; font-weight: 600; color: #1a1a1a;">{{ ret.order.refund_account_details if ret.order else 'N/A' }}</span></td>
+                                <td><span class="coupon-discount-badge">₹{{ "%.0f"|format(ret.refund_amount or 0) }}</span></td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin_refund_return', order_id=ret.order.id) }}" style="margin: 0;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="admin-view-btn" style="background: #9b59b6; border: none; color: white;" onclick="return confirm('Process refund for this return?')"><i class="fa-solid fa-money-bill-wave"></i> Process Refund</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
 
+        <!-- ✅ EMPTY STATE -->
+        {% if (not pending_returns or pending_returns|length == 0) and (not approved_returns or approved_returns|length == 0) and (not picked_returns or picked_returns|length == 0) %}
             <div class="empty-orders">
-                <div class="empty-orders-icon">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </div>
-                <h2>No Pending Returns</h2>
-                <p>There are no return requests at the moment.</p>
+                <div class="empty-orders-icon"><i class="fa-solid fa-rotate-left"></i></div>
+                <h2>No Active Returns</h2>
+                <p>There are no pending, approved, or picked return requests at the moment.</p>
             </div>
-
         {% endif %}
 
     </div>
-
 {% endif %}
-
 
 
 <!-- ============================================ -->
@@ -839,443 +583,166 @@
 {% if active_tab == 'products' %}
 
     <div class="admin-content">
-
-        <div class="admin-content-header"
-             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-
+        <div class="admin-content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
-                <h1>
-                    <i class="fa-solid fa-tags"></i>
-                    Products
-                </h1>
+                <h1><i class="fa-solid fa-tags"></i> Products</h1>
                 <p>Manage all products</p>
             </div>
-
-            <a href="{{ url_for('admin_add_product') }}"
-               class="admin-view-btn"
-               style="padding: 12px 24px; font-size: 12px;">
-
-                <i class="fa-solid fa-plus"></i>
-                Add New Product
-
-            </a>
-
+            <a href="{{ url_for('admin_add_product') }}" class="admin-view-btn" style="padding: 12px 24px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add New Product</a>
         </div>
 
-
-        <form method="GET"
-              action="{{ url_for('admin_products_tab') }}"
-              class="admin-filter-bar">
-
+        <form method="GET" action="{{ url_for('admin_products_tab') }}" class="admin-filter-bar">
             <input type="hidden" name="tab" value="{{ current_tab|default('active') }}">
-
             <div class="admin-search-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                       name="q"
-                       value="{{ search_q|default('') }}"
-                       placeholder="Search products..."
-                       autocomplete="off">
+                <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="Search products..." autocomplete="off">
                 {% if search_q %}
-                <a href="{{ url_for('admin_products_tab', tab=current_tab|default('active')) }}"
-                   class="admin-search-clear"
-                   title="Clear search">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
+                <a href="{{ url_for('admin_products_tab', tab=current_tab|default('active')) }}" class="admin-search-clear" title="Clear search"><i class="fa-solid fa-xmark"></i></a>
                 {% endif %}
             </div>
-
             <select name="category" class="admin-filter-select">
                 <option value="">All Categories</option>
-                <option value="featured" {% if category_filter == 'featured' %}selected{% endif %}>
-                    Featured
-                </option>
-                <option value="bestseller" {% if category_filter == 'bestseller' %}selected{% endif %}>
-                    Bestseller
-                </option>
+                <option value="featured" {% if category_filter == 'featured' %}selected{% endif %}>Featured</option>
+                <option value="bestseller" {% if category_filter == 'bestseller' %}selected{% endif %}>Bestseller</option>
             </select>
-
             <select name="sort" class="admin-filter-select">
-                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
-                    Newest First
-                </option>
-                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>
-                    Price: Low → High
-                </option>
-                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>
-                    Price: High → Low
-                </option>
-                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>
-                    Name: A → Z
-                </option>
-                <option value="stock_low" {% if sort_by == 'stock_low' %}selected{% endif %}>
-                    Stock: Low → High
-                </option>
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>Newest First</option>
+                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low → High</option>
+                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High → Low</option>
+                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
+                <option value="stock_low" {% if sort_by == 'stock_low' %}selected{% endif %}>Stock: Low → High</option>
             </select>
-
-            <button type="submit" class="admin-filter-btn">
-                <i class="fa-solid fa-filter"></i>
-                Apply
-            </button>
-
+            <button type="submit" class="admin-filter-btn"><i class="fa-solid fa-filter"></i> Apply</button>
             {% if search_q or category_filter or (sort_by and sort_by != 'newest') %}
-            <a href="{{ url_for('admin_products_tab', tab=current_tab|default('active')) }}"
-               class="admin-filter-reset">
-                <i class="fa-solid fa-rotate-left"></i>
-                Reset
-            </a>
+            <a href="{{ url_for('admin_products_tab', tab=current_tab|default('active')) }}" class="admin-filter-reset"><i class="fa-solid fa-rotate-left"></i> Reset</a>
             {% endif %}
-
         </form>
 
-
         <div class="product-tabs">
-
-            <button type="button"
-                    class="product-tab {% if current_tab == 'active' or not current_tab %}active{% endif %}"
-                    onclick="switchProductTab('active')"
-                    data-tab="active">
-
-                <i class="fa-solid fa-check-circle"></i>
-                Active Products
-                <span class="tab-count">{{ active_count|default(active_products|length if active_products is defined else 0) }}</span>
-
+            <button type="button" class="product-tab {% if current_tab == 'active' or not current_tab %}active{% endif %}" onclick="switchProductTab('active')" data-tab="active">
+                <i class="fa-solid fa-check-circle"></i> Active Products <span class="tab-count">{{ active_count|default(active_products|length if active_products is defined else 0) }}</span>
             </button>
-
-            <button type="button"
-                    class="product-tab {% if current_tab == 'deleted' %}active{% endif %}"
-                    onclick="switchProductTab('deleted')"
-                    data-tab="deleted">
-
-                <i class="fa-solid fa-trash"></i>
-                Deleted Products
-                <span class="tab-count">{{ deleted_count|default(inactive_products|length if inactive_products is defined else 0) }}</span>
-
+            <button type="button" class="product-tab {% if current_tab == 'deleted' %}active{% endif %}" onclick="switchProductTab('deleted')" data-tab="deleted">
+                <i class="fa-solid fa-trash"></i> Deleted Products <span class="tab-count">{{ deleted_count|default(inactive_products|length if inactive_products is defined else 0) }}</span>
             </button>
-
         </div>
-
 
         {% if current_tab == 'active' or not current_tab %}
-
         <div class="product-panel" id="panel-active">
-
             {% if products and products|length > 0 %}
-
                 <div class="admin-products-grid">
-
                     {% for product in products %}
-
                         <div class="admin-product-card">
-
-                            <div class="product-image">
-                                <img src="{{ product.image|product_image }}"
-                                     alt="{{ product.name }}">
-                            </div>
-
+                            <div class="product-image"><img src="{{ product.image|product_image }}" alt="{{ product.name }}"></div>
                             <div class="product-info">
-
                                 <h3>{{ product.name }}</h3>
-
                                 <p class="product-price">₹{{ product.price|inr }}</p>
-
-                                {% if product.old_price %}
-                                    <p class="product-old-price">₹{{ product.old_price|inr }}</p>
-                                {% endif %}
-
+                                {% if product.old_price %}<p class="product-old-price">₹{{ product.old_price|inr }}</p>{% endif %}
                                 <span class="product-category">{{ product.category }}</span>
-
-                                {% if product.stock is not none %}
-                                    <span class="product-category" style="margin-left: 8px;">
-                                        Stock: {{ product.stock }}
-                                    </span>
-                                {% endif %}
-
-                            </div>
-
-                            <div class="product-actions"
-                                 style="display: flex; gap: 8px; flex-wrap: wrap;">
-
-                                <a href="{{ url_for('product', product_id=product.id) }}"
-                                   class="admin-view-btn"
-                                   style="flex: 1; justify-content: center; min-width: 70px;"
-                                   target="_blank">
-
-                                    <i class="fa-solid fa-eye"></i>
-                                    View
-
-                                </a>
-
-                                <a href="{{ url_for('admin_edit_product', product_id=product.id) }}"
-                                   class="admin-view-btn"
-                                   style="flex: 1; justify-content: center; background: #c9a961; min-width: 70px;">
-
-                                    <i class="fa-solid fa-pen"></i>
-                                    Edit
-
-                                </a>
-
-                                <form method="POST"
-                                      action="{{ url_for('admin_delete_product', product_id=product.id) }}"
-                                      onsubmit="return confirm('Delete this product? It will move to deleted section.')"
-                                      style="flex: 1; min-width: 70px;">
-
+                                
+                                <!-- ✅ INLINE STOCK EDIT -->
+                                <form method="POST" action="{{ url_for('admin_update_stock', product_id=product.id) }}" style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                                    <button type="submit"
-                                            class="admin-view-btn"
-                                            style="width: 100%; justify-content: center; background: #dc3545; border: none; cursor: pointer;">
-
-                                        <i class="fa-solid fa-trash"></i>
-                                        Delete
-
-                                    </button>
-
+                                    <input type="number" name="stock" value="{{ product.stock }}" class="admin-stock-input" min="0" required onchange="this.form.submit()" title="Update stock (auto-saves on change)">
+                                    <span style="font-size: 11px; color: #888;">in stock</span>
                                 </form>
-
+                                
                             </div>
-
+                            <div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <a href="{{ url_for('product', product_id=product.id) }}" class="admin-view-btn" style="flex: 1; justify-content: center; min-width: 60px; font-size: 10px; padding: 8px 4px;" target="_blank"><i class="fa-solid fa-eye"></i> View</a>
+                                <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="admin-view-btn" style="flex: 1; justify-content: center; background: #c9a961; min-width: 60px; font-size: 10px; padding: 8px 4px;"><i class="fa-solid fa-pen"></i> Edit</a>
+                                
+                                <!-- ✅ ACTIVE/INACTIVE TOGGLE -->
+                                <form method="POST" action="{{ url_for('admin_toggle_product', product_id=product.id) }}" onsubmit="return confirm('Deactivate this product? It will be hidden from store.')" style="flex: 1; min-width: 60px; margin: 0;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="admin-view-btn" style="width: 100%; justify-content: center; background: #f39c12; border: none; cursor: pointer; font-size: 10px; padding: 8px 4px;" title="Hide from store"><i class="fa-solid fa-eye-slash"></i> Hide</button>
+                                </form>
+                            </div>
                         </div>
-
                     {% endfor %}
-
                 </div>
-
             {% else %}
-
                 <div class="empty-orders">
-
-                    <div class="empty-orders-icon">
-                        <i class="fa-solid fa-tags"></i>
-                    </div>
-
-                    <h2>
-                        {% if search_q or category_filter %}
-                            No Matching Products
-                        {% else %}
-                            No Active Products
-                        {% endif %}
-                    </h2>
-
-                    <p>
-                        {% if search_q or category_filter %}
-                            Try different search terms or clear filters.
-                        {% else %}
-                            Click "Add New Product" to get started.
-                        {% endif %}
-                    </p>
-
+                    <div class="empty-orders-icon"><i class="fa-solid fa-tags"></i></div>
+                    <h2>{% if search_q or category_filter %}No Matching Products{% else %}No Active Products{% endif %}</h2>
+                    <p>{% if search_q or category_filter %}Try different search terms or clear filters.{% else %}Click "Add New Product" to get started.{% endif %}</p>
                     {% if not search_q and not category_filter %}
-                    <a href="{{ url_for('admin_add_product') }}"
-                       class="admin-view-btn"
-                       style="margin-top: 20px; padding: 14px 30px;">
-
-                        <i class="fa-solid fa-plus"></i>
-                        Add First Product
-
-                    </a>
+                    <a href="{{ url_for('admin_add_product') }}" class="admin-view-btn" style="margin-top: 20px; padding: 14px 30px;"><i class="fa-solid fa-plus"></i> Add First Product</a>
                     {% endif %}
-
                 </div>
-
             {% endif %}
-
         </div>
-
         {% endif %}
-
 
         {% if current_tab == 'deleted' %}
-
         <div class="product-panel" id="panel-deleted">
-
             {% if products and products|length > 0 %}
-
                 <div class="admin-products-grid">
-
                     {% for product in products %}
-
-                        <div class="admin-product-card"
-                             style="opacity: 0.7; border: 1px dashed #dc3545;">
-
-                            <div class="product-image">
-                                <img src="{{ product.image|product_image }}"
-                                     alt="{{ product.name }}">
-                            </div>
-
+                        <div class="admin-product-card" style="opacity: 0.7; border: 1px dashed #dc3545;">
+                            <div class="product-image"><img src="{{ product.image|product_image }}" alt="{{ product.name }}"></div>
                             <div class="product-info">
-
                                 <h3 style="color: #999;">{{ product.name }}</h3>
-
                                 <p class="product-price" style="color: #999;">₹{{ product.price|inr }}</p>
-
-                                {% if product.old_price %}
-                                    <p class="product-old-price" style="color: #bbb;">₹{{ product.old_price|inr }}</p>
-                                {% endif %}
-
-                                <span class="product-category" style="background: #f0f0f0; color: #999;">
-                                    {{ product.category }}
-                                </span>
-
-                                {% if product.stock is not none %}
-                                    <span class="product-category" style="margin-left: 8px; background: #f0f0f0; color: #999;">
-                                        Stock: {{ product.stock }}
-                                    </span>
-                                {% endif %}
-
+                                {% if product.old_price %}<p class="product-old-price" style="color: #bbb;">₹{{ product.old_price|inr }}</p>{% endif %}
+                                <span class="product-category" style="background: #f0f0f0; color: #999;">{{ product.category }}</span>
+                                {% if product.stock is not none %}<span class="product-category" style="margin-left: 8px; background: #f0f0f0; color: #999;">Stock: {{ product.stock }}</span>{% endif %}
                             </div>
-
-                            <div class="product-actions"
-                                 style="display: flex; gap: 8px; flex-wrap: wrap;">
-
-                                <form method="POST"
-                                      action="{{ url_for('admin_restore_product', product_id=product.id) }}"
-                                      onsubmit="return confirm('Restore this product? It will become active again.')"
-                                      style="flex: 1; min-width: 80px;">
-
+                            <div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <form method="POST" action="{{ url_for('admin_restore_product', product_id=product.id) }}" onsubmit="return confirm('Restore this product? It will become active again.')" style="flex: 1; min-width: 60px; margin: 0;">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                                    <button type="submit"
-                                            class="admin-view-btn"
-                                            style="width: 100%; justify-content: center; background: #28a745; border: none; cursor: pointer;">
-
-                                        <i class="fa-solid fa-rotate-left"></i>
-                                        Restore
-
-                                    </button>
-
+                                    <button type="submit" class="admin-view-btn" style="width: 100%; justify-content: center; background: #28a745; border: none; cursor: pointer; font-size: 10px; padding: 8px 4px;"><i class="fa-solid fa-rotate-left"></i> Restore</button>
                                 </form>
-
-                                <button type="button"
-                                        class="admin-view-btn btn-delete-forever"
-                                        style="flex: 1; justify-content: center; background: #1a1a1a; border: none; cursor: pointer; min-width: 110px;"
-                                        data-product-id="{{ product.id }}"
-                                        data-product-name="{{ product.name }}"
-                                        onclick="openPermanentDeleteModal(this)">
-
-                                    <i class="fa-solid fa-trash-can"></i>
-                                    Delete Forever
-
-                                </button>
-
+                                <button type="button" class="admin-view-btn btn-delete-forever" style="flex: 1; justify-content: center; background: #1a1a1a; border: none; cursor: pointer; min-width: 60px; font-size: 10px; padding: 8px 4px;" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" onclick="openPermanentDeleteModal(this)"><i class="fa-solid fa-trash-can"></i> Delete</button>
                             </div>
-
                         </div>
-
                     {% endfor %}
-
                 </div>
-
             {% else %}
-
                 <div class="empty-orders">
-
-                    <div class="empty-orders-icon">
-                        <i class="fa-solid fa-trash"></i>
-                    </div>
-
-                    <h2>
-                        {% if search_q or category_filter %}
-                            No Matching Products
-                        {% else %}
-                            No Deleted Products
-                        {% endif %}
-                    </h2>
-
-                    <p>
-                        {% if search_q or category_filter %}
-                            Try different search terms or clear filters.
-                        {% else %}
-                            Products delete karne ke baad yahan dikhenge.
-                        {% endif %}
-                    </p>
-
+                    <div class="empty-orders-icon"><i class="fa-solid fa-trash"></i></div>
+                    <h2>{% if search_q or category_filter %}No Matching Products{% else %}No Deleted Products{% endif %}</h2>
+                    <p>{% if search_q or category_filter %}Try different search terms or clear filters.{% else %}Products delete karne ke baad yahan dikhenge.{% endif %}</p>
                 </div>
-
             {% endif %}
-
         </div>
-
         {% endif %}
 
-
         {% if total_pages is defined and total_pages > 1 %}
-
         <div class="admin-pagination">
-
             <div class="admin-pagination-info">
-                Showing
-                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
-                –
-                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
-                of
-                <strong>{{ total_count }}</strong>
-                products
+                Showing <strong>{{ (current_page - 1) * per_page + 1 }}</strong> – <strong>{{ [current_page * per_page, total_count]|min }}</strong> of <strong>{{ total_count }}</strong> products
             </div>
-
             <div class="admin-pagination-controls">
-
                 {% if current_page > 1 %}
-                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=current_page-1) }}#{{ current_tab }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </a>
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=current_page-1) }}#{{ current_tab }}" class="admin-page-btn"><i class="fa-solid fa-chevron-left"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
                 {% endif %}
-
                 {% set start_page = [1, current_page - 2]|max %}
                 {% set end_page = [total_pages, start_page + 4]|min %}
                 {% set start_page = [1, end_page - 4]|max %}
-
                 {% if start_page > 1 %}
-                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=1) }}#{{ current_tab }}"
-                       class="admin-page-btn">1</a>
-                    {% if start_page > 2 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=1) }}#{{ current_tab }}" class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}<span class="admin-page-dots">…</span>{% endif %}
                 {% endif %}
-
                 {% for p in range(start_page, end_page + 1) %}
-                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=p) }}#{{ current_tab }}"
-                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
-                        {{ p }}
-                    </a>
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=p) }}#{{ current_tab }}" class="admin-page-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
                 {% endfor %}
-
                 {% if end_page < total_pages %}
-                    {% if end_page < total_pages - 1 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
-                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=total_pages) }}#{{ current_tab }}"
-                       class="admin-page-btn">{{ total_pages }}</a>
+                    {% if end_page < total_pages - 1 %}<span class="admin-page-dots">…</span>{% endif %}
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=total_pages) }}#{{ current_tab }}" class="admin-page-btn">{{ total_pages }}</a>
                 {% endif %}
-
                 {% if current_page < total_pages %}
-                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=current_page+1) }}#{{ current_tab }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </a>
+                    <a href="{{ url_for('admin_products_tab', tab=current_tab, q=search_q, category=category_filter, sort=sort_by, page=current_page+1) }}#{{ current_tab }}" class="admin-page-btn"><i class="fa-solid fa-chevron-right"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
                 {% endif %}
-
             </div>
-
         </div>
-
         {% endif %}
-
     </div>
-
 {% endif %}
-
-
-
 <!-- ============================================ -->
 <!-- USERS TAB -->
 <!-- ============================================ -->
@@ -1283,292 +750,125 @@
 {% if active_tab == 'users' %}
 
     <div class="admin-content">
-
         <div class="admin-content-header">
-
-            <h1>
-                <i class="fa-solid fa-users"></i>
-                Users
-            </h1>
-
+            <h1><i class="fa-solid fa-users"></i> Users</h1>
             <p>Manage all registered users</p>
-
         </div>
 
-
-        <form method="GET"
-              action="{{ url_for('admin_users_tab') }}"
-              class="admin-filter-bar">
-
+        <form method="GET" action="{{ url_for('admin_users_tab') }}" class="admin-filter-bar">
             <div class="admin-search-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                       name="q"
-                       value="{{ search_q|default('') }}"
-                       placeholder="Search name / email / phone..."
-                       autocomplete="off">
+                <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="Search name / email / phone..." autocomplete="off">
                 {% if search_q %}
-                <a href="{{ url_for('admin_users_tab', role=role_filter, sort=sort_by) }}"
-                   class="admin-search-clear"
-                   title="Clear search">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
+                <a href="{{ url_for('admin_users_tab', role=role_filter, sort=sort_by) }}" class="admin-search-clear" title="Clear search"><i class="fa-solid fa-xmark"></i></a>
                 {% endif %}
             </div>
-
             <select name="role" class="admin-filter-select">
                 <option value="">All Roles</option>
-                <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>
-                    Admins Only
-                </option>
-                <option value="user" {% if role_filter == 'user' %}selected{% endif %}>
-                    Regular Users
-                </option>
+                <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admins Only</option>
+                <option value="user" {% if role_filter == 'user' %}selected{% endif %}>Regular Users</option>
             </select>
-
             <select name="sort" class="admin-filter-select">
-                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
-                    Newest First
-                </option>
-                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
-                    Oldest First
-                </option>
-                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>
-                    Name: A → Z
-                </option>
-                <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>
-                    Name: Z → A
-                </option>
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
+                <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>Name: Z → A</option>
             </select>
-
-            <button type="submit" class="admin-filter-btn">
-                <i class="fa-solid fa-filter"></i>
-                Apply
-            </button>
-
+            <button type="submit" class="admin-filter-btn"><i class="fa-solid fa-filter"></i> Apply</button>
             {% if search_q or role_filter or (sort_by and sort_by != 'newest') %}
-            <a href="{{ url_for('admin_users_tab') }}"
-               class="admin-filter-reset">
-                <i class="fa-solid fa-rotate-left"></i>
-                Reset
-            </a>
+            <a href="{{ url_for('admin_users_tab') }}" class="admin-filter-reset"><i class="fa-solid fa-rotate-left"></i> Reset</a>
             {% endif %}
-
         </form>
 
-
         <div class="order-status-tabs">
-
-            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by) }}"
-               class="order-status-tab {% if not role_filter %}active{% endif %}">
-                <i class="fa-solid fa-users"></i>
-                <span>All</span>
-                <span class="status-tab-count">{{ total_users_all }}</span>
+            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by) }}" class="order-status-tab {% if not role_filter %}active{% endif %}">
+                <i class="fa-solid fa-users"></i> <span>All</span> <span class="status-tab-count">{{ total_users_all }}</span>
             </a>
-
-            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by, role='admin') }}"
-               class="order-status-tab status-pending {% if role_filter == 'admin' %}active{% endif %}">
-                <i class="fa-solid fa-crown"></i>
-                <span>Admins</span>
-                <span class="status-tab-count">{{ admin_count }}</span>
+            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by, role='admin') }}" class="order-status-tab status-pending {% if role_filter == 'admin' %}active{% endif %}">
+                <i class="fa-solid fa-crown"></i> <span>Admins</span> <span class="status-tab-count">{{ admin_count }}</span>
             </a>
-
-            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by, role='user') }}"
-               class="order-status-tab status-delivered {% if role_filter == 'user' %}active{% endif %}">
-                <i class="fa-solid fa-user"></i>
-                <span>Regular Users</span>
-                <span class="status-tab-count">{{ regular_count }}</span>
+            <a href="{{ url_for('admin_users_tab', q=search_q, sort=sort_by, role='user') }}" class="order-status-tab status-delivered {% if role_filter == 'user' %}active{% endif %}">
+                <i class="fa-solid fa-user"></i> <span>Regular Users</span> <span class="status-tab-count">{{ regular_count }}</span>
             </a>
-
         </div>
 
-
         {% if users and users|length > 0 %}
-
             <div class="admin-orders-table">
-
                 <table>
-
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Joined</th>
-                            <th>Orders</th>
-                            <th>Role</th>
-                        </tr>
+                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Orders</th><th>Role</th></tr>
                     </thead>
-
                     <tbody>
-
                         {% for user in users %}
-
                             <tr>
-
-                                <td>
-                                    <span class="order-id-badge">#{{ user.id }}</span>
-                                </td>
-
+                                <td><span class="order-id-badge">#{{ user.id }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">
-                                            {{ user.full_name[0]|upper }}
-                                        </div>
+                                        <div class="customer-avatar">{{ user.full_name[0]|upper }}</div>
                                         <span>{{ user.full_name }}</span>
                                     </div>
                                 </td>
-
                                 <td>{{ user.email }}</td>
-
                                 <td>{{ user.phone }}</td>
-
                                 <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
-
                                 <td>
                                     {% set cnt = order_counts.get(user.id, 0) %}
-                                    {% if cnt > 0 %}
-                                        <span class="order-total-badge">{{ cnt }}</span>
-                                    {% else %}
-                                        <span style="color: #999; font-size: 12px;">—</span>
-                                    {% endif %}
+                                    {% if cnt > 0 %}<span class="order-total-badge">{{ cnt }}</span>{% else %}<span style="color: #999; font-size: 12px;">—</span>{% endif %}
                                 </td>
-
                                 <td>
-                                    {% if user.is_admin %}
-                                        <span class="admin-badge-small">
-                                            <i class="fa-solid fa-crown" style="font-size: 9px; margin-right: 3px;"></i>
-                                            Admin
-                                        </span>
-                                    {% else %}
-                                        <span class="user-badge-small">User</span>
-                                    {% endif %}
+                                    {% if user.is_admin %}<span class="admin-badge-small"><i class="fa-solid fa-crown" style="font-size: 9px; margin-right: 3px;"></i> Admin</span>{% else %}<span class="user-badge-small">User</span>{% endif %}
                                 </td>
-
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
-
         {% else %}
-
             <div class="empty-orders">
-
-                <div class="empty-orders-icon">
-                    <i class="fa-solid fa-users-slash"></i>
-                </div>
-
-                <h2>
-                    {% if search_q or role_filter %}
-                        No Matching Users
-                    {% else %}
-                        No Users Yet
-                    {% endif %}
-                </h2>
-
-                <p>
-                    {% if search_q or role_filter %}
-                        Try different search terms or clear filters.
-                    {% else %}
-                        No users have registered yet.
-                    {% endif %}
-                </p>
-
+                <div class="empty-orders-icon"><i class="fa-solid fa-users-slash"></i></div>
+                <h2>{% if search_q or role_filter %}No Matching Users{% else %}No Users Yet{% endif %}</h2>
+                <p>{% if search_q or role_filter %}Try different search terms or clear filters.{% else %}No users have registered yet.{% endif %}</p>
                 {% if search_q or role_filter %}
-                    <a href="{{ url_for('admin_users_tab') }}"
-                       class="admin-view-btn"
-                       style="margin-top: 20px; padding: 14px 30px;">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        Clear Filters
-                    </a>
+                    <a href="{{ url_for('admin_users_tab') }}" class="admin-view-btn" style="margin-top: 20px; padding: 14px 30px;"><i class="fa-solid fa-rotate-left"></i> Clear Filters</a>
                 {% endif %}
-
             </div>
-
         {% endif %}
 
-
         {% if total_pages is defined and total_pages > 1 %}
-
         <div class="admin-pagination">
-
             <div class="admin-pagination-info">
-                Showing
-                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
-                –
-                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
-                of
-                <strong>{{ total_count }}</strong>
-                users
+                Showing <strong>{{ (current_page - 1) * per_page + 1 }}</strong> – <strong>{{ [current_page * per_page, total_count]|min }}</strong> of <strong>{{ total_count }}</strong> users
             </div>
-
             <div class="admin-pagination-controls">
-
                 {% if current_page > 1 %}
-                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=current_page-1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </a>
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=current_page-1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-left"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
                 {% endif %}
-
                 {% set start_page = [1, current_page - 2]|max %}
                 {% set end_page = [total_pages, start_page + 4]|min %}
                 {% set start_page = [1, end_page - 4]|max %}
-
                 {% if start_page > 1 %}
-                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=1) }}"
-                       class="admin-page-btn">1</a>
-                    {% if start_page > 2 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=1) }}" class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}<span class="admin-page-dots">…</span>{% endif %}
                 {% endif %}
-
                 {% for p in range(start_page, end_page + 1) %}
-                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=p) }}"
-                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
-                        {{ p }}
-                    </a>
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=p) }}" class="admin-page-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
                 {% endfor %}
-
                 {% if end_page < total_pages %}
-                    {% if end_page < total_pages - 1 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
-                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=total_pages) }}"
-                       class="admin-page-btn">{{ total_pages }}</a>
+                    {% if end_page < total_pages - 1 %}<span class="admin-page-dots">…</span>{% endif %}
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=total_pages) }}" class="admin-page-btn">{{ total_pages }}</a>
                 {% endif %}
-
                 {% if current_page < total_pages %}
-                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=current_page+1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </a>
+                    <a href="{{ url_for('admin_users_tab', q=search_q, role=role_filter, sort=sort_by, page=current_page+1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-right"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
                 {% endif %}
-
             </div>
-
         </div>
-
         {% endif %}
-
     </div>
-
 {% endif %}
-
 
 
 <!-- ============================================ -->
@@ -1578,505 +878,206 @@
 {% if active_tab == 'coupons' %}
 
     <div class="admin-content">
-
-        <div class="admin-content-header"
-             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-
+        <div class="admin-content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
-                <h1>
-                    <i class="fa-solid fa-ticket"></i>
-                    Coupons
-                </h1>
+                <h1><i class="fa-solid fa-ticket"></i> Coupons</h1>
                 <p>Manage discount coupons</p>
             </div>
-
-            <a href="{{ url_for('admin_add_coupon') }}"
-               class="admin-view-btn"
-               style="padding: 12px 24px; font-size: 12px;">
-
-                <i class="fa-solid fa-plus"></i>
-                Add New Coupon
-
-            </a>
-
+            <a href="{{ url_for('admin_add_coupon') }}" class="admin-view-btn" style="padding: 12px 24px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add New Coupon</a>
         </div>
 
-
-        <form method="GET"
-              action="{{ url_for('admin_coupons_tab') }}"
-              class="admin-filter-bar">
-
+        <form method="GET" action="{{ url_for('admin_coupons_tab') }}" class="admin-filter-bar">
             <div class="admin-search-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                       name="q"
-                       value="{{ search_q|default('') }}"
-                       placeholder="Search coupon code..."
-                       autocomplete="off">
+                <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="Search coupon code..." autocomplete="off">
                 {% if search_q %}
-                <a href="{{ url_for('admin_coupons_tab', status=status_filter, sort=sort_by) }}"
-                   class="admin-search-clear"
-                   title="Clear search">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
+                <a href="{{ url_for('admin_coupons_tab', status=status_filter, sort=sort_by) }}" class="admin-search-clear" title="Clear search"><i class="fa-solid fa-xmark"></i></a>
                 {% endif %}
             </div>
-
             <select name="status" class="admin-filter-select">
                 <option value="">All Statuses</option>
-                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>
-                    Active Only
-                </option>
-                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>
-                    Inactive Only
-                </option>
-                <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>
-                    Expired
-                </option>
-                <option value="exhausted" {% if status_filter == 'exhausted' %}selected{% endif %}>
-                    Used Up
-                </option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Only</option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive Only</option>
+                <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
+                <option value="exhausted" {% if status_filter == 'exhausted' %}selected{% endif %}>Used Up</option>
             </select>
-
             <select name="sort" class="admin-filter-select">
-                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
-                    Newest First
-                </option>
-                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
-                    Oldest First
-                </option>
-                <option value="code_asc" {% if sort_by == 'code_asc' %}selected{% endif %}>
-                    Code: A → Z
-                </option>
-                <option value="discount_high" {% if sort_by == 'discount_high' %}selected{% endif %}>
-                    Discount: High → Low
-                </option>
-                <option value="usage_high" {% if sort_by == 'usage_high' %}selected{% endif %}>
-                    Usage: High → Low
-                </option>
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="code_asc" {% if sort_by == 'code_asc' %}selected{% endif %}>Code: A → Z</option>
+                <option value="discount_high" {% if sort_by == 'discount_high' %}selected{% endif %}>Discount: High → Low</option>
+                <option value="usage_high" {% if sort_by == 'usage_high' %}selected{% endif %}>Usage: High → Low</option>
             </select>
-
-            <button type="submit" class="admin-filter-btn">
-                <i class="fa-solid fa-filter"></i>
-                Apply
-            </button>
-
+            <button type="submit" class="admin-filter-btn"><i class="fa-solid fa-filter"></i> Apply</button>
             {% if search_q or status_filter or (sort_by and sort_by != 'newest') %}
-            <a href="{{ url_for('admin_coupons_tab') }}"
-               class="admin-filter-reset">
-                <i class="fa-solid fa-rotate-left"></i>
-                Reset
-            </a>
+            <a href="{{ url_for('admin_coupons_tab') }}" class="admin-filter-reset"><i class="fa-solid fa-rotate-left"></i> Reset</a>
             {% endif %}
-
         </form>
 
-
         <div class="order-status-tabs">
-
-            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by) }}"
-               class="order-status-tab {% if not status_filter %}active{% endif %}">
-
-                <i class="fa-solid fa-list"></i>
-                All
-                <span class="status-tab-count">{{ total_all }}</span>
-
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by) }}" class="order-status-tab {% if not status_filter %}active{% endif %}">
+                <i class="fa-solid fa-list"></i> All <span class="status-tab-count">{{ total_all }}</span>
             </a>
-
-            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='active') }}"
-               class="order-status-tab status-delivered {% if status_filter == 'active' %}active{% endif %}">
-
-                <i class="fa-solid fa-circle-check"></i>
-                Active
-                <span class="status-tab-count">{{ active_count }}</span>
-
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='active') }}" class="order-status-tab status-delivered {% if status_filter == 'active' %}active{% endif %}">
+                <i class="fa-solid fa-circle-check"></i> Active <span class="status-tab-count">{{ active_count }}</span>
             </a>
-
-            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='inactive') }}"
-               class="order-status-tab status-pending {% if status_filter == 'inactive' %}active{% endif %}">
-
-                <i class="fa-solid fa-circle-pause"></i>
-                Inactive
-                <span class="status-tab-count">{{ inactive_count }}</span>
-
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='inactive') }}" class="order-status-tab status-pending {% if status_filter == 'inactive' %}active{% endif %}">
+                <i class="fa-solid fa-circle-pause"></i> Inactive <span class="status-tab-count">{{ inactive_count }}</span>
             </a>
-
-            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='expired') }}"
-               class="order-status-tab status-cancelled {% if status_filter == 'expired' %}active{% endif %}">
-
-                <i class="fa-solid fa-clock"></i>
-                Expired
-                <span class="status-tab-count">{{ expired_count }}</span>
-
+            <a href="{{ url_for('admin_coupons_tab', q=search_q, sort=sort_by, status='expired') }}" class="order-status-tab status-cancelled {% if status_filter == 'expired' %}active{% endif %}">
+                <i class="fa-solid fa-clock"></i> Expired <span class="status-tab-count">{{ expired_count }}</span>
             </a>
-
         </div>
 
-
         {% if coupons and coupons|length > 0 %}
-
             <div class="admin-orders-table">
-
                 <table>
-
                     <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Discount</th>
-                            <th>Min Order</th>
-                            <th>Max Cap</th>
-                            <th>Usage</th>
-                            <th>Expiry</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
+                        <tr><th>Code</th><th>Discount</th><th>Min Order</th><th>Max Cap</th><th>Usage</th><th>Expiry</th><th>Status</th><th>Actions</th></tr>
                     </thead>
-
                     <tbody>
-
                         {% for coupon in coupons %}
-
                             <tr>
-
+                                <td><span class="coupon-code-badge">{{ coupon.code }}</span></td>
+                                <td><span class="coupon-discount-badge">{{ coupon.discount_percent }}% OFF</span></td>
                                 <td>
-                                    <span class="coupon-code-badge">
-                                        {{ coupon.code }}
-                                    </span>
+                                    {% if coupon.min_order_amount and coupon.min_order_amount > 0 %}₹{{ "%.0f"|format(coupon.min_order_amount) }}{% else %}<span style="color: #999; font-size: 12px;">—</span>{% endif %}
                                 </td>
-
                                 <td>
-                                    <span class="coupon-discount-badge">
-                                        {{ coupon.discount_percent }}% OFF
-                                    </span>
+                                    {% if coupon.max_discount %}₹{{ "%.0f"|format(coupon.max_discount) }}{% else %}<span style="color: #999; font-size: 12px;">No cap</span>{% endif %}
                                 </td>
-
-                                <td>
-                                    {% if coupon.min_order_amount and coupon.min_order_amount > 0 %}
-                                        ₹{{ "%.0f"|format(coupon.min_order_amount) }}
-                                    {% else %}
-                                        <span style="color: #999; font-size: 12px;">—</span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    {% if coupon.max_discount %}
-                                        ₹{{ "%.0f"|format(coupon.max_discount) }}
-                                    {% else %}
-                                        <span style="color: #999; font-size: 12px;">No cap</span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    <span class="coupon-usage-badge">
-                                        {{ coupon.used_count or 0 }}
-                                        {% if coupon.usage_limit %}
-                                            / {{ coupon.usage_limit }}
-                                        {% else %}
-                                            / ∞
-                                        {% endif %}
-                                    </span>
-                                </td>
-
+                                <td><span class="coupon-usage-badge">{{ coupon.used_count or 0 }} {% if coupon.usage_limit %}/ {{ coupon.usage_limit }}{% else %}/ ∞{% endif %}</span></td>
                                 <td>
                                     {% if coupon.expiry_date %}
                                         {% if coupon.is_expired %}
-                                            <span style="color: #dc3545; font-size: 12px;">
-                                                {{ coupon.expiry_date.strftime('%d %b %Y') }}
-                                                <i class="fa-solid fa-triangle-exclamation" style="font-size: 10px;"></i>
-                                            </span>
+                                            <span style="color: #dc3545; font-size: 12px;">{{ coupon.expiry_date.strftime('%d %b %Y') }} <i class="fa-solid fa-triangle-exclamation" style="font-size: 10px;"></i></span>
                                         {% else %}
-                                            <span style="font-size: 12px;">
-                                                {{ coupon.expiry_date.strftime('%d %b %Y') }}
-                                            </span>
+                                            <span style="font-size: 12px;">{{ coupon.expiry_date.strftime('%d %b %Y') }}</span>
                                         {% endif %}
                                     {% else %}
                                         <span style="color: #999; font-size: 12px;">Never</span>
                                     {% endif %}
                                 </td>
-
                                 <td>
-                                    {% if coupon.is_expired %}
-                                        <span class="order-status cancelled">Expired</span>
-                                    {% elif coupon.is_exhausted %}
-                                        <span class="order-status cancelled">Used Up</span>
-                                    {% elif coupon.is_active %}
-                                        <span class="order-status delivered">Active</span>
-                                    {% else %}
-                                        <span class="order-status pending">Inactive</span>
-                                    {% endif %}
+                                    {% if coupon.is_expired %}<span class="order-status cancelled">Expired</span>
+                                    {% elif coupon.is_exhausted %}<span class="order-status cancelled">Used Up</span>
+                                    {% elif coupon.is_active %}<span class="order-status delivered">Active</span>
+                                    {% else %}<span class="order-status pending">Inactive</span>{% endif %}
                                 </td>
-
                                 <td>
-                                    <div class="coupon-actions">
-
-                                        <a href="{{ url_for('admin_edit_coupon', coupon_id=coupon.id) }}"
-                                           class="admin-view-btn coupon-action-btn">
-
-                                            <i class="fa-solid fa-pen"></i>
-                                            Edit
-
-                                        </a>
-
-                                        <form method="POST"
-                                              action="{{ url_for('admin_toggle_coupon', coupon_id=coupon.id) }}"
-                                              class="coupon-action-form">
-
+                                    <div class="coupon-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                        <a href="{{ url_for('admin_edit_coupon', coupon_id=coupon.id) }}" class="admin-view-btn coupon-action-btn"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        <form method="POST" action="{{ url_for('admin_toggle_coupon', coupon_id=coupon.id) }}" class="coupon-action-form" style="margin:0;">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
                                             {% if coupon.is_active %}
-                                                <button type="submit"
-                                                        class="admin-view-btn coupon-action-btn coupon-btn-disable">
-                                                    <i class="fa-solid fa-pause"></i>
-                                                    Disable
-                                                </button>
+                                                <button type="submit" class="admin-view-btn coupon-action-btn coupon-btn-disable"><i class="fa-solid fa-pause"></i> Disable</button>
                                             {% else %}
-                                                <button type="submit"
-                                                        class="admin-view-btn coupon-action-btn coupon-btn-enable">
-                                                    <i class="fa-solid fa-play"></i>
-                                                    Enable
-                                                </button>
+                                                <button type="submit" class="admin-view-btn coupon-action-btn coupon-btn-enable"><i class="fa-solid fa-play"></i> Enable</button>
                                             {% endif %}
-
                                         </form>
-
-                                        <form method="POST"
-                                              action="{{ url_for('admin_delete_coupon', coupon_id=coupon.id) }}"
-                                              onsubmit="return confirm('Delete coupon {{ coupon.code }} permanently?')"
-                                              class="coupon-action-form">
-
+                                        <form method="POST" action="{{ url_for('admin_delete_coupon', coupon_id=coupon.id) }}" onsubmit="return confirm('Delete coupon {{ coupon.code }} permanently?')" class="coupon-action-form" style="margin:0;">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                                            <button type="submit"
-                                                    class="admin-view-btn coupon-action-btn coupon-btn-delete">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-
+                                            <button type="submit" class="admin-view-btn coupon-action-btn coupon-btn-delete"><i class="fa-solid fa-trash"></i></button>
                                         </form>
-
                                     </div>
                                 </td>
-
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
-
         {% else %}
-
             <div class="empty-orders">
-
-                <div class="empty-orders-icon">
-                    <i class="fa-solid fa-ticket"></i>
-                </div>
-
-                <h2>
-                    {% if search_q or status_filter %}
-                        No Matching Coupons
-                    {% else %}
-                        No Coupons Yet
-                    {% endif %}
-                </h2>
-
-                <p>
-                    {% if search_q or status_filter %}
-                        Try different search terms or clear filters.
-                    {% else %}
-                        Click "Add New Coupon" to create your first discount code.
-                    {% endif %}
-                </p>
-
+                <div class="empty-orders-icon"><i class="fa-solid fa-ticket"></i></div>
+                <h2>{% if search_q or status_filter %}No Matching Coupons{% else %}No Coupons Yet{% endif %}</h2>
+                <p>{% if search_q or status_filter %}Try different search terms or clear filters.{% else %}Click "Add New Coupon" to create your first discount code.{% endif %}</p>
                 {% if not search_q and not status_filter %}
-                    <a href="{{ url_for('admin_add_coupon') }}"
-                       class="admin-view-btn"
-                       style="margin-top: 20px; padding: 14px 30px;">
-
-                        <i class="fa-solid fa-plus"></i>
-                        Add First Coupon
-
-                    </a>
+                    <a href="{{ url_for('admin_add_coupon') }}" class="admin-view-btn" style="margin-top: 20px; padding: 14px 30px;"><i class="fa-solid fa-plus"></i> Add First Coupon</a>
                 {% endif %}
-
             </div>
-
         {% endif %}
 
-
         {% if total_pages is defined and total_pages > 1 %}
-
         <div class="admin-pagination">
-
             <div class="admin-pagination-info">
-                Showing
-                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
-                –
-                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
-                of
-                <strong>{{ total_count }}</strong>
-                coupons
+                Showing <strong>{{ (current_page - 1) * per_page + 1 }}</strong> – <strong>{{ [current_page * per_page, total_count]|min }}</strong> of <strong>{{ total_count }}</strong> coupons
             </div>
-
             <div class="admin-pagination-controls">
-
                 {% if current_page > 1 %}
-                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page-1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </a>
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page-1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-left"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
                 {% endif %}
-
                 {% set start_page = [1, current_page - 2]|max %}
                 {% set end_page = [total_pages, start_page + 4]|min %}
                 {% set start_page = [1, end_page - 4]|max %}
-
                 {% if start_page > 1 %}
-                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=1) }}"
-                       class="admin-page-btn">1</a>
-                    {% if start_page > 2 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=1) }}" class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}<span class="admin-page-dots">…</span>{% endif %}
                 {% endif %}
-
                 {% for p in range(start_page, end_page + 1) %}
-                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=p) }}"
-                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
-                        {{ p }}
-                    </a>
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=p) }}" class="admin-page-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
                 {% endfor %}
-
                 {% if end_page < total_pages %}
-                    {% if end_page < total_pages - 1 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
-                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=total_pages) }}"
-                       class="admin-page-btn">{{ total_pages }}</a>
+                    {% if end_page < total_pages - 1 %}<span class="admin-page-dots">…</span>{% endif %}
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=total_pages) }}" class="admin-page-btn">{{ total_pages }}</a>
                 {% endif %}
-
                 {% if current_page < total_pages %}
-                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page+1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </a>
+                    <a href="{{ url_for('admin_coupons_tab', q=search_q, status=status_filter, sort=sort_by, page=current_page+1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-right"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
                 {% endif %}
-
             </div>
-
         </div>
-
         {% endif %}
-
     </div>
-
 {% endif %}
 
 
-
 <!-- ============================================ -->
-<!-- REVIEWS TAB ✅ NEW -->
+<!-- REVIEWS TAB -->
 <!-- ============================================ -->
 
 {% if active_tab == 'reviews' %}
 
     <div class="admin-content">
-
         <div class="admin-content-header">
-            <h1>
-                <i class="fa-solid fa-star"></i>
-                Reviews
-            </h1>
+            <h1><i class="fa-solid fa-star"></i> Reviews</h1>
             <p>Moderate customer reviews</p>
         </div>
 
-
-        <!-- STATS -->
         <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 30px;">
-
             <div class="stat-card yellow">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-value">{{ total_all }}</span>
-                    <span class="stat-label">Total Reviews</span>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
+                <div class="stat-content"><span class="stat-value">{{ total_all }}</span><span class="stat-label">Total Reviews</span></div>
             </div>
-
             <div class="stat-card green">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-value">{{ approved_count }}</span>
-                    <span class="stat-label">Approved</span>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="stat-content"><span class="stat-value">{{ approved_count }}</span><span class="stat-label">Approved</span></div>
             </div>
-
             <div class="stat-card red">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-clock"></i>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-value">{{ pending_count }}</span>
-                    <span class="stat-label">Pending</span>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="stat-content"><span class="stat-value">{{ pending_count }}</span><span class="stat-label">Pending</span></div>
             </div>
-
             <div class="stat-card blue">
-                <div class="stat-icon">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-value">{{ avg_all }}★</span>
-                    <span class="stat-label">Avg Rating</span>
-                </div>
+                <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="stat-content"><span class="stat-value">{{ avg_all }}★</span><span class="stat-label">Avg Rating</span></div>
             </div>
-
         </div>
 
-
-        <!-- FILTER BAR -->
-        <form method="GET"
-              action="{{ url_for('admin_reviews_tab') }}"
-              class="admin-filter-bar">
-
+        <form method="GET" action="{{ url_for('admin_reviews_tab') }}" class="admin-filter-bar">
             <div class="admin-search-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                       name="q"
-                       value="{{ search_q|default('') }}"
-                       placeholder="Search by user, email, or text..."
-                       autocomplete="off">
+                <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="Search by user, email, or text..." autocomplete="off">
                 {% if search_q %}
-                <a href="{{ url_for('admin_reviews_tab', status=status_filter, rating=rating_filter, sort=sort_by) }}"
-                   class="admin-search-clear"
-                   title="Clear search">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
+                <a href="{{ url_for('admin_reviews_tab', status=status_filter, rating=rating_filter, sort=sort_by) }}" class="admin-search-clear" title="Clear search"><i class="fa-solid fa-xmark"></i></a>
                 {% endif %}
             </div>
-
             <select name="status" class="admin-filter-select">
                 <option value="">All Statuses</option>
-                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>
-                    Pending
-                </option>
-                <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>
-                    Approved
-                </option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
             </select>
-
             <select name="rating" class="admin-filter-select">
                 <option value="">All Ratings</option>
                 <option value="5" {% if rating_filter == 5 %}selected{% endif %}>5 ★</option>
@@ -2085,140 +1086,68 @@
                 <option value="2" {% if rating_filter == 2 %}selected{% endif %}>2 ★</option>
                 <option value="1" {% if rating_filter == 1 %}selected{% endif %}>1 ★</option>
             </select>
-
             <select name="sort" class="admin-filter-select">
-                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>
-                    Newest First
-                </option>
-                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>
-                    Oldest First
-                </option>
-                <option value="rating_high" {% if sort_by == 'rating_high' %}selected{% endif %}>
-                    Rating: High → Low
-                </option>
-                <option value="rating_low" {% if sort_by == 'rating_low' %}selected{% endif %}>
-                    Rating: Low → High
-                </option>
+                <option value="newest" {% if sort_by == 'newest' or not sort_by %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="rating_high" {% if sort_by == 'rating_high' %}selected{% endif %}>Rating: High → Low</option>
+                <option value="rating_low" {% if sort_by == 'rating_low' %}selected{% endif %}>Rating: Low → High</option>
             </select>
-
-            <button type="submit" class="admin-filter-btn">
-                <i class="fa-solid fa-filter"></i>
-                Apply
-            </button>
-
+            <button type="submit" class="admin-filter-btn"><i class="fa-solid fa-filter"></i> Apply</button>
             {% if search_q or status_filter or rating_filter or (sort_by and sort_by != 'newest') %}
-            <a href="{{ url_for('admin_reviews_tab') }}"
-               class="admin-filter-reset">
-                <i class="fa-solid fa-rotate-left"></i>
-                Reset
-            </a>
+            <a href="{{ url_for('admin_reviews_tab') }}" class="admin-filter-reset"><i class="fa-solid fa-rotate-left"></i> Reset</a>
             {% endif %}
-
         </form>
 
-
-        <!-- STATUS TABS -->
         <div class="order-status-tabs">
-
-            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter) }}"
-               class="order-status-tab {% if not status_filter %}active{% endif %}">
-                <i class="fa-solid fa-list"></i>
-                All
-                <span class="status-tab-count">{{ total_all }}</span>
+            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter) }}" class="order-status-tab {% if not status_filter %}active{% endif %}">
+                <i class="fa-solid fa-list"></i> All <span class="status-tab-count">{{ total_all }}</span>
             </a>
-
-            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter, status='pending') }}"
-               class="order-status-tab status-pending {% if status_filter == 'pending' %}active{% endif %}">
-                <i class="fa-solid fa-clock"></i>
-                Pending
-                <span class="status-tab-count">{{ pending_count }}</span>
+            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter, status='pending') }}" class="order-status-tab status-pending {% if status_filter == 'pending' %}active{% endif %}">
+                <i class="fa-solid fa-clock"></i> Pending <span class="status-tab-count">{{ pending_count }}</span>
             </a>
-
-            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter, status='approved') }}"
-               class="order-status-tab status-delivered {% if status_filter == 'approved' %}active{% endif %}">
-                <i class="fa-solid fa-circle-check"></i>
-                Approved
-                <span class="status-tab-count">{{ approved_count }}</span>
+            <a href="{{ url_for('admin_reviews_tab', q=search_q, sort=sort_by, rating=rating_filter, status='approved') }}" class="order-status-tab status-delivered {% if status_filter == 'approved' %}active{% endif %}">
+                <i class="fa-solid fa-circle-check"></i> Approved <span class="status-tab-count">{{ approved_count }}</span>
             </a>
-
         </div>
 
-
-        <!-- REVIEWS TABLE -->
         {% if reviews and reviews|length > 0 %}
-
             <div class="admin-orders-table">
-
                 <table>
-
                     <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Product</th>
-                            <th>Rating</th>
-                            <th>Review</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
+                        <tr><th>User</th><th>Product</th><th>Rating</th><th>Review</th><th>Date</th><th>Status</th><th>Actions</th></tr>
                     </thead>
-
                     <tbody>
-
                         {% for review in reviews %}
-
                             <tr>
-
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">
-                                            {{ review.user.full_name[0]|upper if review.user else '?' }}
-                                        </div>
+                                        <div class="customer-avatar">{{ review.user.full_name[0]|upper if review.user else '?' }}</div>
                                         <div>
-                                            <div style="font-weight: 600; color: #1a1a1a;">
-                                                {{ review.user.full_name if review.user else 'Anonymous' }}
-                                            </div>
-                                            <small style="color: #999; font-size: 11px;">
-                                                {{ review.user.email if review.user else '' }}
-                                            </small>
+                                            <div style="font-weight: 600; color: #1a1a1a;">{{ review.user.full_name if review.user else 'Anonymous' }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ review.user.email if review.user else '' }}</small>
                                         </div>
                                     </div>
                                 </td>
-
                                 <td>
-                                    <a href="{{ url_for('product', product_id=review.product_id) }}"
-                                       target="_blank"
-                                       style="color: #c9a961; font-weight: 600; font-size: 13px; text-decoration: none;">
+                                    <a href="{{ url_for('product', product_id=review.product_id) }}" target="_blank" style="color: #c9a961; font-weight: 600; font-size: 13px; text-decoration: none;">
                                         {{ review.product.name if review.product else 'Product #' + review.product_id|string }}
                                     </a>
                                 </td>
-
                                 <td style="white-space: nowrap;">
                                     <span style="color: #c9a961; font-size: 14px; letter-spacing: 1px;">
                                         {% for i in range(review.rating) %}⭐{% endfor %}
                                     </span>
                                 </td>
-
                                 <td style="max-width: 320px;">
-                                    {% if review.title %}
-                                        <strong style="display: block; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">
-                                            {{ review.title }}
-                                        </strong>
-                                    {% endif %}
-                                    <span style="font-size: 12px; color: #666; line-height: 1.5;">
-                                        {{ review.comment[:120] }}{% if review.comment|length > 120 %}...{% endif %}
-                                    </span>
+                                    {% if review.title %}<strong style="display: block; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">{{ review.title }}</strong>{% endif %}
+                                    <span style="font-size: 12px; color: #666; line-height: 1.5;">{{ review.comment[:120] }}{% if review.comment|length > 120 %}...{% endif %}</span>
                                     {% if review.photo_url %}
-                                        <div style="margin-top: 6px; font-size: 11px; color: #c9a961;">
-                                            <i class="fa-solid fa-image"></i> Has photo
-                                        </div>
+                                        <div style="margin-top: 6px; font-size: 11px; color: #c9a961;"><i class="fa-solid fa-image"></i> Has photo</div>
                                     {% endif %}
                                 </td>
-
                                 <td style="font-size: 12px; white-space: nowrap; color: #888;">
                                     {{ review.created_at.strftime('%d %b %Y') if review.created_at else '' }}
                                 </td>
-
                                 <td>
                                     {% if review.is_approved %}
                                         <span class="order-status delivered">Approved</span>
@@ -2226,228 +1155,101 @@
                                         <span class="order-status pending">Pending</span>
                                     {% endif %}
                                 </td>
-
                                 <td>
                                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-
                                         {% if not review.is_approved %}
-                                        <form method="POST"
-                                              action="{{ url_for('admin_approve_review', review_id=review.id) }}"
-                                              style="display: inline;">
-
+                                        <form method="POST" action="{{ url_for('admin_approve_review', review_id=review.id) }}" style="display: inline;">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                                            <button type="submit"
-                                                    class="admin-view-btn"
-                                                    style="padding: 6px 10px; font-size: 11px; background: #28a745; border: none; cursor: pointer;">
-
-                                                <i class="fa-solid fa-check"></i>
-                                                Approve
-
-                                            </button>
-
+                                            <button type="submit" class="admin-view-btn" style="padding: 6px 10px; font-size: 11px; background: #28a745; border: none; cursor: pointer;"><i class="fa-solid fa-check"></i> Approve</button>
                                         </form>
                                         {% endif %}
-
-                                        <form method="POST"
-                                              action="{{ url_for('admin_reject_review', review_id=review.id) }}"
-                                              onsubmit="return confirm('Reject and remove this review?')"
-                                              style="display: inline;">
-
+                                        <form method="POST" action="{{ url_for('admin_reject_review', review_id=review.id) }}" onsubmit="return confirm('Reject and remove this review?')" style="display: inline;">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                                            <button type="submit"
-                                                    class="admin-view-btn"
-                                                    style="padding: 6px 10px; font-size: 11px; background: #dc3545; border: none; cursor: pointer;">
-
-                                                <i class="fa-solid fa-xmark"></i>
-                                                Reject
-
-                                            </button>
-
+                                            <button type="submit" class="admin-view-btn" style="padding: 6px 10px; font-size: 11px; background: #dc3545; border: none; cursor: pointer;"><i class="fa-solid fa-xmark"></i> Reject</button>
                                         </form>
-
                                     </div>
                                 </td>
-
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
-
         {% else %}
-
             <div class="empty-orders">
-
-                <div class="empty-orders-icon">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-
-                <h2>
-                    {% if search_q or status_filter or rating_filter %}
-                        No Matching Reviews
-                    {% else %}
-                        No Reviews Yet
-                    {% endif %}
-                </h2>
-
-                <p>
-                    {% if search_q or status_filter or rating_filter %}
-                        Try different search terms or clear filters.
-                    {% else %}
-                        Reviews will appear here once users submit them.
-                    {% endif %}
-                </p>
-
+                <div class="empty-orders-icon"><i class="fa-solid fa-star"></i></div>
+                <h2>{% if search_q or status_filter or rating_filter %}No Matching Reviews{% else %}No Reviews Yet{% endif %}</h2>
+                <p>{% if search_q or status_filter or rating_filter %}Try different search terms or clear filters.{% else %}Reviews will appear here once users submit them.{% endif %}</p>
             </div>
-
         {% endif %}
 
-
-        <!-- PAGINATION -->
         {% if total_pages is defined and total_pages > 1 %}
-
         <div class="admin-pagination">
-
             <div class="admin-pagination-info">
-                Showing
-                <strong>{{ (current_page - 1) * per_page + 1 }}</strong>
-                –
-                <strong>{{ [current_page * per_page, total_count]|min }}</strong>
-                of
-                <strong>{{ total_count }}</strong>
-                reviews
+                Showing <strong>{{ (current_page - 1) * per_page + 1 }}</strong> – <strong>{{ [current_page * per_page, total_count]|min }}</strong> of <strong>{{ total_count }}</strong> reviews
             </div>
-
             <div class="admin-pagination-controls">
-
                 {% if current_page > 1 %}
-                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=current_page-1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </a>
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=current_page-1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-left"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
                 {% endif %}
-
                 {% set start_page = [1, current_page - 2]|max %}
                 {% set end_page = [total_pages, start_page + 4]|min %}
                 {% set start_page = [1, end_page - 4]|max %}
-
                 {% if start_page > 1 %}
-                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=1) }}"
-                       class="admin-page-btn">1</a>
-                    {% if start_page > 2 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=1) }}" class="admin-page-btn">1</a>
+                    {% if start_page > 2 %}<span class="admin-page-dots">…</span>{% endif %}
                 {% endif %}
-
                 {% for p in range(start_page, end_page + 1) %}
-                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=p) }}"
-                       class="admin-page-btn {% if p == current_page %}active{% endif %}">
-                        {{ p }}
-                    </a>
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=p) }}" class="admin-page-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
                 {% endfor %}
-
                 {% if end_page < total_pages %}
-                    {% if end_page < total_pages - 1 %}
-                        <span class="admin-page-dots">…</span>
-                    {% endif %}
-                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=total_pages) }}"
-                       class="admin-page-btn">{{ total_pages }}</a>
+                    {% if end_page < total_pages - 1 %}<span class="admin-page-dots">…</span>{% endif %}
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=total_pages) }}" class="admin-page-btn">{{ total_pages }}</a>
                 {% endif %}
-
                 {% if current_page < total_pages %}
-                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=current_page+1) }}"
-                       class="admin-page-btn">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </a>
+                    <a href="{{ url_for('admin_reviews_tab', q=search_q, status=status_filter, rating=rating_filter, sort=sort_by, page=current_page+1) }}" class="admin-page-btn"><i class="fa-solid fa-chevron-right"></i></a>
                 {% else %}
-                    <span class="admin-page-btn disabled">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </span>
+                    <span class="admin-page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
                 {% endif %}
-
             </div>
-
         </div>
-
         {% endif %}
-
     </div>
-
 {% endif %}
-
 
 
 <!-- ============================================ -->
 <!-- PERMANENT DELETE MODAL -->
 <!-- ============================================ -->
 
-<div class="zenith-modal-overlay" id="permanentDeleteModal">
+<div class="zenith-modal-overlay" id="permanentDeleteModal" style="display: none;">
     <div class="zenith-modal">
-
-        <div class="zenith-modal-icon danger">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-
+        <div class="zenith-modal-icon danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <h2 class="zenith-modal-title">Permanently Delete?</h2>
-
-        <p class="zenith-modal-message">
-            You are about to <strong>permanently delete</strong>:
-        </p>
-
+        <p class="zenith-modal-message">You are about to <strong>permanently delete</strong>:</p>
         <div class="zenith-modal-product" id="modalProductName"></div>
-
-        <p class="zenith-modal-warning">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <span>This action <strong>cannot be undone</strong>. The product and all its images will be removed forever.</span>
-        </p>
-
+        <p class="zenith-modal-warning"><i class="fa-solid fa-circle-exclamation"></i> <span>This action <strong>cannot be undone</strong>. The product and all its images will be removed forever.</span></p>
         <div class="zenith-modal-actions">
-
-            <button type="button"
-                    class="zenith-modal-btn secondary"
-                    onclick="closePermanentDeleteModal()">
-                <i class="fa-solid fa-xmark"></i>
-                Cancel
-            </button>
-
-            <form method="POST"
-                  action=""
-                  id="permanentDeleteForm"
-                  style="flex: 1;">
-
+            <button type="button" class="zenith-modal-btn secondary" onclick="closePermanentDeleteModal()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+            <form method="POST" action="" id="permanentDeleteForm" style="flex: 1;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                <button type="submit"
-                        class="zenith-modal-btn danger"
-                        style="width: 100%;">
-                    <i class="fa-solid fa-trash-can"></i>
-                    Delete Forever
-                </button>
-
+                <button type="submit" class="zenith-modal-btn danger" style="width: 100%;"><i class="fa-solid fa-trash-can"></i> Delete Forever</button>
             </form>
-
         </div>
-
     </div>
 </div>
 
+{% endblock %}
 
 
 <!-- ============================================ -->
 <!-- SCRIPTS -->
 <!-- ============================================ -->
 
+{% block extra_scripts %}
 <script>
+    // Product Tabs Switch
     function switchProductTab(tabName) {
         var params = new URLSearchParams(window.location.search);
         params.set('tab', tabName);
@@ -2455,43 +1257,50 @@
         window.location.href = "{{ url_for('admin_products_tab') }}?" + params.toString() + "#" + tabName;
     }
 
+    // Permanent Delete Modal Open
     function openPermanentDeleteModal(button) {
         var productId = button.getAttribute('data-product-id');
         var productName = button.getAttribute('data-product-name');
-
         var modal = document.getElementById('permanentDeleteModal');
         var nameEl = document.getElementById('modalProductName');
         var form = document.getElementById('permanentDeleteForm');
-
         if (!modal || !form) return;
-
         if (nameEl) nameEl.textContent = productName;
         form.action = '/admin/products/permanent-delete/' + productId;
-
+        modal.style.display = 'flex';              // ✅ ADDED
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
 
+    // Permanent Delete Modal Close
     function closePermanentDeleteModal() {
         var modal = document.getElementById('permanentDeleteModal');
         if (!modal) return;
-
+        modal.style.display = 'none';              // ✅ ADDED
         modal.classList.remove('show');
         document.body.style.overflow = '';
     }
 
+    // Modal Click Outside to Close
     document.addEventListener('click', function(e) {
         var modal = document.getElementById('permanentDeleteModal');
-        if (modal && e.target === modal) {
-            closePermanentDeleteModal();
-        }
+        if (modal && e.target === modal) { closePermanentDeleteModal(); }
     });
 
+    // Modal Escape Key to Close
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closePermanentDeleteModal();
-        }
+        if (e.key === 'Escape') { closePermanentDeleteModal(); }
+    });
+
+    // ✅ Top Products Progress Bar Fix
+    document.addEventListener("DOMContentLoaded", function() {
+        const bars = document.querySelectorAll('.top-product-bar-fill');
+        bars.forEach(bar => {
+            const width = bar.getAttribute('data-width');
+            if(width) {
+                bar.style.width = width + '%';
+            }
+        });
     });
 </script>
-
 {% endblock %}

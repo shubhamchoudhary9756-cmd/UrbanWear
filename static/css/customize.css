@@ -1,6 +1,7 @@
 /* =====================================================
-   Zenith — CUSTOMIZE CSS v1.0
+   Zenith — CUSTOMIZE CSS v2.0 (CLEAN)
    Design Studio — Color, Logo, Text, Font, Download, Share
+   NOTE: Cart item CSS + .cart-custom-font-nb → pages.css
 ===================================================== */
 
 
@@ -153,12 +154,6 @@
     height: 100%;
     object-fit: contain;
     transition: opacity 0.3s ease;
-}
-
-.tshirt-logo-overlay-nb,
-.tshirt-text-overlay-nb {
-    position: absolute;
-    pointer-events: none;
 }
 
 .side-indicator-nb {
@@ -953,10 +948,7 @@
     transform: translate(-50%, -50%);
     z-index: 4;
     pointer-events: auto;
-}
-
-
-/* =====================================================
+}/* =====================================================
    9. FONT SELECTOR
 ===================================================== */
 
@@ -1357,226 +1349,14 @@
 
 
 /* =====================================================
-   13. CART FONT SUMMARY (used in cart page)
+   13. CART FONT SUMMARY — MOVED TO pages.css (Part 7)
+   NOTE: .cart-custom-font-nb ab pages.css mein hai.
+   Yahan duplicate nahi rakhna.
 ===================================================== */
 
-.cart-custom-font-nb {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
-    background: #f5f1ea;
-    border: 1px solid #e8e2d9;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #6b6b6b;
-    letter-spacing: 0.3px;
-    margin-top: 4px;
-}
+/* .cart-custom-font-nb — REMOVED (moved to pages.css) */
 
-.cart-custom-font-nb i {
-    color: #c9a961;
-    font-size: 10px;
-}
-/* ============================================
-   CART ITEM — Fixed Layout
-============================================ */
 
-.cart-item {
-    display: grid;
-    grid-template-columns: 100px 1fr auto auto auto;
-    gap: 20px;
-    align-items: center;
-    padding: 20px;
-    background: #ffffff;
-    border: 1px solid #e8e2d9;
-    transition: all .3s ease;
-}
-
-.cart-item > img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    background: #f5f1ea;
-    padding: 10px;
-    border: 1px solid #f0ece6;
-}
-
-.cart-product {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    min-width: 0;
-}
-
-.cart-info {
-    min-width: 0;
-    flex: 1;
-}
-
-.cart-info h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    font-weight: 500;
-    color: #1a1a1a;
-    margin: 0 0 8px;
-    line-height: 1.3;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-}
-
-.cart-info .cart-price {
-    font-family: 'Inter', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: #c9a961;
-    margin: 0 0 8px;
-}
-
-.cart-variants {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.cart-variants span {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    background: #f5f1ea;
-    font-size: 11px;
-    color: #555;
-    font-family: 'Inter', sans-serif;
-    white-space: nowrap;
-    border-radius: 2px;
-}
-
-.cart-variants strong {
-    color: #1a1a1a;
-    font-weight: 600;
-}
-
-.cart-quantity {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: #faf8f5;
-    border: 1.5px solid #e8e2d9;
-    padding: 2px;
-    flex-shrink: 0;
-}
-
-.cart-quantity button {
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .2s ease;
-}
-
-.cart-quantity button:hover {
-    background: #1a1a1a;
-    color: #faf8f5;
-}
-
-.cart-quantity span {
-    min-width: 32px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    color: #1a1a1a;
-}
-
-.cart-subtotal {
-    font-family: 'Inter', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    color: #1a1a1a;
-    text-align: right;
-    flex-shrink: 0;
-    min-width: 80px;
-}
-
-.remove-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 12px;
-    background: transparent;
-    color: #dc3545;
-    border: 1.5px solid #e8e2d9;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: all .2s ease;
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
-.remove-btn:hover {
-    background: #dc3545;
-    color: #ffffff;
-    border-color: #dc3545;
-}
-
-/* Mobile — Stack */
-@media (max-width: 768px) {
-    .cart-item {
-        grid-template-columns: 80px 1fr;
-        grid-template-areas:
-            "img info"
-            "img variants"
-            "qty subtotal"
-            "remove remove";
-        gap: 12px;
-        padding: 14px;
-    }
-    
-    .cart-item > img {
-        grid-area: img;
-        width: 80px;
-        height: 80px;
-    }
-    
-    .cart-product {
-        grid-area: info;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-    
-    .cart-variants {
-        grid-area: variants;
-    }
-    
-    .cart-quantity {
-        grid-area: qty;
-    }
-    
-    .cart-subtotal {
-        grid-area: subtotal;
-        text-align: right;
-        font-size: 16px;
-    }
-    
-    .remove-btn {
-        grid-area: remove;
-        width: 100%;
-        justify-content: center;
-    }
-}
+/* =====================================================
+   END — customize.css v2.0 (CLEAN)
+===================================================== */

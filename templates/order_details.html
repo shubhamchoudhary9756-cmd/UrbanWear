@@ -3,346 +3,108 @@
 {% block title %}Order #{{ order.id }} | Zenith{% endblock %}
 
 {% block content %}
-<style>
-    .order-details-page-nb {
-        max-width: 1000px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-    .order-header-nb {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 30px;
-        border-bottom: 1px solid #e8e2d9;
-        padding-bottom: 20px;
-    }
-    .order-header-nb h1 {
-        font-family: 'Playfair Display', serif;
-        font-size: 32px;
-        color: #1a1a1a;
-        margin: 0 0 5px 0;
-    }
-    .order-header-nb p {
-        color: #888;
-        margin: 0;
-        font-size: 14px;
-    }
-    .order-status-badge {
-        display: inline-block;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .status-pending { background: #fff3cd; color: #856404; }
-    .status-processing { background: #cce5ff; color: #004085; }
-    .status-shipped { background: #d1ecf1; color: #0c5460; }
-    .status-delivered { background: #d4edda; color: #155724; }
-    .status-cancelled { background: #f8d7da; color: #721c24; }
-    .status-returned { background: #e2e3e5; color: #383d41; } /* NAYA: Returned status */
 
-    /* TIMELINE CSS */
-    .tracking-timeline-nb {
-        background: #fff;
-        border: 1px solid #e8e2d9;
-        padding: 40px 30px;
-        margin-bottom: 30px;
-        border-radius: 8px;
-    }
-    .timeline-steps-nb {
-        display: flex;
-        justify-content: space-between;
-        position: relative;
-    }
-    .timeline-line-nb {
-        position: absolute;
-        top: 20px;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: #e8e2d9;
-        z-index: 1;
-    }
-    .timeline-line-fill-nb {
-        height: 100%;
-        background: #c9a961;
-        width: 0%;
-        transition: width 0.5s ease;
-    }
-    .timeline-step-nb {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        width: 25%;
-    }
-    .step-icon-nb {
-        width: 44px;
-        height: 44px;
-        background: #fff;
-        border: 4px solid #e8e2d9;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px auto;
-        color: #aaa;
-        font-size: 16px;
-        transition: all 0.3s ease;
-    }
-    .timeline-step-nb.active .step-icon-nb {
-        border-color: #c9a961;
-        color: #c9a961;
-        box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.15);
-    }
-    .step-label-nb {
-        font-size: 13px;
-        font-weight: 600;
-        color: #888;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .timeline-step-nb.active .step-label-nb {
-        color: #1a1a1a;
-    }
-    .step-date-nb {
-        display: block;
-        font-size: 11px;
-        color: #aaa;
-        margin-top: 5px;
-    }
-
-    /* GRID LAYOUT */
-    .order-grid-nb {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 30px;
-    }
-    .order-items-box-nb, .order-summary-box-nb {
-        background: #fff;
-        border: 1px solid #e8e2d9;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .box-header-nb {
-        background: #faf8f5;
-        padding: 18px 25px;
-        border-bottom: 1px solid #e8e2d9;
-        font-family: 'Playfair Display', serif;
-        font-size: 18px;
-        font-weight: 600;
-        color: #1a1a1a;
-    }
-    .order-item-nb {
-        display: flex;
-        gap: 20px;
-        padding: 20px 25px;
-        border-bottom: 1px dashed #e8e2d9;
-    }
-    .order-item-nb:last-child { border-bottom: none; }
-    .order-item-img-nb {
-        width: 80px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
-    }
-    .order-item-info-nb { flex: 1; }
-    .order-item-info-nb h4 {
-        margin: 0 0 5px 0;
-        font-size: 16px;
-        font-family: 'Playfair Display', serif;
-        color: #1a1a1a;
-    }
-    .order-item-meta-nb {
-        font-size: 12px;
-        color: #888;
-        margin-bottom: 10px;
-    }
-    .order-item-price-nb {
-        font-weight: 700;
-        color: #c9a961;
-    }
-
-    .summary-row-nb {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 25px;
-        font-size: 14px;
-        color: #555;
-        border-bottom: 1px solid #f5f1ea;
-    }
-    .summary-row-nb.total {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1a1a1a;
-        border-bottom: none;
-        background: #faf8f5;
-    }
-    .summary-row-nb.discount { color: #28a745; }
-
-    .address-box-nb {
-        padding: 25px;
-        font-size: 14px;
-        color: #555;
-        line-height: 1.6;
-    }
-
-    /* ✅ RETURN SECTION CSS */
-    .return-action-box {
-        margin-top: 30px;
-        padding: 20px;
-        background: #fff8e6;
-        border: 1px solid #f0e8d5;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    .return-btn-nb {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        background: #dc3545;
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-    .return-btn-nb:hover {
-        background: #c82333;
-        transform: translateY(-2px);
-    }
-    .return-status-nb {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .return-status-nb.pending { background: #fff3cd; color: #856404; }
-    .return-status-nb.approved { background: #d4edda; color: #155724; }
-    .return-status-nb.rejected { background: #f8d7da; color: #721c24; }
-
-    /* Back Button Styling */
-    .back-btn-nb {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        background: transparent;
-        color: #1a1a1a;
-        border: 1.5px solid #1a1a1a;
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    }
-    .back-btn-nb:hover {
-        background: #1a1a1a;
-        color: #ffffff;
-        transform: translateY(-2px);
-    }
-    .back-btn-nb i {
-        transition: transform 0.3s ease;
-    }
-    .back-btn-nb:hover i {
-        transform: translateX(-4px);
-    }
-
-    @media (max-width: 768px) {
-        .order-grid-nb { grid-template-columns: 1fr; }
-        .tracking-timeline-nb { padding: 30px 15px; }
-        .step-label-nb { font-size: 10px; }
-        .timeline-step-nb { width: auto; flex: 1; }
-    }
-</style>
+<!-- ==================================================
+                    ORDER DETAILS PAGE
+================================================== -->
 
 <div class="order-details-page-nb">
 
     <!-- HEADER -->
     <div class="order-header-nb">
         <div>
-            <h1>Order #{{ order.id }}</h1>
-            <p>Placed on {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</p>
+            <h1 style="font-size: 38px; font-family: 'Playfair Display', serif; margin-bottom: 5px; color: #1a1a1a; font-weight: 500;">Order #{{ order.id }}</h1>
+            <p style="color: #777; font-size: 14px;">Placed on {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</p>
         </div>
         <div>
-            <span class="order-status-badge status-{{ order.status }}">
+            <span class="order-status-badge status-{{ order.status }}" style="padding: 8px 18px; font-size: 13px; border-radius: 30px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
                 {{ order.status|capitalize }}
             </span>
         </div>
     </div>
 
-    <!-- TRACKING TIMELINE -->
-    {% if order.status not in ['cancelled', 'returned'] %}
-    <div class="tracking-timeline-nb">
-        <div class="timeline-steps-nb">
-            
-            <div class="timeline-line-nb">
-                {% if order.status == 'delivered' %}
-                    <div class="timeline-line-fill-nb" style="width: 100%;"></div>
-                {% elif order.status == 'shipped' %}
-                    <div class="timeline-line-fill-nb" style="width: 66%;"></div>
-                {% elif order.status == 'processing' %}
-                    <div class="timeline-line-fill-nb" style="width: 33%;"></div>
-                {% else %}
-                    <div class="timeline-line-fill-nb" style="width: 0%;"></div>
-                {% endif %}
-            </div>
+    <!-- ✅ TRACKING TIMELINE (HORIZONTAL) -->
+    {% if order.status not in ['cancelled', 'returned', 'refunded'] %}
+    <div class="tracking-timeline-horizontal">
+        
+        {% set is_return = order.return_status in ['pending', 'approved', 'picked', 'refunded'] %}
+        {% set is_picked = order.return_status in ['picked', 'refunded'] %}
+        {% set is_refunded = order.return_status == 'refunded' %}
 
-            <div class="timeline-step-nb active">
-                <div class="step-icon-nb"><i class="fa-solid fa-clipboard-check"></i></div>
-                <div class="step-label-nb">Order Placed</div>
-                <span class="step-date-nb">{{ order.created_at.strftime('%d %b') }}</span>
-            </div>
-
-            <div class="timeline-step-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}active{% endif %}">
-                <div class="step-icon-nb"><i class="fa-solid fa-box-open"></i></div>
-                <div class="step-label-nb">Processing</div>
-            </div>
-
-            <div class="timeline-step-nb {% if order.status in ['shipped', 'delivered'] %}active{% endif %}">
-                <div class="step-icon-nb"><i class="fa-solid fa-truck-fast"></i></div>
-                <div class="step-label-nb">Shipped</div>
-            </div>
-
-            <div class="timeline-step-nb {% if order.status == 'delivered' %}active{% endif %}">
-                <div class="step-icon-nb"><i class="fa-solid fa-house-circle-check"></i></div>
-                <div class="step-label-nb">Delivered</div>
-            </div>
+        <!-- Step 1 -->
+        <div class="t-step active">
+            <div class="t-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+            <div class="t-label">Placed</div>
         </div>
+
+        <div class="t-line {% if order.status in ['processing', 'shipped', 'delivered'] or is_return %}active{% endif %}"></div>
+
+        <!-- Step 2 -->
+        <div class="t-step {% if order.status in ['processing', 'shipped', 'delivered'] or is_return %}active{% endif %}">
+            <div class="t-icon"><i class="fa-solid fa-box-open"></i></div>
+            <div class="t-label">Processing</div>
+        </div>
+
+        <div class="t-line {% if order.status in ['shipped', 'delivered'] or is_return %}active{% endif %}"></div>
+
+        <!-- Step 3 -->
+        <div class="t-step {% if order.status in ['shipped', 'delivered'] or is_return %}active{% endif %}">
+            <div class="t-icon"><i class="fa-solid fa-truck-fast"></i></div>
+            <div class="t-label">Shipped</div>
+        </div>
+
+        <div class="t-line {% if order.status == 'delivered' or is_return %}active{% endif %}"></div>
+
+        <!-- Step 4 -->
+        <div class="t-step {% if order.status == 'delivered' or is_return %}active{% endif %}">
+            <div class="t-icon"><i class="fa-solid fa-house-circle-check"></i></div>
+            <div class="t-label">Delivered</div>
+        </div>
+
+        {% if is_return %}
+        <div class="t-line active"></div>
+
+        <!-- Step 5: Return Requested -->
+        <div class="t-step active">
+            <div class="t-icon" style="background: #f39c12; border-color: #f39c12; color: white;"><i class="fa-solid fa-rotate-left"></i></div>
+            <div class="t-label" style="color: #f39c12; font-weight: 700;">Return Requested</div>
+        </div>
+
+        <div class="t-line {% if is_picked %}active{% endif %}"></div>
+
+        <!-- Step 6: Picked Up -->
+        <div class="t-step {% if is_picked %}active{% endif %}">
+            <div class="t-icon"><i class="fa-solid fa-box"></i></div>
+            <div class="t-label">Picked Up</div>
+        </div>
+
+        <div class="t-line {% if is_refunded %}active{% endif %}"></div>
+
+        <!-- Step 7: Refunded -->
+        <div class="t-step {% if is_refunded %}active{% endif %}">
+            <div class="t-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div class="t-label">Refunded</div>
+        </div>
+        {% endif %}
+
     </div>
+    
     {% elif order.status == 'cancelled' %}
-    <div class="tracking-timeline-nb" style="border-color: #f8d7da; background: #fff5f5; text-align: center; padding: 40px;">
+    <div class="tracking-timeline-horizontal" style="border-color: #f8d7da; background: #fff5f5; text-align: center; padding: 40px; display: block;">
         <i class="fa-solid fa-circle-xmark" style="font-size: 40px; color: #dc3545; margin-bottom: 15px;"></i>
         <h3 style="color: #721c24; margin: 0 0 5px 0;">Order Cancelled</h3>
         <p style="color: #721c24; margin: 0; font-size: 14px;">This order was cancelled.</p>
     </div>
-    {% elif order.status == 'returned' %}
-    <div class="tracking-timeline-nb" style="border-color: #e2e3e5; background: #f8f9fa; text-align: center; padding: 40px;">
-        <i class="fa-solid fa-rotate-left" style="font-size: 40px; color: #6c757d; margin-bottom: 15px;"></i>
-        <h3 style="color: #383d41; margin: 0 0 5px 0;">Order Returned</h3>
-        <p style="color: #383d41; margin: 0; font-size: 14px;">This order has been returned and refunded.</p>
+    
+    {% elif order.status == 'returned' or order.return_status == 'refunded' %}
+    <div class="tracking-timeline-horizontal" style="border-color: #c3e6cb; background: #d4edda; text-align: center; padding: 40px; display: block;">
+        <i class="fa-solid fa-rotate-left" style="font-size: 40px; color: #155724; margin-bottom: 15px;"></i>
+        <h3 style="color: #155724; margin: 0 0 5px 0;">Order Returned & Refunded</h3>
+        <p style="color: #155724; margin: 0; font-size: 14px;">This order has been successfully returned and refunded.</p>
     </div>
     {% endif %}
 
-    <!-- GRID -->
+    <!-- ✅ GRID LAYOUT (ITEMS + SUMMARY) -->
     <div class="order-grid-nb">
         
         <!-- LEFT: ITEMS -->
@@ -355,11 +117,11 @@
                     <div class="order-item-info-nb">
                         <h4>{{ item.product_name }}</h4>
                         <div class="order-item-meta-nb">
-                            {% if item.size %}Size: {{ item.size }} | {% endif %}
-                            {% if item.color %}Color: {{ item.color }} | {% endif %}
-                            Qty: {{ item.quantity }}
+                            {% if item.size %}<span style="background: #f5f1ea; padding: 2px 6px; border-radius: 4px; margin-right: 5px; font-size: 12px;">Size: {{ item.size }}</span>{% endif %}
+                            {% if item.color %}<span style="background: #f5f1ea; padding: 2px 6px; border-radius: 4px; margin-right: 5px; font-size: 12px;">Color: {{ item.color }}</span>{% endif %}
+                            <span style="font-size: 12px;">Qty: {{ item.quantity }}</span>
                         </div>
-                        <div class="order-item-price-nb">₹{{ (item.price * item.quantity)|inr }}</div>
+                        <div class="order-item-price-nb" style="color: #c9a961; font-size: 16px; font-weight: 700; margin-top: 8px;">₹{{ (item.price * item.quantity)|inr }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -382,7 +144,7 @@
                 {% endif %}
                 <div class="summary-row-nb">
                     <span>Shipping</span>
-                    <span>Free</span>
+                    <span style="color: #28a745; font-weight: 600;">Free</span>
                 </div>
                 <div class="summary-row-nb total">
                     <span>Total Amount</span>
@@ -393,6 +155,7 @@
             <div class="order-summary-box-nb">
                 <div class="box-header-nb">Shipping Address</div>
                 <div class="address-box-nb">
+                    <i class="fa-solid fa-location-dot" style="color: #c9a961; margin-right: 8px;"></i>
                     {{ order.shipping_address }}
                 </div>
             </div>
@@ -400,41 +163,61 @@
 
     </div>
 
-    <!-- ✅ RETURN SECTION -->
+    <!-- ✅ RETURN / REFUND SECTION -->
     {% if order.status == 'delivered' and not order.return_status %}
     <div class="return-action-box">
         <div>
             <h3 style="margin: 0 0 5px 0; color: #856404; font-size: 16px;">Not satisfied with the product?</h3>
             <p style="margin: 0; color: #666; font-size: 13px;">You can return the item and get a refund.</p>
         </div>
-        <a href="{{ url_for('return_order', order_id=order.id) }}" class="return-btn-nb">
+        <a href="{{ url_for('return_order', order_id=order.id) }}" class="return-btn-nb" style="background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-rotate-left"></i> Return / Refund
         </a>
     </div>
     {% elif order.return_status == 'pending' %}
-    <div class="return-action-box" style="background: #e6f4f9; border-color: #b8daff;">
+    <div class="return-action-box" style="background: #e6f4f9; border-color: #b8daff; border-left-color: #17a2b8;">
         <div>
             <h3 style="margin: 0 0 5px 0; color: #004085; font-size: 16px;">Return Request Pending</h3>
             <p style="margin: 0; color: #004085; font-size: 13px;">Admin is reviewing your return request.</p>
         </div>
-        <span class="return-status-nb pending"><i class="fa-solid fa-clock"></i> Pending</span>
+        <span class="return-status-nb pending" style="background: #17a2b8; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-clock"></i> Pending</span>
     </div>
+    
     {% elif order.return_status == 'approved' %}
-    <div class="return-action-box" style="background: #d4edda; border-color: #c3e6cb;">
+    <div class="return-action-box" style="background: #e6f4f9; border-color: #b8daff; border-left-color: #3498db;">
         <div>
-            <h3 style="margin: 0 0 5px 0; color: #155724; font-size: 16px;">Return Approved</h3>
-            <p style="margin: 0; color: #155724; font-size: 13px;">Your refund has been processed successfully.</p>
+            <h3 style="margin: 0 0 5px 0; color: #004085; font-size: 16px;">Return Approved</h3>
+            <p style="margin: 0; color: #004085; font-size: 13px;">Our delivery partner will pick up the item soon.</p>
         </div>
-        <span class="return-status-nb approved"><i class="fa-solid fa-check-circle"></i> Approved</span>
+        <span class="return-status-nb pending" style="background: #3498db; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-check"></i> Approved</span>
+    </div>
+
+    {% elif order.return_status == 'picked' %}
+    <div class="return-action-box" style="background: #f4e8fd; border-color: #d1b3e8; border-left-color: #9b59b6;">
+        <div>
+            <h3 style="margin: 0 0 5px 0; color: #7d3c98; font-size: 16px;">Item Picked Up</h3>
+            <p style="margin: 0; color: #7d3c98; font-size: 13px;">Your refund is being processed and will be credited soon.</p>
+        </div>
+        <span class="return-status-nb pending" style="background: #9b59b6; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-truck"></i> Picked</span>
+    </div>
+
+    {% elif order.return_status == 'refunded' %}
+    <div class="return-action-box" style="background: #d4edda; border-color: #c3e6cb; border-left-color: #28a745;">
+        <div>
+            <h3 style="margin: 0 0 5px 0; color: #155724; font-size: 16px;">Return & Refund Complete</h3>
+            <p style="margin: 0; color: #155724; font-size: 13px;">Your refund of ₹{{ order.return_request.refund_amount if order.return_request else order.total_amount }} has been processed successfully.</p>
+        </div>
+        <span class="return-status-nb approved" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-check-circle"></i> Refunded</span>
     </div>
     {% endif %}
 
-    <!-- ✅ Updated Back Button -->
-    <div style="margin-top: 40px; margin-bottom: 20px;">
-        <a href="{{ url_for('orders') }}" class="back-btn-nb">
+    <!-- ✅ BACK BUTTON (FIXED & PREMIUM) -->
+    <div style="margin-top: 40px; margin-bottom: 60px; padding-top: 20px; border-top: 1px solid #e8e2d9;">
+        <a href="{{ url_for('orders') }}" style="display: inline-flex; align-items: center; gap: 8px; background: #1a1a1a; color: #ffffff; padding: 14px 28px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; text-decoration: none; border-radius: 6px; transition: all 0.3s ease;" onmouseover="this.style.background='#c9a961'; this.style.color='#1a1a1a';" onmouseout="this.style.background='#1a1a1a'; this.style.color='#ffffff';">
             <i class="fa-solid fa-arrow-left"></i> Back to My Orders
         </a>
     </div>
 
 </div>
+
 {% endblock %}

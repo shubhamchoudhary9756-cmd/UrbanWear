@@ -5,7 +5,7 @@
 {% block content %}
 
 <!-- ==================================================
-                    ORDERS PAGE — NOBERO STYLE
+                    ORDERS PAGE — PREMIUM STYLE
 ================================================== -->
 
 <section class="orders-nb">
@@ -62,8 +62,6 @@
                 <span>{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</span>
             </button>
 
-            <!-- ❌ CANCELLED TAB REMOVED -->
-
         </div>
 
 
@@ -101,28 +99,36 @@
                         </span>
                     </div>
 
-                    <!-- TIMELINE -->
+                    <!-- ✅ TIMELINE (FIXED) -->
                     {% if order.status not in ['cancelled', 'returned'] %}
                     <div class="order-timeline-nb">
+                        
                         <div class="timeline-step-nb {% if order.status in ['pending', 'processing', 'shipped', 'delivered'] %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Placed</span>
                         </div>
+                        
                         <div class="timeline-line-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}done-nb{% endif %}"></div>
+                        
                         <div class="timeline-step-nb {% if order.status in ['processing', 'shipped', 'delivered'] %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Processing</span>
                         </div>
+                        
                         <div class="timeline-line-nb {% if order.status in ['shipped', 'delivered'] %}done-nb{% endif %}"></div>
+                        
                         <div class="timeline-step-nb {% if order.status in ['shipped', 'delivered'] %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Shipped</span>
                         </div>
+                        
                         <div class="timeline-line-nb {% if order.status == 'delivered' %}done-nb{% endif %}"></div>
+                        
                         <div class="timeline-step-nb {% if order.status == 'delivered' %}done-nb{% endif %}">
                             <div class="timeline-dot-nb"></div>
                             <span>Delivered</span>
                         </div>
+
                     </div>
                     {% elif order.status == 'cancelled' %}
                     <div class="order-cancelled-banner-nb">
@@ -130,7 +136,7 @@
                         <span>This order was cancelled</span>
                     </div>
                     {% elif order.status == 'returned' %}
-                    <div class="order-cancelled-banner-nb" style="background: #f8f9fa; color: #6c757d;">
+                    <div class="order-cancelled-banner-nb" style="background: #f8f9fa; color: #6c757d; border-color: #e9ecef;">
                         <i class="fa-solid fa-rotate-left"></i>
                         <span>This order has been returned</span>
                     </div>
@@ -142,8 +148,8 @@
                         {% for item in order.items %}
                             <div class="order-item-row-nb">
                                 <div class="order-item-left-nb">
-                                    <div class="order-item-icon-nb">
-                                        <i class="fa-solid fa-cube"></i>
+                                    <div class="order-item-img-nb" style="width: 50px; height: 50px; background: #faf8f5; border-radius: 4px; overflow: hidden; flex-shrink: 0;">
+                                        <img src="{{ item.product.image|product_image if item.product else '' }}" alt="{{ item.product_name }}" style="width: 100%; height: 100%; object-fit: contain;">
                                     </div>
                                     <div class="order-item-info-nb">
                                         <span class="order-item-name-nb">
@@ -189,11 +195,11 @@
                             {% endif %}
 
                             {% if order.return_status == 'pending' %}
-                                <span class="order-status-pill-nb" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 8px 12px; border-radius: 4px; font-size: 12px;">
+                                <span class="order-status-pill-nb" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">
                                     <i class="fa-solid fa-clock"></i> Return Pending
                                 </span>
                             {% elif order.return_status == 'approved' %}
-                                <span class="order-status-pill-nb" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 8px 12px; border-radius: 4px; font-size: 12px;">
+                                <span class="order-status-pill-nb" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">
                                     <i class="fa-solid fa-check-circle"></i> Returned
                                 </span>
                             {% endif %}
@@ -286,7 +292,6 @@
                     } else if (filter === "completed") {
                         show = status === "delivered";
                     } 
-                    // ❌ Cancelled filter removed
 
                     if (show) {
                         card.style.display = "";

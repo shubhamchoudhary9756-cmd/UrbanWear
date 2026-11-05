@@ -4,22 +4,23 @@
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>{% block title %}Admin Panel | Zenith{% endblock %}</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     {% block extra_head %}{% endblock %}
 
@@ -29,11 +30,9 @@
 <body>
 
 <!-- ADMIN LAYOUT -->
-
 <div class="admin-layout">
 
     <!-- SIDEBAR -->
-
     <aside class="admin-sidebar">
 
         <div class="sidebar-logo">
@@ -55,7 +54,6 @@
                 <span>Orders</span>
             </a>
 
-            <!-- ✅ NAYA: RETURNS LINK -->
             <a href="{{ url_for('admin_returns_tab') }}"
                class="sidebar-link {% if active_tab == 'returns' %}active{% endif %}" style="justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -113,7 +111,6 @@
 
 
     <!-- MAIN CONTENT -->
-
     <main class="admin-main">
 
         {% with messages = get_flashed_messages() %}
@@ -133,16 +130,10 @@
 </div>
 
 
-<!-- ============================================ -->
 <!-- GLOBAL SCRIPTS -->
-<!-- ============================================ -->
-
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-<!-- ============================================ -->
-<!-- DASHBOARD — Chart.js (only on dashboard tab) -->
-<!-- ============================================ -->
-
+<!-- DASHBOARD SPECIFIC (Chart.js) -->
 {% if active_tab is not defined or active_tab == 'dashboard' %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="{{ url_for('static', filename='js/admin-dashboard.js') }}"></script>

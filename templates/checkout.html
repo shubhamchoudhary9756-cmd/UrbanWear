@@ -82,10 +82,7 @@
 
             <div class="checkout-left-nb">
 
-                <!-- ============================
-                        CONTACT INFO
-                ============================ -->
-
+                <!-- CONTACT INFO -->
                 <div class="checkout-box-nb">
 
                     <div class="checkout-box-header-nb">
@@ -135,10 +132,7 @@
                 </div>
 
 
-                <!-- ============================
-                        SHIPPING ADDRESS
-                ============================ -->
-
+                <!-- SHIPPING ADDRESS -->
                 <div class="checkout-box-nb">
 
                     <div class="checkout-box-header-nb">
@@ -199,10 +193,7 @@
                 </div>
 
 
-                <!-- ============================
-                        PAYMENT METHOD
-                ============================ -->
-
+                <!-- PAYMENT METHOD -->
                 <div class="checkout-box-nb">
 
                     <div class="checkout-box-header-nb">
@@ -291,7 +282,7 @@
                     </div>
 
 
-                    <!-- ITEMS -->
+                    <!-- ITEMS (Loaded by JS) -->
                     <div id="checkout-items" class="checkout-items-nb">
                         <!-- JavaScript will load cart items here -->
                     </div>
@@ -310,7 +301,7 @@
                             <span class="free-nb">FREE</span>
                         </div>
 
-                        <!-- DISCOUNT ROW (auto-show if coupon applied) -->
+                        <!-- DISCOUNT ROW -->
                         <div class="summary-total-row-nb discount-nb"
                              id="checkout-discount-row"
                              style="display: none;">
@@ -388,13 +379,13 @@
         const cartDataInput = document.getElementById("cart-data");
         const summaryCount = document.getElementById("summary-count-nb");
 
-        // ✅ Coupon elements
+        // Coupon Elements
         const couponCodeHidden = document.getElementById("coupon-code-hidden");
         const discountRow = document.getElementById("checkout-discount-row");
         const discountLabel = document.getElementById("checkout-discount-label");
         const discountValue = document.getElementById("checkout-discount");
 
-        // ✅ Smart image URL helper
+        // Image URL Helper
         function getCheckoutImageUrl(image) {
             if (!image) return "";
             image = String(image);
@@ -404,12 +395,12 @@
             return `/static/${image}`;
         }
 
-        // ✅ Number formatting (Indian style)
+        // Currency Formatter
         function formatNumber(n) {
             return Math.round(n).toLocaleString("en-IN");
         }
 
-        // ✅ Read coupon from localStorage
+        // Read Coupon from LocalStorage
         let couponCode = null;
         let couponDiscount = 0;
         try {
@@ -484,21 +475,18 @@
 
 
         /* =====================================================
-           APPLY COUPON DISCOUNT (from cart)
+           APPLY COUPON DISCOUNT
         ===================================================== */
 
         let finalDiscount = 0;
 
         if (couponCode && couponDiscount > 0) {
-            // Cap discount to subtotal (safety)
             finalDiscount = Math.min(couponDiscount, subtotal);
 
-            // Show discount row
             if (discountRow) discountRow.style.display = "flex";
             if (discountLabel) discountLabel.textContent = `Discount (${couponCode})`;
             if (discountValue) discountValue.textContent = "- ₹" + formatNumber(finalDiscount);
 
-            // Set hidden field for server
             if (couponCodeHidden) couponCodeHidden.value = couponCode;
         }
 
@@ -512,14 +500,14 @@
 
 
         /* =====================================================
-           HIDDEN CART DATA (for server)
+           HIDDEN CART DATA
         ===================================================== */
 
         cartDataInput.value = JSON.stringify(cart);
 
 
         /* =====================================================
-           FORM SUBMIT — Disable button + show loading
+           FORM SUBMIT
         ===================================================== */
 
         const form = document.getElementById("checkout-form");

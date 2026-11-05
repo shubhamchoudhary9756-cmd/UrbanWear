@@ -46,9 +46,7 @@
 {% include 'sections/mobile-drawer.html' %}
 
 
-<!-- ================================================== -->
-<!-- ✅ MINI-CART DRAWER (Titan Style) -->
-<!-- ================================================== -->
+<!-- ==================== MINI-CART DRAWER ==================== -->
 
 <div class="minicart-overlay" id="minicartOverlay" onclick="closeMiniCart()"></div>
 
@@ -79,7 +77,7 @@
         </div>
         <p class="minicart-tax-note">
             <i class="fa-solid fa-circle-info"></i>
-            Shipping & taxes calculated at checkout
+            Shipping &amp; taxes calculated at checkout
         </p>
         <a href="/cart" class="minicart-btn view-cart">
             <i class="fa-solid fa-bag-shopping"></i>
@@ -107,16 +105,19 @@
     {% endif %}
 {% endwith %}
 
+
 <!-- ==================== MAIN CONTENT ==================== -->
 <main class="main-content">
     {% block content %}{% endblock %}
 </main>
+
 
 <!-- ==================== FOOTER ==================== -->
 {% include 'sections/footer.html' %}
 
 <!-- ==================== MOBILE BOTTOM NAV ==================== -->
 {% include 'sections/mobile-bottom-nav.html' %}
+
 
 <!-- ==================== JAVASCRIPT ==================== -->
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
