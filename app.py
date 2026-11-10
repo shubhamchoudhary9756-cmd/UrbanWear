@@ -310,14 +310,13 @@ def home():
     featured_products_db = Product.query.filter_by(category="featured", is_active=True).all()
     best_sellers_db = Product.query.filter_by(category="bestseller", is_active=True).all()
     
-    # ✅ NAYA: Fetch 4 products for Shop The Look section
     shop_look_products = Product.query.filter_by(is_active=True).order_by(Product.rating.desc()).limit(4).all()
 
     return render_template(
         "index.html",
         featured_products=[p.to_dict() for p in featured_products_db],
         best_sellers=[p.to_dict() for p in best_sellers_db],
-        shop_look_products=[p.to_dict() for p in shop_look_products],  # ✅ Pass kiya
+        shop_look_products=[p.to_dict() for p in shop_look_products],
     )
 
 @app.route("/products")
@@ -962,16 +961,26 @@ def admin_returns_tab():
 @admin_required
 def admin_approve_return(order_id):
     order = Order.query.get_or_404(order_id)
-    if order.return_status != "pending": 
-        flash("Invalid action."); return redirect(url_for("admin_returns_tab"))
+    
+    # Check either order.return_status or return_request.status
+    current_status = order.return_status
+    if not current_status and order.return_request:
+        current_status = order.return_request.status
+
+    if current_status != "pending": 
+        flash("Invalid action. Return is not pending.")
+        return redirect(url_for("admin_returns_tab"))
     
     refund_amount = safe_float(request.form.get("refund_amount"), 0)
     if refund_amount <= 0: 
-        flash("Please enter a valid refund amount."); return redirect(url_for("admin_returns_tab"))
+        flash("Please enter a valid refund amount.")
+        return redirect(url_for("admin_returns_tab"))
     
+    # Update Order Status
     order.return_status = "approved"
-    order.status = "return_requested" # ✅ Order Status update kiya
+    order.status = "return_requested"
     
+    # Update ReturnRequest Status
     if order.return_request: 
         order.return_request.status = "approved"
         order.return_request.refund_amount = refund_amount
@@ -990,7 +999,7 @@ def admin_pick_return(order_id):
         flash("This return cannot be picked yet."); return redirect(url_for("admin_returns_tab"))
     
     order.return_status = "picked"
-    order.status = "returned" # ✅ Order Status update kiya
+    order.status = "returned"
     
     if order.return_request: 
         order.return_request.status = "picked"
@@ -1009,7 +1018,7 @@ def admin_refund_return(order_id):
         flash("Product must be picked first before processing refund."); return redirect(url_for("admin_returns_tab"))
     
     order.return_status = "refunded"
-    order.status = "refunded" # ✅ Order Status update kiya (Final status)
+    order.status = "refunded"
     
     if order.return_request: 
         order.return_request.status = "refunded"
@@ -1310,21 +1319,33 @@ def admin_permanent_delete_product(product_id):
 @login_required
 @admin_required
 def admin_update_order_status(order_id):
-    order = Order.query.get_or_404(order_id); new_status = sanitize_string(request.form.get("status", "").lower(), 20); valid_statuses = ["pending", "processing", "shipped", "delivered", "cancelled"]
-    if new_status not in valid_statuses: flash("Invalid order status."); return redirect(url_for("admin_orders_tab"))
+    order = Order.query.get_or_404(order_id)
+    new_status = sanitize_string(request.form.get("status", "").lower(), 20)
+    
+    # ✅ Yahan naye statuses add kiye hain
+    valid_statuses = ["pending", "processing", "shipped", "delivered", "cancelled", "return_requested", "returned", "refunded"]
+    
+    if new_status not in valid_statuses: 
+        flash("Invalid order status."); return redirect(url_for("admin_orders_tab"))
+    
     old_status = order.status
     try:
+        # Agar cancel kar rahe hain toh stock restore karo
         if new_status == "cancelled" and old_status != "cancelled":
             for item in order.items:
                 product = db.session.get(Product, item.product_id)
                 if product: product.stock += item.quantity
+        
         order.status = new_status; db.session.commit(); flash(f"Order #{order.id} status updated to {new_status}.")
+        
         if old_status != new_status:
             try:
                 if new_status == "cancelled": send_order_cancelled_email(order, order.user)
                 else: send_status_update_email(order, order.user, old_status, new_status)
             except Exception as e: print(f"Status update email error: {e}")
-    except Exception as e: db.session.rollback(); print(f"Status Update Error: {e}"); flash("Failed to update order status.")
+    except Exception as e: 
+        db.session.rollback(); print(f"Status Update Error: {e}"); flash("Failed to update order status.")
+        
     redirect_params = {}
     for k in ["q", "status", "sort", "page"]:
         val = request.form.get(f"return_{k}")

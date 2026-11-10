@@ -56,6 +56,7 @@
                        placeholder="e.g. Premium White T-Shirt" required>
             </div>
 
+            <!-- PRICE & OLD PRICE -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="price">Price (₹) *</label>
@@ -71,6 +72,7 @@
                 </div>
             </div>
 
+            <!-- CATEGORY & STOCK -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="category">Category *</label>
@@ -102,7 +104,7 @@
                 </p>
             </div>
 
-            <!-- Sizes + Colors + Brand -->
+            <!-- SIZES & COLORS -->
             <div class="form-row">
                 <div class="form-group half">
                     <label for="sizes">Sizes</label>
@@ -131,6 +133,7 @@
                 </p>
             </div>
 
+            <!-- RATING -->
             <div class="form-group">
                 <label for="rating">Rating (0-5)</label>
                 <input type="number" id="rating" name="rating" step="0.1" min="0" max="5"
@@ -138,6 +141,7 @@
                        placeholder="4.5">
             </div>
 
+            <!-- DESCRIPTION -->
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" rows="4"
@@ -195,94 +199,106 @@
                 </div>
             </div>
 
-            <!-- IMAGE 2 -->
-            <div class="form-group">
-                <label for="image2_file">Image 2 (Optional)</label>
+            <!-- IMAGE 2 & IMAGE 3 (Side by side) -->
+            <div class="form-row">
+                
+                <!-- IMAGE 2 -->
+                <div class="form-group half">
+                    <label for="image2_file">Image 2 (Optional)</label>
 
-                <div class="image-upload-wrapper">
-                    <label for="image2_file" class="file-btn">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        Choose File
-                    </label>
+                    <div class="image-upload-wrapper">
+                        <label for="image2_file" class="file-btn">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            Choose File
+                        </label>
 
-                    <input type="file"
-                           id="image2_file"
-                           name="image2_file"
-                           accept="image/*"
-                           class="file-input"
-                           onchange="previewImage(this, 'preview-2', 'file-name-2')">
+                        <input type="file"
+                               id="image2_file"
+                               name="image2_file"
+                               accept="image/*"
+                               class="file-input"
+                               onchange="previewImage(this, 'preview-2', 'file-name-2')">
 
-                    <span class="file-name" id="file-name-2">No file chosen</span>
+                        <span class="file-name" id="file-name-2">No file chosen</span>
+                    </div>
+
+                    <div class="image-preview-box" id="preview-2">
+                        {% if product and product.image2 %}
+                            <img src="{{ url_for('static', filename=product.image2) }}" alt="Image 2">
+                        {% endif %}
+                    </div>
+
+                    <input type="text" name="image2" value="{{ product.image2 if product and product.image2 else '' }}"
+                           placeholder="Or paste path..." class="manual-path-input">
                 </div>
 
-                <div class="image-preview-box" id="preview-2">
-                    {% if product and product.image2 %}
-                        <img src="{{ url_for('static', filename=product.image2) }}" alt="Image 2">
-                    {% endif %}
+                <!-- IMAGE 3 -->
+                <div class="form-group half">
+                    <label for="image3_file">Image 3 (Optional)</label>
+
+                    <div class="image-upload-wrapper">
+                        <label for="image3_file" class="file-btn">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            Choose File
+                        </label>
+
+                        <input type="file"
+                               id="image3_file"
+                               name="image3_file"
+                               accept="image/*"
+                               class="file-input"
+                               onchange="previewImage(this, 'preview-3', 'file-name-3')">
+
+                        <span class="file-name" id="file-name-3">No file chosen</span>
+                    </div>
+
+                    <div class="image-preview-box" id="preview-3">
+                        {% if product and product.image3 %}
+                            <img src="{{ url_for('static', filename=product.image3) }}" alt="Image 3">
+                        {% endif %}
+                    </div>
+
+                    <input type="text" name="image3" value="{{ product.image3 if product and product.image3 else '' }}"
+                           placeholder="Or paste path..." class="manual-path-input">
                 </div>
 
-                <input type="text" name="image2" value="{{ product.image2 if product and product.image2 else '' }}"
-                       placeholder="Or paste path..." class="manual-path-input">
             </div>
 
-            <!-- IMAGE 3 -->
-            <div class="form-group">
-                <label for="image3_file">Image 3 (Optional)</label>
+            <!-- IMAGE 4 (Akelaa) -->
+            <div class="form-row">
+                
+                <div class="form-group half">
+                    <label for="image4_file">Image 4 (Optional)</label>
 
-                <div class="image-upload-wrapper">
-                    <label for="image3_file" class="file-btn">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        Choose File
-                    </label>
+                    <div class="image-upload-wrapper">
+                        <label for="image4_file" class="file-btn">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            Choose File
+                        </label>
 
-                    <input type="file"
-                           id="image3_file"
-                           name="image3_file"
-                           accept="image/*"
-                           class="file-input"
-                           onchange="previewImage(this, 'preview-3', 'file-name-3')">
+                        <input type="file"
+                               id="image4_file"
+                               name="image4_file"
+                               accept="image/*"
+                               class="file-input"
+                               onchange="previewImage(this, 'preview-4', 'file-name-4')">
 
-                    <span class="file-name" id="file-name-3">No file chosen</span>
+                        <span class="file-name" id="file-name-4">No file chosen</span>
+                    </div>
+
+                    <div class="image-preview-box" id="preview-4">
+                        {% if product and product.image4 %}
+                            <img src="{{ url_for('static', filename=product.image4) }}" alt="Image 4">
+                        {% endif %}
+                    </div>
+
+                    <input type="text" name="image4" value="{{ product.image4 if product and product.image4 else '' }}"
+                           placeholder="Or paste path..." class="manual-path-input">
                 </div>
 
-                <div class="image-preview-box" id="preview-3">
-                    {% if product and product.image3 %}
-                        <img src="{{ url_for('static', filename=product.image3) }}" alt="Image 3">
-                    {% endif %}
-                </div>
-
-                <input type="text" name="image3" value="{{ product.image3 if product and product.image3 else '' }}"
-                       placeholder="Or paste path..." class="manual-path-input">
-            </div>
-
-            <!-- IMAGE 4 -->
-            <div class="form-group">
-                <label for="image4_file">Image 4 (Optional)</label>
-
-                <div class="image-upload-wrapper">
-                    <label for="image4_file" class="file-btn">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        Choose File
-                    </label>
-
-                    <input type="file"
-                           id="image4_file"
-                           name="image4_file"
-                           accept="image/*"
-                           class="file-input"
-                           onchange="previewImage(this, 'preview-4', 'file-name-4')">
-
-                    <span class="file-name" id="file-name-4">No file chosen</span>
-                </div>
-
-                <div class="image-preview-box" id="preview-4">
-                    {% if product and product.image4 %}
-                        <img src="{{ url_for('static', filename=product.image4) }}" alt="Image 4">
-                    {% endif %}
-                </div>
-
-                <input type="text" name="image4" value="{{ product.image4 if product and product.image4 else '' }}"
-                       placeholder="Or paste path..." class="manual-path-input">
+                <!-- Khaali div taaki Image 4 aadha width le aur layout na bigde -->
+                <div class="form-group half"></div>
+                
             </div>
 
         </div>
