@@ -182,7 +182,8 @@ def inr_filter(value):
         return str(val)
     except (ValueError, TypeError):
         return str(value)
-    # ==================================================
+
+# ==================================================
 # VALIDATION HELPERS & FILE UPLOADS
 # ==================================================
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
@@ -295,7 +296,6 @@ def admin_required(f):
 @app.route("/")
 def home():
     try:
-        # ✅ Crash fix: Limit lagaya aur error handling daali
         featured_products_db = Product.query.filter_by(category="featured", is_active=True).limit(8).all()
         best_sellers_db = Product.query.filter_by(category="bestseller", is_active=True).limit(8).all()
         shop_look_products = Product.query.filter_by(is_active=True).order_by(Product.rating.desc()).limit(4).all()
@@ -433,6 +433,7 @@ def cart(): return render_template("cart.html")
 
 @app.route("/wishlist")
 def wishlist(): return render_template("wishlist.html")
+
 # ==================================================
 # AUTH — SIGNUP, LOGIN, PASSWORD
 # ==================================================
@@ -605,7 +606,8 @@ def list_active_coupons():
         return jsonify({"coupons": [{"code": c.code, "discount_percent": c.discount_percent, "min_order_amount": float(c.min_order_amount or 0), "max_discount": float(c.max_discount) if c.max_discount else None} for c in coupons]})
     except Exception as e:
         print(f"List coupons error: {e}"); return jsonify({"coupons": []}), 200
-    # ==================================================
+
+# ==================================================
 # CHECKOUT
 # ==================================================
 @app.route("/checkout", methods=["GET", "POST"])
@@ -680,7 +682,7 @@ def checkout():
     return render_template("checkout.html")
 
 # ==================================================
-# PAYMENT & ORDERS
+# PAYMENT ROUTES
 # ==================================================
 @app.route("/payment/<int:order_id>")
 @login_required
@@ -775,6 +777,9 @@ def order_success(order_id):
     if order.user_id != current_user.id: abort(403)
     return render_template("order_success.html", order=order)
 
+# ==================================================
+# ORDERS & RETURNS (User)
+# ==================================================
 @app.route("/orders")
 @login_required
 def orders():
@@ -824,6 +829,9 @@ def return_order(order_id):
         return redirect(url_for("order_details", order_id=order_id))
     return render_template("return_request.html", order=order)
 
+# ==================================================
+# REVIEWS (User)
+# ==================================================
 @app.route("/product/<int:product_id>/review", methods=["POST"])
 @login_required
 @limiter.limit("5 per hour")
@@ -898,7 +906,7 @@ def _update_product_rating(product_id):
         db.session.rollback(); print(f"Update product rating error: {e}")
 
 # ==================================================
-# ADMIN ROUTES
+# ADMIN — DASHBOARD & RETURNS
 # ==================================================
 @app.route("/admin")
 @app.route("/admin/")
@@ -908,26 +916,75 @@ def admin_panel():
         flash("You need admin access to view this page.")
         return redirect(url_for("admin_login"))
         
-    now = datetime.now(timezone.utc); today_start = now.replace(hour=0, minute=0, second=0, microsecond=0); week_start = today_start - timedelta(days=7); month_start = today_start - timedelta(days=30)
-    total_orders = Order.query.count(); total_users = User.query.count(); total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0; pending_orders = Order.query.filter_by(status="pending").count(); total_products = Product.query.count()
-    today_orders = Order.query.filter(Order.created_at >= today_start).count(); today_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= today_start).scalar() or 0; today_users = User.query.filter(User.created_at >= today_start).count()
-    week_orders = Order.query.filter(Order.created_at >= week_start).count(); week_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= week_start).scalar() or 0
-    month_orders = Order.query.filter(Order.created_at >= month_start).count(); month_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= month_start).scalar() or 0
-    order_status_breakdown = {"pending": Order.query.filter_by(status="pending").count(), "processing": Order.query.filter_by(status="processing").count(), "shipped": Order.query.filter_by(status="shipped").count(), "delivered": Order.query.filter_by(status="delivered").count(), "cancelled": Order.query.filter_by(status="cancelled").count()}
-    revenue_chart_labels = []; revenue_chart_data = []
-    for i in range(6, -1, -1):
-        day_start = today_start - timedelta(days=i); day_end = day_start + timedelta(days=1)
-        day_rev = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= day_start, Order.created_at < day_end).scalar() or 0
-        revenue_chart_labels.append(day_start.strftime("%d %b")); revenue_chart_data.append(float(day_rev))
-    top_products_query = (db.session.query(OrderItem.product_name, db.func.sum(OrderItem.quantity).label("total_qty"), db.func.sum(OrderItem.quantity * OrderItem.price).label("total_revenue")).group_by(OrderItem.product_name).order_by(db.func.sum(OrderItem.quantity).desc()).limit(5).all())
-    top_products = [{"name": r.product_name, "qty": int(r.total_qty or 0), "revenue": float(r.total_revenue or 0)} for r in top_products_query]
-    low_stock_products = Product.query.filter(Product.is_active == True, Product.stock < 10).order_by(Product.stock.asc()).limit(8).all()
-    recent_orders = Order.query.options(joinedload(Order.user)).order_by(Order.created_at.desc()).limit(5).all()
-    recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
-    try: pending_reviews_count = Review.query.filter_by(is_approved=False).count()
-    except Exception: pending_reviews_count = 0
-    pending_returns_count = ReturnRequest.query.filter_by(status="pending").count()
-    return render_template("admin_panel.html", active_tab="dashboard", total_orders=total_orders, total_users=total_users, total_revenue=total_revenue, pending_orders=pending_orders, total_products=total_products, today_orders=today_orders, today_revenue=today_revenue, today_users=today_users, week_orders=week_orders, week_revenue=week_revenue, month_orders=month_orders, month_revenue=month_revenue, order_status_breakdown=order_status_breakdown, revenue_chart_labels=revenue_chart_labels, revenue_chart_data=revenue_chart_data, top_products=top_products, low_stock_products=low_stock_products, recent_orders=recent_orders, recent_users=recent_users, pending_reviews_count=pending_reviews_count, pending_returns_count=pending_returns_count)
+    try:
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        week_start = today_start - timedelta(days=7)
+        month_start = today_start - timedelta(days=30)
+        
+        # ✅ OPTIMIZATION: Alag-alag queries ki jagah ek hi baar mein data fetch karo
+        total_orders = Order.query.count()
+        total_users = User.query.count()
+        total_products = Product.query.count()
+        
+        # Revenue aur Pending orders (Ek hi query mein)
+        stats = db.session.query(
+            db.func.sum(Order.total_amount),
+            db.func.count(Order.id)
+        ).filter(Order.status == "pending").first()
+        
+        total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
+        pending_orders = stats[1] if stats[1] else 0
+        
+        today_orders = Order.query.filter(Order.created_at >= today_start).count()
+        today_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= today_start).scalar() or 0
+        today_users = User.query.filter(User.created_at >= today_start).count()
+        
+        week_orders = Order.query.filter(Order.created_at >= week_start).count()
+        week_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= week_start).scalar() or 0
+        
+        month_orders = Order.query.filter(Order.created_at >= month_start).count()
+        month_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= month_start).scalar() or 0
+        
+        order_status_breakdown = {
+            "pending": Order.query.filter_by(status="pending").count(), 
+            "processing": Order.query.filter_by(status="processing").count(), 
+            "shipped": Order.query.filter_by(status="shipped").count(), 
+            "delivered": Order.query.filter_by(status="delivered").count(), 
+            "cancelled": Order.query.filter_by(status="cancelled").count()
+        }
+        
+        revenue_chart_labels = []
+        revenue_chart_data = []
+        for i in range(6, -1, -1):
+            day_start = today_start - timedelta(days=i)
+            day_end = day_start + timedelta(days=1)
+            day_rev = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= day_start, Order.created_at < day_end).scalar() or 0
+            revenue_chart_labels.append(day_start.strftime("%d %b"))
+            revenue_chart_data.append(float(day_rev))
+            
+        top_products_query = (db.session.query(OrderItem.product_name, db.func.sum(OrderItem.quantity).label("total_qty"), db.func.sum(OrderItem.quantity * OrderItem.price).label("total_revenue")).group_by(OrderItem.product_name).order_by(db.func.sum(OrderItem.quantity).desc()).limit(5).all())
+        top_products = [{"name": r.product_name, "qty": int(r.total_qty or 0), "revenue": float(r.total_revenue or 0)} for r in top_products_query]
+        
+        low_stock_products = Product.query.filter(Product.is_active == True, Product.stock < 10).order_by(Product.stock.asc()).limit(8).all()
+        recent_orders = Order.query.options(joinedload(Order.user)).order_by(Order.created_at.desc()).limit(5).all()
+        recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+        
+        try: 
+            pending_reviews_count = Review.query.filter_by(is_approved=False).count()
+        except Exception: 
+            pending_reviews_count = 0
+            
+        pending_returns_count = ReturnRequest.query.filter_by(status="pending").count()
+        
+        return render_template("admin_panel.html", active_tab="dashboard", total_orders=total_orders, total_users=total_users, total_revenue=total_revenue, pending_orders=pending_orders, total_products=total_products, today_orders=today_orders, today_revenue=today_revenue, today_users=today_users, week_orders=week_orders, week_revenue=week_revenue, month_orders=month_orders, month_revenue=month_revenue, order_status_breakdown=order_status_breakdown, revenue_chart_labels=revenue_chart_labels, revenue_chart_data=revenue_chart_data, top_products=top_products, low_stock_products=low_stock_products, recent_orders=recent_orders, recent_users=recent_users, pending_reviews_count=pending_reviews_count, pending_returns_count=pending_returns_count)
+        
+    except Exception as e:
+        print(f"❌ ADMIN DASHBOARD ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Dashboard load karne mein error aaya. Kripya thodi der baad try karein.")
+        return redirect(url_for("home"))
 
 @app.route("/admin/returns")
 @login_required
@@ -1006,6 +1063,9 @@ def admin_refund_return(order_id):
     flash(f"Refund of ₹{refund_amt} processed for Order #{order.id}. Workflow Complete!")
     return redirect(url_for("admin_returns_tab"))
 
+# ==================================================
+# ADMIN — ORDERS, PRODUCTS, USERS, COUPONS, REVIEWS
+# ==================================================
 @app.route("/admin/orders")
 @login_required
 @admin_required
@@ -1090,6 +1150,9 @@ def admin_coupons_tab():
     pending_returns_count = ReturnRequest.query.filter_by(status="pending").count()
     return render_template("admin_panel.html", active_tab="coupons", coupons=coupons_page, search_q=search_q, status_filter=status_filter, sort_by=sort_by, current_page=page, total_pages=total_pages, total_count=total_count, per_page=per_page, total_all=total_all, active_count=active_count, inactive_count=inactive_count, expired_count=expired_count, pending_returns_count=pending_returns_count)
 
+# ==================================================
+# ADMIN — COUPON CRUD, REVIEWS, PRODUCTS
+# ==================================================
 @app.route("/admin/coupons/add", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -1198,6 +1261,9 @@ def admin_delete_review(review_id):
     except Exception as e: db.session.rollback(); print(f"Delete review error: {e}"); flash("Failed to delete review.")
     return redirect(url_for("admin_reviews_tab"))
 
+# ==================================================
+# ADMIN — PRODUCT MANAGEMENT
+# ==================================================
 @app.route("/admin/products/add", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -1359,8 +1425,6 @@ def initialize_database():
         except Exception as e: 
             db.session.rollback()
             print(f"❌ Admin setup error: {e}")
-
-        # ❌ NOTE: Product aur Coupon seeding hata di gayi hai taaki DB connection block na ho
 
 initialize_database()
 
