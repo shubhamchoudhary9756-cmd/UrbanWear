@@ -6,6 +6,7 @@ Zenith - Database Models
 + ✅ Product sizes & colors for frontend filters
 + ✅ Return & Refund system
 + ✅ Added refund_amount, status timestamps to ReturnRequest
++ ✅ Optimized to_dict() to prevent DB connection pool exhaustion
 """
 
 from flask_sqlalchemy import SQLAlchemy
@@ -222,8 +223,9 @@ class Product(db.Model):
             "image4": self.image4,
             "images": self.images,
             "rating": self.rating,
-            "avg_rating": self.avg_rating,
-            "review_count": self.review_count,
+            # ✅ DB QUERIES REMOVED HERE TO PREVENT CRASH ON HOME PAGE
+            # "avg_rating": self.avg_rating,
+            # "review_count": self.review_count,
             "discount_percent": self.discount_percent,
             "category": self.category,
             "subcategory": self.subcategory or "",
