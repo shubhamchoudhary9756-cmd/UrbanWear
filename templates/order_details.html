@@ -14,7 +14,7 @@
     <div class="order-header-nb">
         <div>
             <h1 style="font-size: 38px; font-family: 'Playfair Display', serif; margin-bottom: 5px; color: #1a1a1a; font-weight: 500;">Order #{{ order.id }}</h1>
-            <p style="color: #777; font-size: 14px;">Placed on {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</p>
+            <p style="color: #777; font-size: 14px;">Placed on {{ order.created_at.strftime('%d %b %Y, %I:%M %p') if order.created_at else 'N/A' }}</p>
         </div>
         <div>
             <span class="order-status-badge status-{{ order.status }}" style="padding: 8px 18px; font-size: 13px; border-radius: 30px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
@@ -23,81 +23,87 @@
         </div>
     </div>
 
-    <!-- ✅ TRACKING TIMELINE (HORIZONTAL) -->
+    <!-- ✅ TRACKING TIMELINE (VERTICAL DESIGN) -->
     {% if order.status not in ['cancelled', 'returned', 'refunded'] %}
-    <div class="tracking-timeline-horizontal">
-        
-        {% set is_return = order.return_status in ['pending', 'approved', 'picked', 'refunded'] %}
-        {% set is_picked = order.return_status in ['picked', 'refunded'] %}
-        {% set is_refunded = order.return_status == 'refunded' %}
+    <div class="tracking-timeline-nb">
+        <div class="timeline-steps-nb">
+            
+            {% set is_return = order.return_status in ['pending', 'approved', 'picked', 'refunded'] %}
+            {% set is_picked = order.return_status in ['picked', 'refunded'] %}
+            {% set is_refunded = order.return_status == 'refunded' %}
 
-        <!-- Step 1 -->
-        <div class="t-step active">
-            <div class="t-icon"><i class="fa-solid fa-clipboard-check"></i></div>
-            <div class="t-label">Placed</div>
+            <!-- Step 1: Placed -->
+            <div class="timeline-step-nb active">
+                <div class="step-icon-nb"><i class="fa-solid fa-clipboard-check"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Order Placed</span>
+                    <span class="step-date-nb">{{ order.created_at.strftime('%d %b %Y, %I:%M %p') if order.created_at else 'N/A' }}</span>
+                </div>
+            </div>
+
+            <!-- Step 2: Processing -->
+            <div class="timeline-step-nb {% if order.status in ['processing', 'shipped', 'delivered'] or is_return %}active{% endif %}">
+                <div class="step-icon-nb"><i class="fa-solid fa-box-open"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Processing</span>
+                </div>
+            </div>
+
+            <!-- Step 3: Shipped -->
+            <div class="timeline-step-nb {% if order.status in ['shipped', 'delivered'] or is_return %}active{% endif %}">
+                <div class="step-icon-nb"><i class="fa-solid fa-truck-fast"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Shipped</span>
+                </div>
+            </div>
+
+            <!-- Step 4: Delivered -->
+            <div class="timeline-step-nb {% if order.status == 'delivered' or is_return %}active{% endif %}">
+                <div class="step-icon-nb"><i class="fa-solid fa-house-circle-check"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Delivered</span>
+                </div>
+            </div>
+
+            <!-- Step 5: Return Requested -->
+            <div class="timeline-step-nb {% if is_return %}active{% endif %}">
+                <div class="step-icon-nb"><i class="fa-solid fa-rotate-left"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Return Requested</span>
+                    {% if order.return_status == 'pending' %}
+                        <span class="step-date-nb" style="color: #f39c12;">Waiting for Admin Approval</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Step 6: Picked Up -->
+            <div class="timeline-step-nb {% if is_picked %}active{% endif %}">
+                <div class="step-icon-nb"><i class="fa-solid fa-box"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Picked Up</span>
+                </div>
+            </div>
+
+            <!-- Step 7: Refunded -->
+            <div class="timeline-step-nb {% if is_refunded %}active{% endif %}">
+                <div class="step-icon-nb"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="step-info-nb">
+                    <span class="step-label-nb">Refunded</span>
+                </div>
+            </div>
+
         </div>
-
-        <div class="t-line {% if order.status in ['processing', 'shipped', 'delivered'] or is_return %}active{% endif %}"></div>
-
-        <!-- Step 2 -->
-        <div class="t-step {% if order.status in ['processing', 'shipped', 'delivered'] or is_return %}active{% endif %}">
-            <div class="t-icon"><i class="fa-solid fa-box-open"></i></div>
-            <div class="t-label">Processing</div>
-        </div>
-
-        <div class="t-line {% if order.status in ['shipped', 'delivered'] or is_return %}active{% endif %}"></div>
-
-        <!-- Step 3 -->
-        <div class="t-step {% if order.status in ['shipped', 'delivered'] or is_return %}active{% endif %}">
-            <div class="t-icon"><i class="fa-solid fa-truck-fast"></i></div>
-            <div class="t-label">Shipped</div>
-        </div>
-
-        <div class="t-line {% if order.status == 'delivered' or is_return %}active{% endif %}"></div>
-
-        <!-- Step 4 -->
-        <div class="t-step {% if order.status == 'delivered' or is_return %}active{% endif %}">
-            <div class="t-icon"><i class="fa-solid fa-house-circle-check"></i></div>
-            <div class="t-label">Delivered</div>
-        </div>
-
-        {% if is_return %}
-        <div class="t-line active"></div>
-
-        <!-- Step 5: Return Requested -->
-        <div class="t-step active">
-            <div class="t-icon" style="background: #f39c12; border-color: #f39c12; color: white;"><i class="fa-solid fa-rotate-left"></i></div>
-            <div class="t-label" style="color: #f39c12; font-weight: 700;">Return Requested</div>
-        </div>
-
-        <div class="t-line {% if is_picked %}active{% endif %}"></div>
-
-        <!-- Step 6: Picked Up -->
-        <div class="t-step {% if is_picked %}active{% endif %}">
-            <div class="t-icon"><i class="fa-solid fa-box"></i></div>
-            <div class="t-label">Picked Up</div>
-        </div>
-
-        <div class="t-line {% if is_refunded %}active{% endif %}"></div>
-
-        <!-- Step 7: Refunded -->
-        <div class="t-step {% if is_refunded %}active{% endif %}">
-            <div class="t-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
-            <div class="t-label">Refunded</div>
-        </div>
-        {% endif %}
-
     </div>
     
     {% elif order.status == 'cancelled' %}
-    <div class="tracking-timeline-horizontal" style="border-color: #f8d7da; background: #fff5f5; text-align: center; padding: 40px; display: block;">
+    <div class="tracking-timeline-nb" style="border-color: #f8d7da; background: #fff5f5; text-align: center; padding: 40px;">
         <i class="fa-solid fa-circle-xmark" style="font-size: 40px; color: #dc3545; margin-bottom: 15px;"></i>
         <h3 style="color: #721c24; margin: 0 0 5px 0;">Order Cancelled</h3>
         <p style="color: #721c24; margin: 0; font-size: 14px;">This order was cancelled.</p>
     </div>
     
     {% elif order.status == 'returned' or order.return_status == 'refunded' %}
-    <div class="tracking-timeline-horizontal" style="border-color: #c3e6cb; background: #d4edda; text-align: center; padding: 40px; display: block;">
+    <div class="tracking-timeline-nb" style="border-color: #c3e6cb; background: #d4edda; text-align: center; padding: 40px;">
         <i class="fa-solid fa-rotate-left" style="font-size: 40px; color: #155724; margin-bottom: 15px;"></i>
         <h3 style="color: #155724; margin: 0 0 5px 0;">Order Returned & Refunded</h3>
         <p style="color: #155724; margin: 0; font-size: 14px;">This order has been successfully returned and refunded.</p>
@@ -113,7 +119,8 @@
                 <div class="box-header-nb">Items in this Order ({{ order.items|length }})</div>
                 {% for item in order.items %}
                 <div class="order-item-nb">
-                    <img src="{{ item.product.image|product_image if item.product else '' }}" alt="{{ item.product_name }}" class="order-item-img-nb">
+                    <!-- ✅ Safe check for product image -->
+                    <img src="{{ item.product.image|product_image if item.product and item.product.image else url_for('static', filename='images/placeholder.png') }}" alt="{{ item.product_name }}" class="order-item-img-nb">
                     <div class="order-item-info-nb">
                         <h4>{{ item.product_name }}</h4>
                         <div class="order-item-meta-nb">
@@ -205,7 +212,8 @@
     <div class="return-action-box" style="background: #d4edda; border-color: #c3e6cb; border-left-color: #28a745;">
         <div>
             <h3 style="margin: 0 0 5px 0; color: #155724; font-size: 16px;">Return & Refund Complete</h3>
-            <p style="margin: 0; color: #155724; font-size: 13px;">Your refund of ₹{{ order.return_request.refund_amount if order.return_request else order.total_amount }} has been processed successfully.</p>
+            <!-- ✅ Safe check for return_request -->
+            <p style="margin: 0; color: #155724; font-size: 13px;">Your refund of ₹{{ order.return_request.refund_amount if order.return_request and order.return_request.refund_amount else order.total_amount }} has been processed successfully.</p>
         </div>
         <span class="return-status-nb approved" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-check-circle"></i> Refunded</span>
     </div>
