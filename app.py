@@ -924,8 +924,12 @@ def _update_product_rating(product_id):
 @app.route("/admin")
 @app.route("/admin/")
 @login_required
-@admin_required
 def admin_panel():
+    # Agar user admin nahi hai, toh login page par bhej do (404 fix)
+    if not current_user.is_admin:
+        flash("You need admin access to view this page.")
+        return redirect(url_for("admin_login"))
+        
     now = datetime.now(timezone.utc); today_start = now.replace(hour=0, minute=0, second=0, microsecond=0); week_start = today_start - timedelta(days=7); month_start = today_start - timedelta(days=30)
     total_orders = Order.query.count(); total_users = User.query.count(); total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0; pending_orders = Order.query.filter_by(status="pending").count(); total_products = Product.query.count()
     today_orders = Order.query.filter(Order.created_at >= today_start).count(); today_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(Order.created_at >= today_start).scalar() or 0; today_users = User.query.filter(User.created_at >= today_start).count()
@@ -955,7 +959,6 @@ def admin_returns_tab():
     pending_returns = [r for r in all_returns if r.status == "pending"]; approved_returns = [r for r in all_returns if r.status == "approved"]; picked_returns = [r for r in all_returns if r.status == "picked"]; pending_returns_count = len(pending_returns)
     return render_template("admin_panel.html", active_tab="returns", all_returns=all_returns, pending_returns=pending_returns, approved_returns=approved_returns, picked_returns=picked_returns, pending_returns_count=pending_returns_count)
 
-# ✅ Yahan se changes shuru hain
 @app.route("/admin/return/<int:order_id>/approve", methods=["POST"])
 @login_required
 @admin_required

@@ -201,7 +201,7 @@
                             <div class="recent-order-item">
                                 <div class="order-info">
                                     <span class="order-id">#{{ order.id }}</span>
-                                    <span class="order-customer">{{ order.user.full_name }}</span>
+                                    <span class="order-customer">{{ order.user.full_name if order.user else 'Deleted User' }}</span>
                                 </div>
                                 <div class="order-meta">
                                     <span class="order-total">₹{{ order.total_amount|inr }}</span>
@@ -324,10 +324,10 @@
                                 <td><span class="order-id-badge">#{{ order.id }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">{{ order.user.full_name[0]|upper }}</div>
+                                        <div class="customer-avatar">{{ order.user.full_name[0]|upper if order.user else '?' }}</div>
                                         <div>
-                                            <div>{{ order.user.full_name }}</div>
-                                            <small style="color: #999; font-size: 11px;">{{ order.user.email }}</small>
+                                            <div>{{ order.user.full_name if order.user else 'Deleted User' }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ order.user.email if order.user else '' }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -453,13 +453,13 @@
                     <tbody>
                         {% for ret in pending_returns %}
                             <tr>
-                                <td><span class="order-id-badge">#{{ ret.order.id }}</span></td>
+                                <td><span class="order-id-badge">#{{ ret.order.id if ret.order else 'N/A' }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper }}</div>
+                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper if ret.user else '?' }}</div>
                                         <div>
-                                            <div>{{ ret.user.full_name }}</div>
-                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email }}</small>
+                                            <div>{{ ret.user.full_name if ret.user else 'Deleted User' }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email if ret.user else '' }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -467,12 +467,16 @@
                                 <td><span style="font-size: 13px; color: #666;">{{ ret.reason }}</span></td>
                                 <td><span style="font-size: 13px; font-weight: 600; color: #1a1a1a;">{{ ret.order.refund_account_details if ret.order else 'N/A' }}</span></td>
                                 <td>
+                                    {% if ret.order %}
                                     <form method="POST" action="{{ url_for('admin_approve_return', order_id=ret.order.id) }}" style="display: flex; align-items: center; gap: 8px;">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <input type="number" name="refund_amount" placeholder="₹ Amount" required min="1" style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px;">
                                         <a href="{{ url_for('admin_order_details', order_id=ret.order.id) }}" class="admin-view-btn"><i class="fa-solid fa-eye"></i> View</a>
                                         <button type="submit" class="admin-view-btn" style="background: #28a745; border-color: #28a745; color: white;" onclick="return confirm('Approve this return?')"><i class="fa-solid fa-check"></i> Approve</button>
                                     </form>
+                                    {% else %}
+                                        <span style="color: #dc3545; font-size: 12px;"><i class="fa-solid fa-triangle-exclamation"></i> Order Deleted</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -497,13 +501,13 @@
                     <tbody>
                         {% for ret in approved_returns %}
                             <tr>
-                                <td><span class="order-id-badge">#{{ ret.order.id }}</span></td>
+                                <td><span class="order-id-badge">#{{ ret.order.id if ret.order else 'N/A' }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper }}</div>
+                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper if ret.user else '?' }}</div>
                                         <div>
-                                            <div>{{ ret.user.full_name }}</div>
-                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email }}</small>
+                                            <div>{{ ret.user.full_name if ret.user else 'Deleted User' }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email if ret.user else '' }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -511,10 +515,14 @@
                                 <td><span style="font-size: 13px; color: #666;">{{ ret.reason }}</span></td>
                                 <td><span class="coupon-discount-badge">₹{{ "%.0f"|format(ret.refund_amount or 0) }}</span></td>
                                 <td>
+                                    {% if ret.order %}
                                     <form method="POST" action="{{ url_for('admin_pick_return', order_id=ret.order.id) }}" style="margin: 0;">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="admin-view-btn" style="background: #3498db; border: none; color: white;" onclick="return confirm('Mark this return as Picked? This will update the user timeline to Picked Up.')"><i class="fa-solid fa-truck"></i> Mark Picked</button>
                                     </form>
+                                    {% else %}
+                                        <span style="color: #dc3545; font-size: 12px;"><i class="fa-solid fa-triangle-exclamation"></i> Order Deleted</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -539,13 +547,13 @@
                     <tbody>
                         {% for ret in picked_returns %}
                             <tr>
-                                <td><span class="order-id-badge">#{{ ret.order.id }}</span></td>
+                                <td><span class="order-id-badge">#{{ ret.order.id if ret.order else 'N/A' }}</span></td>
                                 <td>
                                     <div class="customer-info">
-                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper }}</div>
+                                        <div class="customer-avatar">{{ ret.user.full_name[0]|upper if ret.user else '?' }}</div>
                                         <div>
-                                            <div>{{ ret.user.full_name }}</div>
-                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email }}</small>
+                                            <div>{{ ret.user.full_name if ret.user else 'Deleted User' }}</div>
+                                            <small style="color: #999; font-size: 11px;">{{ ret.user.email if ret.user else '' }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -553,10 +561,14 @@
                                 <td><span style="font-size: 13px; font-weight: 600; color: #1a1a1a;">{{ ret.order.refund_account_details if ret.order else 'N/A' }}</span></td>
                                 <td><span class="coupon-discount-badge">₹{{ "%.0f"|format(ret.refund_amount or 0) }}</span></td>
                                 <td>
+                                    {% if ret.order %}
                                     <form method="POST" action="{{ url_for('admin_refund_return', order_id=ret.order.id) }}" style="margin: 0;">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="admin-view-btn" style="background: #9b59b6; border: none; color: white;" onclick="return confirm('Process refund for this return? This will complete the workflow and mark order as Refunded.')"><i class="fa-solid fa-money-bill-wave"></i> Process Refund</button>
                                     </form>
+                                    {% else %}
+                                        <span style="color: #dc3545; font-size: 12px;"><i class="fa-solid fa-triangle-exclamation"></i> Order Deleted</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

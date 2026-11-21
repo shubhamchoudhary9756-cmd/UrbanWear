@@ -50,14 +50,22 @@ class Config:
             _db_url = _db_url.replace("postgres://", "postgresql://", 1)
         SQLALCHEMY_DATABASE_URI = _db_url
     else:
-        SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
-            BASE_DIR, "instance", "database.db"
-        )
+        # Render par SQLite ko /data folder mein save karne ke liye
+        if os.environ.get("RENDER"):
+            # Make sure /data folder exists
+            os.makedirs("/data", exist_ok=True)
+            SQLALCHEMY_DATABASE_URI = "sqlite:////data/database.db"
+        else:
+            os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
+            SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
+                BASE_DIR, "instance", "database.db"
+            )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
+        "connect_args": {"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URI else {}
     }
 
     # ==================================================
@@ -76,7 +84,6 @@ class Config:
     MAIL_USERNAME = _get_required_env("MAIL_USERNAME")
     MAIL_PASSWORD = _get_required_env("MAIL_PASSWORD")
 
-    # ✅ Sender: "ZENITH" <email@gmail.com>
     MAIL_DEFAULT_SENDER = (
         os.environ.get("MAIL_SENDER_NAME", "ZENITH"),
         os.environ.get("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
@@ -101,8 +108,6 @@ class Config:
     # ==================================================
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = None
-    # ✅ Time limit removed — token never expires (until session ends)
-    # Isse "session expired" error nahi aayega
     WTF_CSRF_SSL_STRICT = IS_PRODUCTION
     WTF_CSRF_CHECK_DEFAULT = True
     WTF_CSRF_METHODS = ["POST", "PUT", "PATCH", "DELETE"]
@@ -125,9 +130,6 @@ class Config:
     # ==================================================
     # COUPON — Default Seeded Coupons (Optional)
     # ==================================================
-    # Ye config mein hai — app.py `initialize_database()` mein use hoga
-    # Default coupons automatically seed honge first-time app start pe
-
     SEED_COUPONS = [
         {
             "code": "ZENITH20",
