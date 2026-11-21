@@ -1,5 +1,5 @@
 """
-Zenith - Flask E-Commerce Application (Cleaned)
+Zenith - Flask E-Commerce Application (Cleaned & Optimized)
 """
 
 import warnings
@@ -73,7 +73,7 @@ db.init_app(app)
 mail = Mail(app)
 
 # ==================================================
-# SENDGRID HELPER
+# EMAIL SYSTEM
 # ==================================================
 def send_email_via_sendgrid(to_email, subject, html_content):
     api_key = os.environ.get('SENDGRID_API_KEY')
@@ -101,9 +101,6 @@ def send_email_via_sendgrid(to_email, subject, html_content):
         print(f"❌ SendGrid Failed: {e}")
         return False
 
-# ==================================================
-# EMAIL SYSTEM
-# ==================================================
 try:
     from emails import (
         init_email, send_order_placed_email, send_payment_success_email,
@@ -147,7 +144,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # ==================================================
-# FLASK LOGIN
+# FLASK LOGIN & FILTERS
 # ==================================================
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -162,9 +159,6 @@ def load_user(user_id):
     except (ValueError, TypeError):
         return None
 
-# ==================================================
-# JINJA FILTERS
-# ==================================================
 @app.template_filter('product_image')
 def product_image_filter(image_path):
     if not image_path:
@@ -188,9 +182,8 @@ def inr_filter(value):
         return str(val)
     except (ValueError, TypeError):
         return str(value)
-
-# ==================================================
-# VALIDATION HELPERS
+    # ==================================================
+# VALIDATION HELPERS & FILE UPLOADS
 # ==================================================
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
 PHONE_REGEX = re.compile(r'^\+?[1-9]\d{9,14}$')
@@ -224,9 +217,6 @@ def sanitize_string(value, max_length=500):
     if not value: return ""
     return str(value).strip()[:max_length]
 
-# ==================================================
-# FILE UPLOAD HELPERS
-# ==================================================
 def allowed_file(filename):
     if not filename or "." not in filename: return False
     ext = filename.rsplit(".", 1)[1].lower()
@@ -290,9 +280,6 @@ def _delete_cloudinary_image(image_url):
         print(f"⚠️  Cloudinary delete failed: {e}")
         return False
 
-# ==================================================
-# ADMIN DECORATOR
-# ==================================================
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -307,17 +294,23 @@ def admin_required(f):
 # ==================================================
 @app.route("/")
 def home():
-    featured_products_db = Product.query.filter_by(category="featured", is_active=True).all()
-    best_sellers_db = Product.query.filter_by(category="bestseller", is_active=True).all()
-    
-    shop_look_products = Product.query.filter_by(is_active=True).order_by(Product.rating.desc()).limit(4).all()
+    try:
+        # ✅ Crash fix: Limit lagaya aur error handling daali
+        featured_products_db = Product.query.filter_by(category="featured", is_active=True).limit(8).all()
+        best_sellers_db = Product.query.filter_by(category="bestseller", is_active=True).limit(8).all()
+        shop_look_products = Product.query.filter_by(is_active=True).order_by(Product.rating.desc()).limit(4).all()
 
-    return render_template(
-        "index.html",
-        featured_products=[p.to_dict() for p in featured_products_db],
-        best_sellers=[p.to_dict() for p in best_sellers_db],
-        shop_look_products=[p.to_dict() for p in shop_look_products],
-    )
+        return render_template(
+            "index.html",
+            featured_products=[p.to_dict() for p in featured_products_db],
+            best_sellers=[p.to_dict() for p in best_sellers_db],
+            shop_look_products=[p.to_dict() for p in shop_look_products],
+        )
+    except Exception as e:
+        print(f"❌ HOME PAGE ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return render_template("index.html", featured_products=[], best_sellers=[], shop_look_products=[])
 
 @app.route("/products")
 def products():
@@ -440,7 +433,6 @@ def cart(): return render_template("cart.html")
 
 @app.route("/wishlist")
 def wishlist(): return render_template("wishlist.html")
-
 # ==================================================
 # AUTH — SIGNUP, LOGIN, PASSWORD
 # ==================================================
@@ -564,9 +556,6 @@ def reset_password(token):
         flash("Password reset successful! Please login."); return redirect(url_for("login"))
     return render_template("reset_password.html", token=token)
 
-# ==================================================
-# PROFILE
-# ==================================================
 @app.route("/profile")
 @login_required
 def profile():
@@ -589,9 +578,6 @@ def update_profile():
     current_user.full_name = full_name; current_user.phone = phone; db.session.commit()
     flash("Profile updated successfully!"); return redirect(url_for("profile"))
 
-# ==================================================
-# COUPON API
-# ==================================================
 @app.route("/api/coupon/validate", methods=["POST"])
 @csrf.exempt
 @limiter.limit("30 per minute")
@@ -619,8 +605,7 @@ def list_active_coupons():
         return jsonify({"coupons": [{"code": c.code, "discount_percent": c.discount_percent, "min_order_amount": float(c.min_order_amount or 0), "max_discount": float(c.max_discount) if c.max_discount else None} for c in coupons]})
     except Exception as e:
         print(f"List coupons error: {e}"); return jsonify({"coupons": []}), 200
-
-# ==================================================
+    # ==================================================
 # CHECKOUT
 # ==================================================
 @app.route("/checkout", methods=["GET", "POST"])
@@ -695,7 +680,7 @@ def checkout():
     return render_template("checkout.html")
 
 # ==================================================
-# PAYMENT ROUTES
+# PAYMENT & ORDERS
 # ==================================================
 @app.route("/payment/<int:order_id>")
 @login_required
@@ -790,9 +775,6 @@ def order_success(order_id):
     if order.user_id != current_user.id: abort(403)
     return render_template("order_success.html", order=order)
 
-# ==================================================
-# ORDERS & RETURNS (User)
-# ==================================================
 @app.route("/orders")
 @login_required
 def orders():
@@ -842,9 +824,6 @@ def return_order(order_id):
         return redirect(url_for("order_details", order_id=order_id))
     return render_template("return_request.html", order=order)
 
-# ==================================================
-# REVIEWS (User)
-# ==================================================
 @app.route("/product/<int:product_id>/review", methods=["POST"])
 @login_required
 @limiter.limit("5 per hour")
@@ -919,13 +898,12 @@ def _update_product_rating(product_id):
         db.session.rollback(); print(f"Update product rating error: {e}")
 
 # ==================================================
-# ADMIN — DASHBOARD & RETURNS
+# ADMIN ROUTES
 # ==================================================
 @app.route("/admin")
 @app.route("/admin/")
 @login_required
 def admin_panel():
-    # Agar user admin nahi hai, toh login page par bhej do (404 fix)
     if not current_user.is_admin:
         flash("You need admin access to view this page.")
         return redirect(url_for("admin_login"))
@@ -964,8 +942,6 @@ def admin_returns_tab():
 @admin_required
 def admin_approve_return(order_id):
     order = Order.query.get_or_404(order_id)
-    
-    # Check either order.return_status or return_request.status
     current_status = order.return_status
     if not current_status and order.return_request:
         current_status = order.return_request.status
@@ -979,11 +955,9 @@ def admin_approve_return(order_id):
         flash("Please enter a valid refund amount.")
         return redirect(url_for("admin_returns_tab"))
     
-    # Update Order Status
     order.return_status = "approved"
     order.status = "return_requested"
     
-    # Update ReturnRequest Status
     if order.return_request: 
         order.return_request.status = "approved"
         order.return_request.refund_amount = refund_amount
@@ -1032,9 +1006,6 @@ def admin_refund_return(order_id):
     flash(f"Refund of ₹{refund_amt} processed for Order #{order.id}. Workflow Complete!")
     return redirect(url_for("admin_returns_tab"))
 
-# ==================================================
-# ADMIN — ORDERS, PRODUCTS, USERS, COUPONS, REVIEWS
-# ==================================================
 @app.route("/admin/orders")
 @login_required
 @admin_required
@@ -1119,9 +1090,6 @@ def admin_coupons_tab():
     pending_returns_count = ReturnRequest.query.filter_by(status="pending").count()
     return render_template("admin_panel.html", active_tab="coupons", coupons=coupons_page, search_q=search_q, status_filter=status_filter, sort_by=sort_by, current_page=page, total_pages=total_pages, total_count=total_count, per_page=per_page, total_all=total_all, active_count=active_count, inactive_count=inactive_count, expired_count=expired_count, pending_returns_count=pending_returns_count)
 
-# ==================================================
-# ADMIN — COUPON CRUD, REVIEWS, PRODUCTS
-# ==================================================
 @app.route("/admin/coupons/add", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -1230,9 +1198,6 @@ def admin_delete_review(review_id):
     except Exception as e: db.session.rollback(); print(f"Delete review error: {e}"); flash("Failed to delete review.")
     return redirect(url_for("admin_reviews_tab"))
 
-# ==================================================
-# ADMIN — PRODUCT MANAGEMENT
-# ==================================================
 @app.route("/admin/products/add", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -1324,23 +1289,16 @@ def admin_permanent_delete_product(product_id):
 def admin_update_order_status(order_id):
     order = Order.query.get_or_404(order_id)
     new_status = sanitize_string(request.form.get("status", "").lower(), 20)
-    
-    # ✅ Yahan naye statuses add kiye hain
     valid_statuses = ["pending", "processing", "shipped", "delivered", "cancelled", "return_requested", "returned", "refunded"]
-    
     if new_status not in valid_statuses: 
         flash("Invalid order status."); return redirect(url_for("admin_orders_tab"))
-    
     old_status = order.status
     try:
-        # Agar cancel kar rahe hain toh stock restore karo
         if new_status == "cancelled" and old_status != "cancelled":
             for item in order.items:
                 product = db.session.get(Product, item.product_id)
                 if product: product.stock += item.quantity
-        
         order.status = new_status; db.session.commit(); flash(f"Order #{order.id} status updated to {new_status}.")
-        
         if old_status != new_status:
             try:
                 if new_status == "cancelled": send_order_cancelled_email(order, order.user)
@@ -1348,7 +1306,6 @@ def admin_update_order_status(order_id):
             except Exception as e: print(f"Status update email error: {e}")
     except Exception as e: 
         db.session.rollback(); print(f"Status Update Error: {e}"); flash("Failed to update order status.")
-        
     redirect_params = {}
     for k in ["q", "status", "sort", "page"]:
         val = request.form.get(f"return_{k}")
@@ -1382,37 +1339,28 @@ def internal_error(error): db.session.rollback(); print(f"500 Error: {error}"); 
 
 def initialize_database():
     with app.app_context():
-        try: db.create_all(); print("✅ Database tables ready!")
-        except Exception as e: print(f"❌ DB create error: {e}"); return
+        try: 
+            db.create_all()
+            print("✅ Database tables ready!")
+        except Exception as e: 
+            print(f"❌ DB create error: {e}")
+            return
         try:
-            admin_email = app.config.get("ADMIN_EMAIL", "admin@zenith.com"); admin_password = app.config.get("ADMIN_PASSWORD", "Admin@123"); admin_user = User.query.filter_by(email=admin_email).first()
+            admin_email = app.config.get("ADMIN_EMAIL", "admin@zenith.com")
+            admin_password = app.config.get("ADMIN_PASSWORD", "Admin@123")
+            admin_user = User.query.filter_by(email=admin_email).first()
             if not admin_user:
                 admin_user = User(full_name="Admin", email=admin_email, phone="+919999999999", password=generate_password_hash(admin_password), is_admin=True)
-                db.session.add(admin_user); db.session.commit(); print(f"✅ Admin created: {admin_email}")
-            else: print(f"✅ Admin exists: {admin_email}")
-        except Exception as e: db.session.rollback(); print(f"❌ Admin setup error: {e}")
-        try:
-            if Product.query.count() == 0:
-                seed_products = [
-                    {"name": "Premium White T-Shirt", "price": 799, "old_price": 999, "image": "images/products/tshirt.jpg", "rating": 4.9, "description": "Premium cotton t-shirt made from soft breathable fabric.", "category": "featured", "subcategory": "men,tshirt", "sizes": "S,M,L,XL,XXL", "colors": "white", "brand": "Zenith"},
-                    {"name": "Premium Black Jeans", "price": 1499, "old_price": 1899, "image": "images/products/jeans.jpg", "rating": 4.8, "description": "Comfort fit black jeans made from premium stretch denim.", "category": "featured", "subcategory": "men,jeans", "sizes": "28,30,32,34,36", "colors": "black", "brand": "Zenith"},
-                    {"name": "Premium White Shoes", "price": 2999, "old_price": 3499, "image": "images/products/shoes.jpg", "rating": 5.0, "description": "Premium lightweight sneakers with soft cushioning.", "category": "featured", "subcategory": "men,shoes", "sizes": "6,7,8,9,10,11", "colors": "white", "brand": "Zenith"},
-                    {"name": "Black Bomber Jacket", "price": 2499, "old_price": 2999, "image": "images/bestsellers/jacket.jpg", "rating": 4.8, "description": "Stylish bomber jacket perfect for winter fashion.", "category": "bestseller", "subcategory": "men,jacket", "sizes": "S,M,L,XL,XXL", "colors": "black", "brand": "Zenith"},
-                    {"name": "White Premium Sneakers", "price": 3999, "old_price": 4499, "image": "images/bestsellers/sneakers.jpg", "rating": 5.0, "description": "Luxury sneakers built for comfort.", "category": "bestseller", "subcategory": "men,shoes", "sizes": "6,7,8,9,10,11", "colors": "white", "brand": "Zenith"},
-                    {"name": "Black Urban Cap", "price": 699, "old_price": 899, "image": "images/bestsellers/cap.jpg", "rating": 4.7, "description": "Premium cotton adjustable cap.", "category": "bestseller", "subcategory": "men,cap", "sizes": "S,M,L,XL", "colors": "white,black", "brand": "Zenith"},
-                    {"name": "Premium Backpack", "price": 1899, "old_price": 2299, "image": "images/bestsellers/backpack.jpg", "rating": 4.9, "description": "Large capacity premium backpack.", "category": "bestseller", "subcategory": "men,backpack", "sizes": "S,M,L,XL", "colors": "white,black", "brand": "Zenith"},
-                ]
-                for p in seed_products: db.session.add(Product(**p))
-                db.session.commit(); print(f"✅ Seeded {len(seed_products)} products!")
-            else: print(f"✅ Products already exist: {Product.query.count()}")
-        except Exception as e: db.session.rollback(); print(f"❌ Seed error: {e}")
-        try:
-            if Coupon.query.count() == 0:
-                seed_coupons = app.config.get("SEED_COUPONS", [])
-                for c in seed_coupons: db.session.add(Coupon(**c))
-                db.session.commit(); print(f"✅ Seeded {len(seed_coupons)} coupons!")
-            else: print(f"✅ Coupons already exist: {Coupon.query.count()}")
-        except Exception as e: db.session.rollback(); print(f"❌ Coupon seed error: {e}")
+                db.session.add(admin_user)
+                db.session.commit()
+                print(f"✅ Admin created: {admin_email}")
+            else: 
+                print(f"✅ Admin exists: {admin_email}")
+        except Exception as e: 
+            db.session.rollback()
+            print(f"❌ Admin setup error: {e}")
+
+        # ❌ NOTE: Product aur Coupon seeding hata di gayi hai taaki DB connection block na ho
 
 initialize_database()
 
